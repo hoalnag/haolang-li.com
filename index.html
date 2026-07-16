@@ -9,140 +9,177 @@
 </head>
 <body>
 
-  <!-- ============ SVG 图标库(整站共用) ============ -->
-  <svg width="0" height="0" style="position:absolute">
+  <!-- ============ SVG icon library ============ -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
-      <!-- 导航用:细线文件夹 -->
-      <symbol id="i-folder" viewBox="0 0 24 24">
-        <path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.6c.4 0 .78.16 1.06.44L11.6 6.9c.28.28.66.44 1.06.44h6.84A1.5 1.5 0 0 1 21 8.84v9.16a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18V6.5Z"
-              fill="none" stroke="currentColor" stroke-width="1.4"/>
+      <!-- macOS Big Sur+ blue folder -->
+      <symbol id="i-folder-mac" viewBox="0 0 160 128">
+        <defs>
+          <linearGradient id="fold-back" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#4CA5E8"/><stop offset="1" stop-color="#3D87CF"/>
+          </linearGradient>
+          <linearGradient id="fold-front" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stop-color="#77C2F4"/><stop offset="1" stop-color="#4FA3E4"/>
+          </linearGradient>
+        </defs>
+        <path d="M6 22c0-5.5 4.5-10 10-10h39.6c3 0 5.9 1.4 7.8 3.7l5.8 7c1.9 2.3 4.8 3.7 7.8 3.7H144c5.5 0 10 4.5 10 10V102c0 5.5-4.5 10-10 10H16c-5.5 0-10-4.5-10-10V22Z" fill="url(#fold-back)"/>
+        <path d="M6 36.5c0-4.2 3.4-7.5 7.5-7.5h133c4.2 0 7.5 3.4 7.5 7.5V102c0 5.5-4.5 10-10 10H16c-5.5 0-10-4.5-10-10V36.5Z" fill="url(#fold-front)"/>
+        <path d="M6 36.5c0-4.2 3.4-7.5 7.5-7.5h133c4.2 0 7.5 3.4 7.5 7.5v1.8H6v-1.8Z" fill="#fff" opacity=".38"/>
       </symbol>
-      <!-- 大号蓝色文件夹(macOS 风格) -->
-      <symbol id="i-folder-big" viewBox="0 0 160 128">
-        <path d="M8 24c0-6.6 5.4-12 12-12h38c3.6 0 7 1.6 9.2 4.4l6.4 7.6H140c6.6 0 12 5.4 12 12v68c0 6.6-5.4 12-12 12H20c-6.6 0-12-5.4-12-12V24Z" fill="#4FA8E8"/>
-        <path d="M8 40h144v64c0 6.6-5.4 12-12 12H20c-6.6 0-12-5.4-12-12V40Z" fill="#63B6F0"/>
-        <path d="M8 40c0-4.4 3.6-8 8-8h128c4.4 0 8 3.6 8 8v4H8v-4Z" fill="#fff" opacity="0.9"/>
-        <rect x="56" y="60" width="48" height="36" rx="6" fill="#fff" opacity="0.55"/>
-        <circle cx="70" cy="72" r="4" fill="#4FA8E8"/>
-        <path d="M60 92l12-12 8 8 10-12 14 16H60Z" fill="#4FA8E8"/>
+      <!-- generic document -->
+      <symbol id="i-doc-mac" viewBox="0 0 120 150">
+        <path d="M10 14A14 14 0 0 1 24 0h56l30 30v106a14 14 0 0 1-14 14H24a14 14 0 0 1-14-14V14Z" fill="#F6F6F6"/>
+        <path d="M80 0l30 30H92A12 12 0 0 1 80 18V0Z" fill="#DADADA"/>
+        <path d="M28 58h44M28 74h64M28 90h64M28 106h50" stroke="#C9CDD2" stroke-width="6" stroke-linecap="round"/>
       </symbol>
-      <!-- 文档图标 -->
-      <symbol id="i-doc" viewBox="0 0 120 150">
-        <path d="M10 12A12 12 0 0 1 22 0h60l28 28v110a12 12 0 0 1-12 12H22a12 12 0 0 1-12-12V12Z" fill="#f4f4f4"/>
-        <path d="M82 0l28 28H92A10 10 0 0 1 82 18V0Z" fill="#dcdcdc"/>
-        <path d="M28 52h26M28 66h64M28 80h64M28 94h64M28 108h48" stroke="#e5484d" stroke-width="7" stroke-linecap="round"/>
-        <path d="M30 40c0-6 5-11 11-11" stroke="#e5484d" stroke-width="7" stroke-linecap="round" fill="none"/>
-        <rect x="62" y="72" width="34" height="30" rx="5" fill="#fff" stroke="#e5484d" stroke-width="3"/>
-        <circle cx="72" cy="82" r="3.4" fill="#e5484d"/>
-        <path d="M66 98l8-8 5 5 7-8 10 11H66Z" fill="#e5484d"/>
+      <!-- PDF document -->
+      <symbol id="i-pdf-mac" viewBox="0 0 120 150">
+        <path d="M10 14A14 14 0 0 1 24 0h56l30 30v106a14 14 0 0 1-14 14H24a14 14 0 0 1-14-14V14Z" fill="#F6F6F6"/>
+        <path d="M80 0l30 30H92A12 12 0 0 1 80 18V0Z" fill="#DADADA"/>
+        <path d="M28 52h40M28 66h64M28 80h64" stroke="#C9CDD2" stroke-width="6" stroke-linecap="round"/>
+        <rect x="24" y="94" width="46" height="26" rx="7" fill="#E5484D"/>
+        <text x="47" y="113" text-anchor="middle" font-family="-apple-system,Helvetica,Arial" font-weight="700" font-size="16" fill="#fff" letter-spacing="1">PDF</text>
       </symbol>
-      <!-- PDF 图标 -->
-      <symbol id="i-pdf" viewBox="0 0 120 150">
-        <path d="M10 12A12 12 0 0 1 22 0h60l28 28v110a12 12 0 0 1-12 12H22a12 12 0 0 1-12-12V12Z" fill="#f4f4f4"/>
-        <path d="M82 0l28 28H92A10 10 0 0 1 82 18V0Z" fill="#dcdcdc"/>
-        <rect x="26" y="44" width="22" height="14" rx="3" fill="#9aa1a9"/>
-        <path d="M54 48h40M54 58h40M28 70h66M28 80h66" stroke="#c3c8cd" stroke-width="6" stroke-linecap="round"/>
-        <rect x="42" y="66" width="42" height="38" rx="7" fill="#1d6ef2"/>
-        <circle cx="55" cy="79" r="4" fill="#fff"/>
-        <path d="M47 98l10-11 7 7 9-10 12 14H47Z" fill="#fff"/>
-        <text x="60" y="138" text-anchor="middle" font-family="Helvetica, Arial" font-size="26" fill="#9aa1a9" letter-spacing="1">PDF</text>
+      <!-- webloc / link file -->
+      <symbol id="i-webloc" viewBox="0 0 120 150">
+        <path d="M10 14A14 14 0 0 1 24 0h56l30 30v106a14 14 0 0 1-14 14H24a14 14 0 0 1-14-14V14Z" fill="#F6F6F6"/>
+        <path d="M80 0l30 30H92A12 12 0 0 1 80 18V0Z" fill="#DADADA"/>
+        <circle cx="60" cy="88" r="26" fill="none" stroke="#3E9BF0" stroke-width="5"/>
+        <ellipse cx="60" cy="88" rx="11" ry="26" fill="none" stroke="#3E9BF0" stroke-width="5"/>
+        <path d="M36 80h48M36 96h48" stroke="#3E9BF0" stroke-width="5" stroke-linecap="round"/>
       </symbol>
-      <!-- LINKS 小图标 -->
-      <symbol id="i-vimeo" viewBox="0 0 24 24"><path d="M22 7.4c-.1 2-1.5 4.8-4.3 8.3-2.9 3.7-5.3 5.5-7.3 5.5-1.2 0-2.3-1.1-3.1-3.4L5.6 11.6C5 9.3 4.3 8.2 3.6 8.2c-.2 0-.7.3-1.6 1L1 8c1-.9 2-1.8 3-2.7 1.4-1.2 2.4-1.8 3.1-1.9 1.6-.2 2.6.9 3 3.3.4 2.5.7 4.1.9 4.7.5 2.2 1 3.3 1.6 3.3.5 0 1.2-.7 2.1-2.2.9-1.5 1.4-2.6 1.5-3.4.1-1.3-.4-1.9-1.5-1.9-.5 0-1 .1-1.6.4 1.1-3.5 3.1-5.2 6.1-5.1 2.2 0 3.3 1.4 3.2 4Z" fill="currentColor"/></symbol>
-      <symbol id="i-ig" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"/></symbol>
-      <symbol id="i-spotify" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M7 9.6c3.4-1 7.2-.6 10 1M7.4 12.6c2.8-.8 5.8-.4 8.2 1M7.8 15.4c2.2-.6 4.6-.3 6.6.8" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/></symbol>
-      <symbol id="i-discord" viewBox="0 0 24 24"><path d="M8.5 17c-2 0-3.5-1-3.5-1 .3-3.8 1.4-7 3-9 0 0 1.6-.9 3-1l.4 1a12 12 0 0 1 5.2 0l.4-1c1.4.1 3 1 3 1 1.6 2 2.7 5.2 3 9 0 0-1.5 1-3.5 1l-.9-1.4c.6-.2 1.6-.7 1.6-.7-2.4 1.6-7.9 1.6-10.4 0 0 0 1 .5 1.6.7L8.5 17Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="9.6" cy="12.4" r="1.1" fill="currentColor"/><circle cx="14.4" cy="12.4" r="1.1" fill="currentColor"/></symbol>
-      <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
-      <symbol id="i-arena" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16M6.3 6.3l11.4 11.4M17.7 6.3 6.3 17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
-      <symbol id="i-desktop" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M9 20h6M12 17v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+      <!-- sidebar small icons -->
+      <symbol id="s-desktop" viewBox="0 0 20 20"><rect x="2" y="3.5" width="16" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M7.5 17h5M10 14.5V17" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+      <symbol id="s-folder" viewBox="0 0 20 20"><path d="M2.5 5.8c0-1 .8-1.8 1.8-1.8h3.6c.5 0 1 .2 1.3.6l.9 1c.3.4.8.6 1.3.6h4.3c1 0 1.8.8 1.8 1.8v7.2c0 1-.8 1.8-1.8 1.8H4.3c-1 0-1.8-.8-1.8-1.8V5.8Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></symbol>
+      <symbol id="s-clock" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4.2l2.8 1.6" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+      <symbol id="s-vimeo" viewBox="0 0 20 20"><path d="M18 6.2c-.1 1.7-1.3 4-3.6 6.9-2.4 3.1-4.4 4.6-6 4.6-1 0-1.9-1-2.6-2.9L4.4 9.7C3.9 7.8 3.4 6.8 2.8 6.8c-.1 0-.6.3-1.3.8L.7 6.6c.8-.8 1.7-1.5 2.5-2.3 1.1-1 2-1.5 2.6-1.6 1.3-.1 2.1.8 2.4 2.8.4 2.1.6 3.4.8 4 .4 1.8.9 2.7 1.4 2.7.4 0 1-.6 1.7-1.8.8-1.2 1.2-2.2 1.2-2.8.1-1.1-.3-1.6-1.2-1.6-.4 0-.9.1-1.3.3.9-2.9 2.6-4.3 5.1-4.2 1.8 0 2.7 1.2 2.6 3.3Z" fill="currentColor"/></symbol>
+      <symbol id="s-ig" viewBox="0 0 20 20"><rect x="2.5" y="2.5" width="15" height="15" rx="4.2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="3.6" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="14.4" cy="5.6" r="1" fill="currentColor"/></symbol>
+      <symbol id="s-spotify" viewBox="0 0 20 20"><circle cx="10" cy="10" r="8.3" fill="currentColor"/><path d="M5.8 8c2.8-.8 6-.5 8.3.8M6.2 10.5c2.3-.7 4.8-.3 6.8.8M6.5 12.9c1.8-.5 3.8-.2 5.5.7" stroke="var(--sidebar-bg, #28282a)" stroke-width="1.3" fill="none" stroke-linecap="round"/></symbol>
+      <symbol id="s-discord" viewBox="0 0 20 20"><path d="M7.1 14.2c-1.7 0-2.9-.9-2.9-.9.2-3.1 1.2-5.8 2.5-7.5 0 0 1.3-.7 2.5-.8l.3.8a10 10 0 0 1 4.3 0l.3-.8c1.2.1 2.5.8 2.5.8 1.3 1.7 2.3 4.4 2.5 7.5 0 0-1.2.9-2.9.9l-.7-1.2c.5-.2 1.3-.6 1.3-.6-2 1.3-6.6 1.3-8.7 0 0 0 .8.4 1.3.6l-.7 1.2Z" transform="translate(-1.4 -1)" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><circle cx="8" cy="10.3" r=".9" fill="currentColor"/><circle cx="12" cy="10.3" r=".9" fill="currentColor"/></symbol>
+      <symbol id="s-mail" viewBox="0 0 20 20"><rect x="2.5" y="4.5" width="15" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M3.3 5.8 10 11l6.7-5.2" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="s-arena" viewBox="0 0 20 20"><path d="M10 3.3v13.4M3.3 10h13.4M5.3 5.3l9.4 9.4M14.7 5.3l-9.4 9.4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+      <!-- toolbar icons -->
+      <symbol id="t-back" viewBox="0 0 20 20"><path d="M12.5 3.5 6 10l6.5 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="t-fwd" viewBox="0 0 20 20"><path d="M7.5 3.5 14 10l-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="t-grid" viewBox="0 0 20 20"><rect x="3" y="3" width="6" height="6" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="t-list" viewBox="0 0 20 20"><path d="M3 5h2M3 10h2M3 15h2M8 5h9M8 10h9M8 15h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+      <symbol id="t-group" viewBox="0 0 20 20"><path d="M3 4.5h14M3 8h14M3 12.5h8M3 16h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+      <symbol id="t-share" viewBox="0 0 20 20"><path d="M10 2.5v10M6.5 5.5 10 2l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 9H4.5A1.5 1.5 0 0 0 3 10.5v5A1.5 1.5 0 0 0 4.5 17h11a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 15.5 9H15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+      <symbol id="t-tag" viewBox="0 0 20 20"><path d="M3 4.5A1.5 1.5 0 0 1 4.5 3h4.8c.4 0 .8.16 1.06.44l6.2 6.2a1.5 1.5 0 0 1 0 2.12l-4.8 4.8a1.5 1.5 0 0 1-2.12 0l-6.2-6.2A1.5 1.5 0 0 1 3 9.3V4.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></symbol>
+      <symbol id="t-more" viewBox="0 0 20 20"><circle cx="10" cy="10" r="7.5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="6.6" cy="10" r="1" fill="currentColor"/><circle cx="10" cy="10" r="1" fill="currentColor"/><circle cx="13.4" cy="10" r="1" fill="currentColor"/></symbol>
+      <symbol id="t-search" viewBox="0 0 20 20"><circle cx="9" cy="9" r="5.5" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="m13.2 13.2 3.8 3.8" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></symbol>
+      <symbol id="t-chev-ud" viewBox="0 0 20 20"><path d="m6.5 8 3.5-3.5L13.5 8M6.5 12l3.5 3.5L13.5 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="t-chev-d" viewBox="0 0 20 20"><path d="m6 8 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+      <symbol id="t-sidebar" viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 3.5v13" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 6.5h1.6M4.5 9h1.6M4.5 11.5h1.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+      <!-- menu bar status icons -->
+      <symbol id="m-apple" viewBox="0 0 17 17"><path d="M8.7 4.6c.6 0 1.9-.5 2.7-1.5.7-.9.9-2 .9-2.6-.9 0-2 .5-2.7 1.3-.6.7-1 1.8-.9 2.8Zm3.7 8.6c.7-1 .9-1.5 1.5-2.6-2.8-1.1-3.3-5-.5-6.4-.8-1-2-1.6-3.1-1.6-.8 0-1.4.2-1.9.4-.4.2-.8.3-1.2.3-.5 0-.9-.2-1.4-.3-.5-.2-1-.4-1.7-.4-1.2 0-2.5.8-3.3 2-1.1 1.8-.9 5.2 1 8 .6 1 1.5 2.1 2.6 2.1.5 0 .8-.2 1.2-.3.4-.2.9-.4 1.6-.4s1.2.2 1.6.4c.4.2.7.3 1.2.3 1.1 0 2-1.2 2.4-1.5Z" fill="currentColor" transform="translate(1.5 1.2) scale(0.95)"/></symbol>
+      <symbol id="m-wifi" viewBox="0 0 18 18"><path d="M2 6.8a10.5 10.5 0 0 1 14 0M4.4 9.5a7 7 0 0 1 9.2 0M6.8 12.2a3.5 3.5 0 0 1 4.4 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="14.6" r="1.15" fill="currentColor"/></symbol>
+      <symbol id="m-battery" viewBox="0 0 26 13"><rect x=".8" y=".8" width="21" height="11.4" rx="3" fill="none" stroke="currentColor" stroke-width="1.1" opacity=".5"/><path d="M23.3 4.4v4.2c1.1-.2 1.9-1 1.9-2.1s-.8-1.9-1.9-2.1Z" fill="currentColor" opacity=".5"/><rect x="2.3" y="2.3" width="14" height="8.4" rx="1.8" fill="currentColor"/></symbol>
+      <symbol id="m-cc" viewBox="0 0 18 18"><rect x="1.5" y="3.5" width="15" height="4.6" rx="2.3" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="5" cy="5.8" r="1.5" fill="currentColor"/><rect x="1.5" y="9.9" width="15" height="4.6" rx="2.3" fill="none" stroke="currentColor" stroke-width="1.3"/><circle cx="13" cy="12.2" r="1.5" fill="currentColor"/></symbol>
     </defs>
   </svg>
 
-  <!-- ============ 左:导航 ============ -->
-  <nav class="nav block">
-    <a href="index.html" class="active"><svg><use href="#i-desktop"/></svg>Desktop</a>
-
-    <div class="section-label">AI</div>
-    <a href="ai.html#ava-studio"><svg><use href="#i-folder"/></svg>AVA Studio</a>
-    <a href="ai.html#test-footage"><svg><use href="#i-folder"/></svg>Test Footage</a>
-
-    <div class="section-label">Film</div>
-    <a href="film.html#short-films"><svg><use href="#i-folder"/></svg>Short Films</a>
-    <a href="film.html#cinematography"><svg><use href="#i-folder"/></svg>Cinematography</a>
-    <a href="film.html#festival-sales"><svg><use href="#i-folder"/></svg>Festival &amp; Sales</a>
-    <a href="film.html#poster-design"><svg><use href="#i-folder"/></svg>Poster Design</a>
-
-    <div class="section-label">Writings</div>
-    <a href="writings.html#randomness"><svg><use href="#i-folder"/></svg>Randomness</a>
-    <a href="writings.html#poems"><svg><use href="#i-folder"/></svg>Poems</a>
-
-    <div class="section-label">Readings</div>
-    <a href="writings.html#reading-notes"><svg><use href="#i-folder"/></svg>Reading Notes</a>
-    <a href="writings.html#papers"><svg><use href="#i-folder"/></svg>Papers</a>
-
-    <div class="section-label">Flat Things</div>
-    <a href="#"><svg><use href="#i-folder"/></svg>Digital</a>
-    <a href="#"><svg><use href="#i-folder"/></svg>Celluloid</a>
-    <a href="#"><svg><use href="#i-folder"/></svg>Randomness</a>
-    <a href="#"><svg><use href="#i-folder"/></svg>Mappings</a>
-
-    <div class="section-label">Links</div>
-    <a href="https://vimeo.com/YOUR_VIMEO" target="_blank" rel="noopener"><svg><use href="#i-vimeo"/></svg>Vimeo</a>
-    <a href="https://instagram.com/YOUR_IG" target="_blank" rel="noopener"><svg><use href="#i-ig"/></svg>Instagram</a>
-    <a href="https://open.spotify.com/user/YOUR_SPOTIFY" target="_blank" rel="noopener"><svg><use href="#i-spotify"/></svg>Spotify</a>
-    <a href="https://discord.com/users/YOUR_DISCORD" target="_blank" rel="noopener"><svg><use href="#i-discord"/></svg>Discord</a>
-    <a href="mailto:you@haolang-li.com"><svg><use href="#i-mail"/></svg>Email</a>
-    <a href="https://www.are.na/YOUR_ARENA" target="_blank" rel="noopener"><svg><use href="#i-arena"/></svg>Arena</a>
-  </nav>
-
-  <!-- ============ 右:内容 ============ -->
-  <main class="content block">
-
-    <!-- 照片横排:把图片放进 assets/photos/,按文件名对应 -->
-    <div class="photo-row">
-      <img src="assets/photos/photo-01.jpg" alt="">
-      <img src="assets/photos/photo-02.jpg" alt="">
-      <img src="assets/photos/photo-03.jpg" alt="">
-      <img src="assets/photos/photo-04.jpg" alt="">
-      <img src="assets/photos/photo-05.jpg" alt="">
-      <img src="assets/photos/photo-06.jpg" alt="">
-      <img src="assets/photos/photo-07.jpg" alt="">
-      <img src="assets/photos/photo-08.jpg" alt="">
+  <!-- ============ menu bar ============ -->
+  <header class="menubar" id="menubar">
+    <div class="mb-left">
+      <button class="mb-item mb-apple" data-menu="apple"><svg viewBox="0 0 17 17"><use href="#m-apple"/></svg></button>
+      <button class="mb-item mb-appname" data-menu="finder">Finder</button>
+      <button class="mb-item" data-menu="file">File</button>
+      <button class="mb-item" data-menu="edit">Edit</button>
+      <button class="mb-item" data-menu="view">View</button>
+      <button class="mb-item" data-menu="go">Go</button>
+      <button class="mb-item" data-menu="window">Window</button>
+      <button class="mb-item" data-menu="help">Help</button>
     </div>
-
-    <!-- 文件 -->
-    <div class="file-row">
-      <a class="item" href="assets/files/Self_Intro.pdf">
-        <svg viewBox="0 0 120 150"><use href="#i-doc"/></svg>
-        <span>Self_Intro</span>
-      </a>
-      <a class="item" href="assets/files/CV_2026_6.pdf">
-        <svg viewBox="0 0 120 150"><use href="#i-pdf"/></svg>
-        <span>CV_2026_6</span>
-      </a>
-      <a class="item" href="assets/files/Recent_Writing.pdf">
-        <svg viewBox="0 0 120 150"><use href="#i-doc"/></svg>
-        <span>Recent_Writing</span>
-      </a>
+    <div class="mb-right">
+      <span class="mb-status"><svg viewBox="0 0 26 13" class="mb-batt"><use href="#m-battery"/></svg></span>
+      <span class="mb-status"><svg viewBox="0 0 18 18"><use href="#m-wifi"/></svg></span>
+      <span class="mb-status"><svg viewBox="0 0 18 18"><use href="#m-cc"/></svg></span>
+      <span class="mb-clock" id="mb-clock">Thu Jul 16 1:24 AM</span>
     </div>
+  </header>
 
-    <!-- 文件夹 -->
-    <div class="folder-row">
-      <a class="item" href="ai.html">
-        <svg viewBox="0 0 160 128"><use href="#i-folder-big"/></svg>
-        <span>AI</span>
-      </a>
-      <a class="item" href="film.html">
-        <svg viewBox="0 0 160 128"><use href="#i-folder-big"/></svg>
-        <span>FILM</span>
-      </a>
-      <a class="item" href="writings.html">
-        <svg viewBox="0 0 160 128"><use href="#i-folder-big"/></svg>
-        <span>WRITINGS</span>
-      </a>
-    </div>
+  <!-- dropdown menus render here -->
+  <div id="menu-layer"></div>
 
-  </main>
+  <!-- ============ desktop ============ -->
+  <div class="desktop" id="desktop">
 
+    <!-- ============ Finder window ============ -->
+    <section class="window" id="window" role="application" aria-label="Finder">
+      <div class="win-body">
+        <aside class="sidebar" id="sidebar">
+          <div class="traffic" id="traffic">
+            <button class="tl tl-close" id="tl-close" aria-label="Close"><svg viewBox="0 0 12 12"><path d="M3.2 3.2l5.6 5.6M8.8 3.2 3.2 8.8" stroke="rgba(77,0,0,.85)" stroke-width="1.3" stroke-linecap="round"/></svg></button>
+            <button class="tl tl-min" id="tl-min" aria-label="Minimize"><svg viewBox="0 0 12 12"><path d="M2.8 6h6.4" stroke="rgba(90,50,0,.85)" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+            <button class="tl tl-zoom" id="tl-zoom" aria-label="Zoom"><svg viewBox="0 0 12 12"><path d="M3.3 6.7v2h2M8.7 5.3v-2h-2" stroke="rgba(0,70,0,.9)" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.4 8.6 5.9 6.1M8.6 3.4 6.1 5.9" stroke="rgba(0,70,0,.9)" stroke-width="1.3" stroke-linecap="round"/></svg></button>
+          </div>
+          <nav class="side-scroll" id="side-nav"><!-- built by JS --></nav>
+        </aside>
+
+        <div class="main">
+          <div class="toolbar" id="toolbar">
+            <button class="tb-btn tb-sidebar-toggle" id="tb-sidebar" title="Toggle sidebar"><svg viewBox="0 0 20 20"><use href="#t-sidebar"/></svg></button>
+            <div class="tb-nav">
+              <button class="tb-btn" id="tb-back" title="Back" disabled><svg viewBox="0 0 20 20"><use href="#t-back"/></svg></button>
+              <button class="tb-btn" id="tb-fwd" title="Forward" disabled><svg viewBox="0 0 20 20"><use href="#t-fwd"/></svg></button>
+            </div>
+            <h1 class="tb-title" id="tb-title">Desktop</h1>
+            <div class="tb-spacer"></div>
+            <div class="tb-actions">
+              <button class="tb-btn tb-view" id="tb-viewbtn" title="View options">
+                <svg viewBox="0 0 20 20" id="tb-view-icon"><use href="#t-grid"/></svg><svg class="tb-chev" viewBox="0 0 20 20"><use href="#t-chev-ud"/></svg>
+              </button>
+              <button class="tb-btn" id="tb-group" title="Group by">
+                <svg viewBox="0 0 20 20"><use href="#t-group"/></svg><svg class="tb-chev" viewBox="0 0 20 20"><use href="#t-chev-d"/></svg>
+              </button>
+              <button class="tb-btn" id="tb-share" title="Share"><svg viewBox="0 0 20 20"><use href="#t-share"/></svg></button>
+              <button class="tb-btn" id="tb-tags" title="Tags"><svg viewBox="0 0 20 20"><use href="#t-tag"/></svg></button>
+              <button class="tb-btn" id="tb-more" title="More">
+                <svg viewBox="0 0 20 20"><use href="#t-more"/></svg><svg class="tb-chev" viewBox="0 0 20 20"><use href="#t-chev-d"/></svg>
+              </button>
+              <button class="tb-btn" id="tb-search" title="Search"><svg viewBox="0 0 20 20"><use href="#t-search"/></svg></button>
+            </div>
+          </div>
+
+          <div class="content" id="content" tabindex="0">
+            <div class="icon-view" id="icon-view"></div>
+            <div class="list-view" id="list-view" hidden></div>
+            <div class="rubber-band" id="rubber-band" hidden></div>
+          </div>
+
+          <div class="pathbar" id="pathbar"></div>
+
+          <div class="statusbar">
+            <span class="status-text" id="status-text">0 items, 480.36 GB available</span>
+            <input type="range" class="size-slider" id="size-slider" min="52" max="120" value="72" title="Icon size">
+          </div>
+        </div>
+      </div>
+      <div class="resize-handle" id="resize-handle"></div>
+    </section>
+  </div>
+
+  <!-- ============ dock ============ -->
+  <div class="dock-wrap"><div class="dock" id="dock">
+    <button class="dock-item" id="dock-finder" title="Finder">
+      <svg viewBox="0 0 64 64"><defs><linearGradient id="dk-f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3DAEF2"/><stop offset="1" stop-color="#1668CB"/></linearGradient></defs>
+        <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#dk-f)"/>
+        <path d="M32 2v60" stroke="#0D4FA8" stroke-width="2" opacity=".55"/>
+        <path d="M20 22c0 3 .5 6 .5 6M44 22c0 3-.5 6-.5 6" stroke="#0A3C80" stroke-width="3" stroke-linecap="round"/>
+        <path d="M18 40c4 5 9 7 14 7s10-2 14-7" fill="none" stroke="#0A3C80" stroke-width="3" stroke-linecap="round"/>
+      </svg>
+      <span class="dock-dot"></span>
+    </button>
+    <div class="dock-sep"></div>
+    <button class="dock-item" id="dock-trash" title="Trash">
+      <svg viewBox="0 0 64 64"><path d="M18 22h28l-2.5 32a5 5 0 0 1-5 4.6h-13a5 5 0 0 1-5-4.6L18 22Z" fill="none" stroke="#C9CDD4" stroke-width="3"/><path d="M14 16h36M26 16l1.5-4h9l1.5 4" fill="none" stroke="#C9CDD4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M26 28l1 22M32 28v22M38 28l-1 22" stroke="#C9CDD4" stroke-width="2.4" stroke-linecap="round"/></svg>
+    </button>
+  </div></div>
+
+  <!-- context menu / quick look / get info render here -->
+  <div id="overlay-layer"></div>
+
+  <script src="assets/app.js"></script>
 </body>
 </html>
