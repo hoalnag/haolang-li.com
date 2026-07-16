@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Haolang Li</title>
+<meta name="description" content="Haolang Li — filmmaker & AI video creator. Films, writings, and experiments.">
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+
+  <!-- ============ SVG 图标库(整站共用) ============ -->
+  <svg width="0" height="0" style="position:absolute">
+    <defs>
+      <!-- 导航用:细线文件夹 -->
+      <symbol id="i-folder" viewBox="0 0 24 24">
+        <path d="M3 6.5A1.5 1.5 0 0 1 4.5 5h4.6c.4 0 .78.16 1.06.44L11.6 6.9c.28.28.66.44 1.06.44h6.84A1.5 1.5 0 0 1 21 8.84v9.16a1.5 1.5 0 0 1-1.5 1.5h-15A1.5 1.5 0 0 1 3 18V6.5Z"
+              fill="none" stroke="currentColor" stroke-width="1.4"/>
+      </symbol>
+      <!-- 大号蓝色文件夹(macOS 风格) -->
+      <symbol id="i-folder-big" viewBox="0 0 160 128">
+        <path d="M8 24c0-6.6 5.4-12 12-12h38c3.6 0 7 1.6 9.2 4.4l6.4 7.6H140c6.6 0 12 5.4 12 12v68c0 6.6-5.4 12-12 12H20c-6.6 0-12-5.4-12-12V24Z" fill="#4FA8E8"/>
+        <path d="M8 40h144v64c0 6.6-5.4 12-12 12H20c-6.6 0-12-5.4-12-12V40Z" fill="#63B6F0"/>
+        <path d="M8 40c0-4.4 3.6-8 8-8h128c4.4 0 8 3.6 8 8v4H8v-4Z" fill="#fff" opacity="0.9"/>
+        <rect x="56" y="60" width="48" height="36" rx="6" fill="#fff" opacity="0.55"/>
+        <circle cx="70" cy="72" r="4" fill="#4FA8E8"/>
+        <path d="M60 92l12-12 8 8 10-12 14 16H60Z" fill="#4FA8E8"/>
+      </symbol>
+      <!-- 文档图标 -->
+      <symbol id="i-doc" viewBox="0 0 120 150">
+        <path d="M10 12A12 12 0 0 1 22 0h60l28 28v110a12 12 0 0 1-12 12H22a12 12 0 0 1-12-12V12Z" fill="#f4f4f4"/>
+        <path d="M82 0l28 28H92A10 10 0 0 1 82 18V0Z" fill="#dcdcdc"/>
+        <path d="M28 52h26M28 66h64M28 80h64M28 94h64M28 108h48" stroke="#e5484d" stroke-width="7" stroke-linecap="round"/>
+        <path d="M30 40c0-6 5-11 11-11" stroke="#e5484d" stroke-width="7" stroke-linecap="round" fill="none"/>
+        <rect x="62" y="72" width="34" height="30" rx="5" fill="#fff" stroke="#e5484d" stroke-width="3"/>
+        <circle cx="72" cy="82" r="3.4" fill="#e5484d"/>
+        <path d="M66 98l8-8 5 5 7-8 10 11H66Z" fill="#e5484d"/>
+      </symbol>
+      <!-- PDF 图标 -->
+      <symbol id="i-pdf" viewBox="0 0 120 150">
+        <path d="M10 12A12 12 0 0 1 22 0h60l28 28v110a12 12 0 0 1-12 12H22a12 12 0 0 1-12-12V12Z" fill="#f4f4f4"/>
+        <path d="M82 0l28 28H92A10 10 0 0 1 82 18V0Z" fill="#dcdcdc"/>
+        <rect x="26" y="44" width="22" height="14" rx="3" fill="#9aa1a9"/>
+        <path d="M54 48h40M54 58h40M28 70h66M28 80h66" stroke="#c3c8cd" stroke-width="6" stroke-linecap="round"/>
+        <rect x="42" y="66" width="42" height="38" rx="7" fill="#1d6ef2"/>
+        <circle cx="55" cy="79" r="4" fill="#fff"/>
+        <path d="M47 98l10-11 7 7 9-10 12 14H47Z" fill="#fff"/>
+        <text x="60" y="138" text-anchor="middle" font-family="Helvetica, Arial" font-size="26" fill="#9aa1a9" letter-spacing="1">PDF</text>
+      </symbol>
+      <!-- LINKS 小图标 -->
+      <symbol id="i-vimeo" viewBox="0 0 24 24"><path d="M22 7.4c-.1 2-1.5 4.8-4.3 8.3-2.9 3.7-5.3 5.5-7.3 5.5-1.2 0-2.3-1.1-3.1-3.4L5.6 11.6C5 9.3 4.3 8.2 3.6 8.2c-.2 0-.7.3-1.6 1L1 8c1-.9 2-1.8 3-2.7 1.4-1.2 2.4-1.8 3.1-1.9 1.6-.2 2.6.9 3 3.3.4 2.5.7 4.1.9 4.7.5 2.2 1 3.3 1.6 3.3.5 0 1.2-.7 2.1-2.2.9-1.5 1.4-2.6 1.5-3.4.1-1.3-.4-1.9-1.5-1.9-.5 0-1 .1-1.6.4 1.1-3.5 3.1-5.2 6.1-5.1 2.2 0 3.3 1.4 3.2 4Z" fill="currentColor"/></symbol>
+      <symbol id="i-ig" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="4.2" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.2" cy="6.8" r="1.2" fill="currentColor"/></symbol>
+      <symbol id="i-spotify" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="currentColor"/><path d="M7 9.6c3.4-1 7.2-.6 10 1M7.4 12.6c2.8-.8 5.8-.4 8.2 1M7.8 15.4c2.2-.6 4.6-.3 6.6.8" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/></symbol>
+      <symbol id="i-discord" viewBox="0 0 24 24"><path d="M8.5 17c-2 0-3.5-1-3.5-1 .3-3.8 1.4-7 3-9 0 0 1.6-.9 3-1l.4 1a12 12 0 0 1 5.2 0l.4-1c1.4.1 3 1 3 1 1.6 2 2.7 5.2 3 9 0 0-1.5 1-3.5 1l-.9-1.4c.6-.2 1.6-.7 1.6-.7-2.4 1.6-7.9 1.6-10.4 0 0 0 1 .5 1.6.7L8.5 17Z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><circle cx="9.6" cy="12.4" r="1.1" fill="currentColor"/><circle cx="14.4" cy="12.4" r="1.1" fill="currentColor"/></symbol>
+      <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5.5" width="18" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M4 7l8 6 8-6" fill="none" stroke="currentColor" stroke-width="1.6"/></symbol>
+      <symbol id="i-arena" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16M6.3 6.3l11.4 11.4M17.7 6.3 6.3 17.7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+      <symbol id="i-desktop" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M9 20h6M12 17v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
+    </defs>
+  </svg>
+
+  <!-- ============ 左:导航 ============ -->
+  <nav class="nav block">
+    <a href="index.html" class="active"><svg><use href="#i-desktop"/></svg>Desktop</a>
+
+    <div class="section-label">AI</div>
+    <a href="ai.html#ava-studio"><svg><use href="#i-folder"/></svg>AVA Studio</a>
+    <a href="ai.html#test-footage"><svg><use href="#i-folder"/></svg>Test Footage</a>
+
+    <div class="section-label">Film</div>
+    <a href="film.html#short-films"><svg><use href="#i-folder"/></svg>Short Films</a>
+    <a href="film.html#cinematography"><svg><use href="#i-folder"/></svg>Cinematography</a>
+    <a href="film.html#festival-sales"><svg><use href="#i-folder"/></svg>Festival &amp; Sales</a>
+    <a href="film.html#poster-design"><svg><use href="#i-folder"/></svg>Poster Design</a>
+
+    <div class="section-label">Writings</div>
+    <a href="writings.html#randomness"><svg><use href="#i-folder"/></svg>Randomness</a>
+    <a href="writings.html#poems"><svg><use href="#i-folder"/></svg>Poems</a>
+
+    <div class="section-label">Readings</div>
+    <a href="writings.html#reading-notes"><svg><use href="#i-folder"/></svg>Reading Notes</a>
+    <a href="writings.html#papers"><svg><use href="#i-folder"/></svg>Papers</a>
+
+    <div class="section-label">Flat Things</div>
+    <a href="#"><svg><use href="#i-folder"/></svg>Digital</a>
+    <a href="#"><svg><use href="#i-folder"/></svg>Celluloid</a>
+    <a href="#"><svg><use href="#i-folder"/></svg>Randomness</a>
+    <a href="#"><svg><use href="#i-folder"/></svg>Mappings</a>
+
+    <div class="section-label">Links</div>
+    <a href="https://vimeo.com/YOUR_VIMEO" target="_blank" rel="noopener"><svg><use href="#i-vimeo"/></svg>Vimeo</a>
+    <a href="https://instagram.com/YOUR_IG" target="_blank" rel="noopener"><svg><use href="#i-ig"/></svg>Instagram</a>
+    <a href="https://open.spotify.com/user/YOUR_SPOTIFY" target="_blank" rel="noopener"><svg><use href="#i-spotify"/></svg>Spotify</a>
+    <a href="https://discord.com/users/YOUR_DISCORD" target="_blank" rel="noopener"><svg><use href="#i-discord"/></svg>Discord</a>
+    <a href="mailto:you@haolang-li.com"><svg><use href="#i-mail"/></svg>Email</a>
+    <a href="https://www.are.na/YOUR_ARENA" target="_blank" rel="noopener"><svg><use href="#i-arena"/></svg>Arena</a>
+  </nav>
+
+  <!-- ============ 右:内容 ============ -->
+  <main class="content block">
+
+    <!-- 照片横排:把图片放进 assets/photos/,按文件名对应 -->
+    <div class="photo-row">
+      <img src="assets/photos/photo-01.jpg" alt="">
+      <img src="assets/photos/photo-02.jpg" alt="">
+      <img src="assets/photos/photo-03.jpg" alt="">
+      <img src="assets/photos/photo-04.jpg" alt="">
+      <img src="assets/photos/photo-05.jpg" alt="">
+      <img src="assets/photos/photo-06.jpg" alt="">
+      <img src="assets/photos/photo-07.jpg" alt="">
+      <img src="assets/photos/photo-08.jpg" alt="">
+    </div>
+
+    <!-- 文件 -->
+    <div class="file-row">
+      <a class="item" href="assets/files/Self_Intro.pdf">
+        <svg viewBox="0 0 120 150"><use href="#i-doc"/></svg>
+        <span>Self_Intro</span>
+      </a>
+      <a class="item" href="assets/files/CV_2026_6.pdf">
+        <svg viewBox="0 0 120 150"><use href="#i-pdf"/></svg>
+        <span>CV_2026_6</span>
+      </a>
+      <a class="item" href="assets/files/Recent_Writing.pdf">
+        <svg viewBox="0 0 120 150"><use href="#i-doc"/></svg>
+        <span>Recent_Writing</span>
+      </a>
+    </div>
+
+    <!-- 文件夹 -->
+    <div class="folder-row">
+      <a class="item" href="ai.html">
+        <svg viewBox="0 0 160 128"><use href="#i-folder-big"/></svg>
+        <span>AI</span>
+      </a>
+      <a class="item" href="film.html">
+        <svg viewBox="0 0 160 128"><use href="#i-folder-big"/></svg>
+        <span>FILM</span>
+      </a>
+      <a class="item" href="writings.html">
+        <svg viewBox="0 0 160 128"><use href="#i-folder-big"/></svg>
+        <span>WRITINGS</span>
+      </a>
+    </div>
+
+  </main>
+
+</body>
+</html>
