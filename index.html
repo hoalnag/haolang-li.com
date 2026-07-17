@@ -12,19 +12,12 @@
   <!-- ============ SVG icon library ============ -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
-      <!-- macOS Big Sur+ blue folder -->
+      <!-- house folder: flat duotone navy, drafted for this site (not a macOS copy) -->
       <symbol id="i-folder-mac" viewBox="0 0 160 128">
-        <defs>
-          <linearGradient id="fold-back" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#4CA5E8"/><stop offset="1" stop-color="#3D87CF"/>
-          </linearGradient>
-          <linearGradient id="fold-front" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0" stop-color="#77C2F4"/><stop offset="1" stop-color="#4FA3E4"/>
-          </linearGradient>
-        </defs>
-        <path d="M6 22c0-5.5 4.5-10 10-10h39.6c3 0 5.9 1.4 7.8 3.7l5.8 7c1.9 2.3 4.8 3.7 7.8 3.7H144c5.5 0 10 4.5 10 10V102c0 5.5-4.5 10-10 10H16c-5.5 0-10-4.5-10-10V22Z" fill="url(#fold-back)"/>
-        <path d="M6 36.5c0-4.2 3.4-7.5 7.5-7.5h133c4.2 0 7.5 3.4 7.5 7.5V102c0 5.5-4.5 10-10 10H16c-5.5 0-10-4.5-10-10V36.5Z" fill="url(#fold-front)"/>
-        <path d="M6 36.5c0-4.2 3.4-7.5 7.5-7.5h133c4.2 0 7.5 3.4 7.5 7.5v1.8H6v-1.8Z" fill="#fff" opacity=".38"/>
+        <path d="M10 24c0-6 4.8-11 10.8-11h35.8c3.4 0 6.6 1.6 8.6 4.3l5.4 7.2h68.6c6 0 10.8 4.9 10.8 11v61.6c0 6-4.8 10.9-10.8 10.9H20.8c-6 0-10.8-4.9-10.8-10.9V24Z" fill="#1D3557"/>
+        <path d="M10 45.5c0-4.7 3.8-8.5 8.5-8.5h123c4.7 0 8.5 3.8 8.5 8.5V97c0 6-4.8 11-10.8 11H20.8C14.8 108 10 103 10 97V45.5Z" fill="#2E5077"/>
+        <rect x="10" y="37" width="140" height="2.6" rx="1.3" fill="#EDE8DC" opacity=".85"/>
+        <circle cx="132" cy="92" r="4.6" fill="#EDE8DC" opacity=".9"/>
       </symbol>
       <!-- generic document -->
       <symbol id="i-doc-mac" viewBox="0 0 120 150">
@@ -109,11 +102,6 @@
     <section class="window" id="window" role="application" aria-label="Finder">
       <div class="win-body">
         <aside class="sidebar" id="sidebar">
-          <div class="traffic" id="traffic">
-            <button class="tl tl-close" id="tl-close" aria-label="Close"><svg viewBox="0 0 12 12"><path d="M3.2 3.2l5.6 5.6M8.8 3.2 3.2 8.8" stroke="rgba(77,0,0,.85)" stroke-width="1.3" stroke-linecap="round"/></svg></button>
-            <button class="tl tl-min" id="tl-min" aria-label="Minimize"><svg viewBox="0 0 12 12"><path d="M2.8 6h6.4" stroke="rgba(90,50,0,.85)" stroke-width="1.5" stroke-linecap="round"/></svg></button>
-            <button class="tl tl-zoom" id="tl-zoom" aria-label="Zoom"><svg viewBox="0 0 12 12"><path d="M3.3 6.7v2h2M8.7 5.3v-2h-2" stroke="rgba(0,70,0,.9)" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.4 8.6 5.9 6.1M8.6 3.4 6.1 5.9" stroke="rgba(0,70,0,.9)" stroke-width="1.3" stroke-linecap="round"/></svg></button>
-          </div>
           <nav class="side-scroll" id="side-nav"><!-- built by JS --></nav>
         </aside>
 
@@ -134,11 +122,6 @@
                 <svg viewBox="0 0 20 20"><use href="#t-group"/></svg><svg class="tb-chev" viewBox="0 0 20 20"><use href="#t-chev-d"/></svg>
               </button>
               <button class="tb-btn" id="tb-share" title="Share"><svg viewBox="0 0 20 20"><use href="#t-share"/></svg></button>
-              <button class="tb-btn" id="tb-tags" title="Tags"><svg viewBox="0 0 20 20"><use href="#t-tag"/></svg></button>
-              <button class="tb-btn" id="tb-more" title="More">
-                <svg viewBox="0 0 20 20"><use href="#t-more"/></svg><svg class="tb-chev" viewBox="0 0 20 20"><use href="#t-chev-d"/></svg>
-              </button>
-              <button class="tb-btn" id="tb-search" title="Search"><svg viewBox="0 0 20 20"><use href="#t-search"/></svg></button>
             </div>
           </div>
 
@@ -160,20 +143,38 @@
     </section>
   </div>
 
-  <!-- ============ dock ============ -->
+  <!-- ============ dock: external presence as apps ============ -->
   <div class="dock-wrap"><div class="dock" id="dock">
-    <button class="dock-item" id="dock-finder" title="Finder">
-      <svg viewBox="0 0 64 64"><defs><linearGradient id="dk-f" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3DAEF2"/><stop offset="1" stop-color="#1668CB"/></linearGradient></defs>
-        <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#dk-f)"/>
-        <path d="M32 2v60" stroke="#0D4FA8" stroke-width="2" opacity=".55"/>
-        <path d="M20 22c0 3 .5 6 .5 6M44 22c0 3-.5 6-.5 6" stroke="#0A3C80" stroke-width="3" stroke-linecap="round"/>
-        <path d="M18 40c4 5 9 7 14 7s10-2 14-7" fill="none" stroke="#0A3C80" stroke-width="3" stroke-linecap="round"/>
-      </svg>
-      <span class="dock-dot"></span>
+    <button class="dock-item" data-app="vimeo" title="Vimeo">
+      <svg viewBox="0 0 64 64"><rect x="2" y="2" width="60" height="60" rx="14" fill="#17B3E8"/>
+        <path d="M50 24.3c-.15 3.3-2.45 7.8-6.9 13.5-4.6 6-8.5 9-11.7 9-2 0-3.65-1.85-5-5.5l-2.7-10c-1-3.6-2.1-5.4-3.3-5.4-.25 0-1.15.55-2.7 1.65L16 25.4c1.7-1.5 3.4-3 5-4.5 2.3-2 4-3 5.2-3.1 2.7-.25 4.35 1.6 5 5.5.7 4.2 1.2 6.8 1.5 7.9.8 3.7 1.75 5.5 2.8 5.5.8 0 2-1.25 3.6-3.75 1.6-2.5 2.45-4.4 2.55-5.7.2-2.15-.65-3.25-2.55-3.25-.9 0-1.8.2-2.75.6 1.85-6 5.35-8.9 10.55-8.75 3.85.1 5.65 2.6 5.4 7.45Z" fill="#fff"/></svg>
     </button>
-    <div class="dock-sep"></div>
-    <button class="dock-item" id="dock-trash" title="Trash">
-      <svg viewBox="0 0 64 64"><path d="M18 22h28l-2.5 32a5 5 0 0 1-5 4.6h-13a5 5 0 0 1-5-4.6L18 22Z" fill="none" stroke="#C9CDD4" stroke-width="3"/><path d="M14 16h36M26 16l1.5-4h9l1.5 4" fill="none" stroke="#C9CDD4" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/><path d="M26 28l1 22M32 28v22M38 28l-1 22" stroke="#C9CDD4" stroke-width="2.4" stroke-linecap="round"/></svg>
+    <button class="dock-item" data-app="instagram" title="Instagram">
+      <svg viewBox="0 0 64 64"><defs><radialGradient id="ig-g" cx=".28" cy="1.05" r="1.3">
+        <stop offset="0" stop-color="#FED373"/><stop offset=".26" stop-color="#F5602E"/><stop offset=".6" stop-color="#D6306F"/><stop offset="1" stop-color="#7038C8"/></radialGradient></defs>
+        <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#ig-g)"/>
+        <rect x="15" y="15" width="34" height="34" rx="10" fill="none" stroke="#fff" stroke-width="3.6"/>
+        <circle cx="32" cy="32" r="8.4" fill="none" stroke="#fff" stroke-width="3.6"/>
+        <circle cx="42.2" cy="21.8" r="2.6" fill="#fff"/></svg>
+    </button>
+    <button class="dock-item" data-app="spotify" title="Spotify">
+      <svg viewBox="0 0 64 64"><rect x="2" y="2" width="60" height="60" rx="14" fill="#1CC85A"/>
+        <path d="M18.5 25.5c8.6-2.6 18.9-1.5 26.2 2.7M20 33.4c7.2-2.1 15.2-1.2 21.4 2.5M21.5 41c5.7-1.6 12-.8 17.3 2.2" fill="none" stroke="#0E1014" stroke-width="4" stroke-linecap="round"/></svg>
+    </button>
+    <button class="dock-item" data-app="discord" title="Discord">
+      <svg viewBox="0 0 64 64"><rect x="2" y="2" width="60" height="60" rx="14" fill="#5865F2"/>
+        <path d="M24.5 43.5c-4.9 0-8.5-2.6-8.5-2.6.6-8.9 3.4-16.4 7.2-21.3 0 0 3.8-2 7.2-2.3l.9 2.3a28 28 0 0 1 12.4 0l.9-2.3c3.4.3 7.2 2.3 7.2 2.3 3.8 4.9 6.6 12.4 7.2 21.3 0 0-3.6 2.6-8.5 2.6l-2-3.4c1.6-.6 3.7-1.7 3.7-1.7-5.8 3.7-19 3.7-24.9 0 0 0 2.1 1.1 3.7 1.7l-2.5 3.4Z" transform="translate(-4.5 -3) scale(1.12)" fill="#fff"/>
+        <circle cx="26" cy="31.5" r="2.8" fill="#5865F2"/><circle cx="38" cy="31.5" r="2.8" fill="#5865F2"/></svg>
+    </button>
+    <button class="dock-item" data-app="email" title="Email">
+      <svg viewBox="0 0 64 64"><defs><linearGradient id="ml-g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4E9BFB"/><stop offset="1" stop-color="#1B62E4"/></linearGradient></defs>
+        <rect x="2" y="2" width="60" height="60" rx="14" fill="url(#ml-g)"/>
+        <rect x="14" y="20" width="36" height="26" rx="4" fill="#fff"/>
+        <path d="M15.5 22.5 32 35l16.5-12.5" fill="none" stroke="#1B62E4" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="dock-item" data-app="arena" title="Are.na">
+      <svg viewBox="0 0 64 64"><rect x="2" y="2" width="60" height="60" rx="14" fill="#17171B"/>
+        <path d="M32 16v32M18.1 24l27.8 16M45.9 24 18.1 40" stroke="#EDE8DC" stroke-width="3.4" stroke-linecap="round"/></svg>
     </button>
   </div></div>
 

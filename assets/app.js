@@ -52,12 +52,18 @@ const ROOT = folder("Desktop", [
 })(ROOT, null);
 
 const LINKS = [
-  { name: "Vimeo", icon: "s-vimeo", href: "https://vimeo.com/YOUR_VIMEO" },
-  { name: "Instagram", icon: "s-ig", href: "https://instagram.com/YOUR_IG" },
-  { name: "Spotify", icon: "s-spotify", href: "https://open.spotify.com/user/YOUR_SPOTIFY" },
-  { name: "Discord", icon: "s-discord", href: "https://discord.com/users/YOUR_DISCORD" },
-  { name: "Email", icon: "s-mail", href: "mailto:you@haolang-li.com" },
-  { name: "Arena", icon: "s-arena", href: "https://www.are.na/YOUR_ARENA" },
+  { id: "vimeo", name: "Vimeo", icon: "s-vimeo", href: "https://vimeo.com/YOUR_VIMEO",
+    desc: "Films and video work — shorts, cinematography, AI experiments." },
+  { id: "instagram", name: "Instagram", icon: "s-ig", href: "https://instagram.com/YOUR_IG",
+    desc: "Stills, behind-the-scenes, and everything in between." },
+  { id: "spotify", name: "Spotify", icon: "s-spotify", href: "https://open.spotify.com/user/YOUR_SPOTIFY",
+    desc: "What I listen to while cutting." },
+  { id: "discord", name: "Discord", icon: "s-discord", href: "https://discord.com/users/YOUR_DISCORD",
+    desc: "Reach me where the AI video people hang out." },
+  { id: "email", name: "Email", icon: "s-mail", href: "mailto:you@haolang-li.com",
+    desc: "For collaborations, screenings, and everything serious." },
+  { id: "arena", name: "Are.na", icon: "s-arena", href: "https://www.are.na/YOUR_ARENA",
+    desc: "Research boards — references, moods, maps." },
 ];
 
 const TAG_COLORS = ["#FF9F0A", "#FF453A", "#0A84FF", "#FFD60A", "#BF5AF2", "#FF9F0A", "#FF453A"];
@@ -109,14 +115,14 @@ function buildSidebar() {
      + item("Randomness", "s-folder", 'data-parent="FLAT THINGS"') + item("Mappings", "s-folder");
   h += sec("Links");
   LINKS.forEach(l => {
-    h += `<button class="side-item side-link" data-href="${l.href}"><svg viewBox="0 0 20 20"><use href="#${l.icon}"/></svg><span>${l.name}</span></button>`;
+    h += `<button class="side-item side-link" data-app="${l.id}"><svg viewBox="0 0 20 20"><use href="#${l.icon}"/></svg><span>${l.name}</span></button>`;
   });
   els.sideNav.innerHTML = h;
 
   els.sideNav.addEventListener("click", e => {
     const btn = e.target.closest(".side-item");
     if (!btn) return;
-    if (btn.dataset.href) { window.open(btn.dataset.href, "_blank", "noopener"); return; }
+    if (btn.dataset.app) { openApp(btn.dataset.app); return; }
     let node;
     if (btn.dataset.parent) node = (findByName(btn.dataset.parent).children || []).find(c => c.name === btn.dataset.target);
     else node = findByName(btn.dataset.target);
@@ -413,7 +419,7 @@ const MENUS = {
     sep + mi("Lock Screen", null, "⌃⌘Q", { disabled: true }),
   finder: () => mi("About Finder", "about") + sep + mi("Settings…", null, "⌘,", { disabled: true }) +
     sep + mi("Empty Trash…", null, "⇧⌘⌫", { disabled: true }) + sep + mi("Hide Finder", null, "⌘H", { disabled: true }),
-  file: () => mi("New Finder Window", "reopen", "⌘N") + mi("New Folder", null, "⇧⌘N", { disabled: true }) +
+  file: () => mi("New Finder Window", null, "⌘N", { disabled: true }) + mi("New Folder", null, "⇧⌘N", { disabled: true }) +
     sep + mi("Open", "open-sel", "⌘O", { disabled: !selection.size }) +
     mi("Quick Look", "ql-sel", "Space", { disabled: !selection.size }) +
     mi("Get Info", "info-sel", "⌘I", { disabled: !selection.size }) +
@@ -436,7 +442,7 @@ const MENUS = {
     mi("&nbsp;AI", "goto", "", { arg: "AI" }) + mi("&nbsp;FILM", "goto", "", { arg: "FILM" }) +
     mi("&nbsp;WRITINGS", "goto", "", { arg: "WRITINGS" }) + mi("&nbsp;READINGS", "goto", "", { arg: "READINGS" }) +
     mi("&nbsp;FLAT THINGS", "goto", "", { arg: "FLAT THINGS" }),
-  window: () => mi("Minimize", "minimize", "⌘M") + mi("Zoom", "zoom") + sep + mi("Haolang Li", "reopen", "", { check: true }),
+  window: () => mi("Minimize", null, "⌘M", { disabled: true }) + mi("Zoom", null, "", { disabled: true }) + sep + mi("Haolang Li", null, "", { check: true, disabled: true }),
   help: () => mi("About this site", "about") + sep + mi("macOS Help", null, "", { disabled: true }),
 };
 
@@ -471,21 +477,9 @@ $("tb-group").addEventListener("mousedown", e => {
   showMenu(mi("None", null, "", { check: true }) + mi("Name", null, "", { disabled: true }) +
     mi("Kind", null, "", { disabled: true }) + mi("Date", null, "", { disabled: true }), r.left, r.bottom + 6);
 });
-$("tb-more").addEventListener("mousedown", e => {
-  e.stopPropagation();
-  const r = e.currentTarget.getBoundingClientRect();
-  showMenu(mi("New Folder", null, "", { disabled: true }) + mi("Get Info", "info-sel", "", { disabled: !selection.size }) +
-    sep + mi("Show View Options", null, "⌘J", { disabled: true }), r.left, r.bottom + 6);
-});
 $("tb-share").addEventListener("click", () => {
   if (navigator.share) navigator.share({ title: "Haolang Li", url: location.href }).catch(() => {});
 });
-$("tb-tags").addEventListener("mousedown", e => {
-  e.stopPropagation();
-  const r = e.currentTarget.getBoundingClientRect();
-  showMenu(tagRow, r.left, r.bottom + 6);
-});
-$("tb-search").addEventListener("click", () => { /* decorative, like a stage prop */ });
 $("tb-back").addEventListener("click", goBack);
 $("tb-fwd").addEventListener("click", goForward);
 $("tb-sidebar").addEventListener("click", () => els.sidebar.classList.toggle("collapsed"));
@@ -537,9 +531,6 @@ function runAction(act, arg) {
     case "info-cwd": getInfo(cwd, 0); break;
     case "rename-sel": selection.size === 1 && startRename([...selection][0]); break;
     case "toggle-sidebar": els.sidebar.classList.toggle("collapsed"); break;
-    case "minimize": hideWindow(); break;
-    case "zoom": toggleFullscreen(); break;
-    case "reopen": showWindow(); break;
     case "about": showAbout(); break;
   }
 }
@@ -604,24 +595,41 @@ function showAbout() {
   makeDraggable(box, box.querySelector(".gi-bar"));
 }
 
-/* ================= window management ================= */
-function hideWindow() { els.win.classList.add("hidden-away"); }
-function showWindow() {
-  els.win.classList.remove("hidden-away");
-  const f = $("dock-finder");
-  f.classList.add("bounce");
-  setTimeout(() => f.classList.remove("bounce"), 1100);
+/* ================= in-OS browser: external links stay inside the Mac ================= */
+function openApp(id) {
+  const app = LINKS.find(l => l.id === id);
+  if (!app) return;
+  closeOverlays();
+  const dockIcon = document.querySelector(`.dock-item[data-app="${id}"]`);
+  if (dockIcon) { dockIcon.classList.add("bounce"); setTimeout(() => dockIcon.classList.remove("bounce"), 1100); }
+  const host = app.href.startsWith("mailto:") ? app.href.replace("mailto:", "") : app.href.replace(/^https?:\/\//, "").replace(/\/$/, "");
+  const win = document.createElement("div");
+  win.className = "appwin";
+  win.innerHTML = `
+    <div class="aw-bar">
+      <button class="aw-close" aria-label="Close"></button>
+      <div class="aw-url"><svg viewBox="0 0 20 20"><path d="M6.5 9V6.8a3.5 3.5 0 0 1 7 0V9M5.5 9h9A1.5 1.5 0 0 1 16 10.5v5A1.5 1.5 0 0 1 14.5 17h-9A1.5 1.5 0 0 1 4 15.5v-5A1.5 1.5 0 0 1 5.5 9Z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>${host}</div>
+    </div>
+    <div class="aw-body">
+      <div class="aw-app">${dockIcon ? dockIcon.querySelector("svg").outerHTML : ""}</div>
+      <div class="aw-name">${app.name}</div>
+      <div class="aw-desc">${app.desc}</div>
+      <div class="aw-actions">
+        <button class="aw-btn primary">${app.id === "email" ? "Write to me" : "Visit " + app.name} ↗</button>
+        <button class="aw-btn quiet">Stay here</button>
+      </div>
+    </div>`;
+  els.overlayLayer.appendChild(win);
+  win.querySelector(".aw-close").addEventListener("click", () => win.remove());
+  win.querySelector(".aw-btn.quiet").addEventListener("click", () => win.remove());
+  win.querySelector(".aw-btn.primary").addEventListener("click", () => {
+    if (app.href.startsWith("mailto:")) location.href = app.href;
+    else window.open(app.href, "_blank", "noopener");
+  });
+  makeDraggable(win, win.querySelector(".aw-bar"));
 }
-function toggleFullscreen() {
-  const fs = els.win.classList.toggle("fullscreen");
-  document.body.classList.toggle("has-fullscreen", fs);   // real macOS hides the Dock
-}
-
-$("tl-close").addEventListener("click", hideWindow);
-$("tl-min").addEventListener("click", hideWindow);
-$("tl-zoom").addEventListener("click", toggleFullscreen);
-$("dock-finder").addEventListener("click", showWindow);
-$("dock-trash").addEventListener("click", () => {});
+document.querySelectorAll(".dock-item[data-app]").forEach(btn =>
+  btn.addEventListener("click", () => openApp(btn.dataset.app)));
 
 /* drag by toolbar / title */
 function makeDraggable(box, handle, clampToDesktop = false) {
@@ -645,7 +653,6 @@ function makeDraggable(box, handle, clampToDesktop = false) {
   });
 }
 makeDraggable(els.win, $("toolbar"), true);
-$("toolbar").addEventListener("dblclick", e => { if (!e.target.closest(".tb-btn")) hideWindow(); });
 
 /* resize */
 $("resize-handle").addEventListener("mousedown", e => {
