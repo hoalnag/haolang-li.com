@@ -77,6 +77,98 @@ let anchorIndex = -1;           // for shift-select
 let sortAsc = true;
 
 const $ = id => document.getElementById(id);
+
+/* ================= motion: springs, projection, rubber-band =================
+   Apple-style fluid motion (see: Designing Fluid Interfaces, WWDC18).
+   Springs are interruptible and velocity-aware; re-targeting carries velocity. */
+const REDUCED = matchMedia("(prefers-reduced-motion: reduce)");
+const FINE_POINTER = matchMedia("(pointer: fine)");
+
+const springStates = new WeakMap(); // el -> { props: {x:{val,vel,target}...}, raf, onDone }
+function springApply(el, p) {
+  el.style.transform = `translate3d(${p.x?.val || 0}px, ${p.y?.val || 0}px, 0) scale(${p.scale ? p.scale.val : 1})`;
+  if (p.opacity) el.style.opacity = p.opacity.val;
+}
+function springTo(el, targets, { damping = 1, response = 0.35, velocity = {}, onDone } = {}) {
+  let st = springStates.get(el);
+  if (!st) { st = { props: {}, raf: 0 }; springStates.set(el, st); }
+  st.onDone = onDone;
+  for (const k in targets) {
+    const cur = st.props[k] || { val: k === "scale" || k === "opacity" ? 1 : 0, vel: 0 };
+    cur.target = targets[k];
+    if (velocity[k] !== undefined) cur.vel = velocity[k];
+    st.props[k] = cur;
+  }
+  if (REDUCED.matches) { // gentler equivalent: settle instantly, no travel
+    for (const k in st.props) { st.props[k].val = st.props[k].target; st.props[k].vel = 0; }
+    springApply(el, st.props);
+    st.onDone && st.onDone();
+    return;
+  }
+  if (st.raf) return; // loop already running; targets just changed (interruption = re-target)
+  const stiffness = Math.pow((2 * Math.PI) / response, 2);
+  const dampCoef = damping * 2 * Math.sqrt(stiffness);
+  let last = performance.now();
+  const tick = (now) => {
+    // advance in real time even if rAF is throttled; small substeps keep integration stable
+    let remaining = Math.min((now - last) / 1000, 0.25); last = now;
+    while (remaining > 0) {
+      const h = Math.min(remaining, 1 / 120); remaining -= h;
+      for (const k in st.props) {
+        const p = st.props[k];
+        const accel = stiffness * (p.target - p.val) - dampCoef * p.vel;
+        p.vel += accel * h;
+        p.val += p.vel * h;
+      }
+    }
+    let settled = true;
+    for (const k in st.props) {
+      const p = st.props[k];
+      const eps = (k === "scale" || k === "opacity") ? 0.002 : 0.05; // unit-aware tolerance
+      if (Math.abs(p.vel) > eps * 4 || Math.abs(p.target - p.val) > eps) settled = false;
+    }
+    if (settled) {
+      for (const k in st.props) { st.props[k].val = st.props[k].target; st.props[k].vel = 0; }
+      springApply(el, st.props);
+      st.raf = 0;
+      st.onDone && st.onDone();
+      return;
+    }
+    springApply(el, st.props);
+    st.raf = requestAnimationFrame(tick);
+  };
+  st.raf = requestAnimationFrame(tick);
+}
+/* momentum projection — where the flick is going, not where it stopped */
+function project(v, deceleration = 0.998) { return (v / 1000) * deceleration / (1 - deceleration); }
+/* progressive resistance at a boundary */
+function rubberband(overshoot, dimension = 300, c = 0.55) {
+  return (overshoot * dimension * c) / (dimension + c * Math.abs(overshoot));
+}
+/* write the live (presentation) value directly — 1:1 tracking during a gesture;
+   a later springTo starts from exactly here, so hand-off has no seam */
+function setPresentation(el, vals) {
+  let st = springStates.get(el);
+  if (!st) { st = { props: {}, raf: 0 }; springStates.set(el, st); }
+  for (const k in vals) {
+    const p = st.props[k] || { val: 0, vel: 0, target: vals[k] };
+    p.val = vals[k]; p.target = vals[k];
+    st.props[k] = p;
+  }
+  springApply(el, st.props);
+}
+/* pointer velocity from a short move history */
+function makeVelocityTracker() {
+  let hist = [];
+  return {
+    push(x, y) { const t = performance.now(); hist.push({ x, y, t }); hist = hist.filter(h => t - h.t < 90); },
+    read() {
+      if (hist.length < 2) return { vx: 0, vy: 0 };
+      const a = hist[0], b = hist[hist.length - 1], dt = (b.t - a.t) / 1000;
+      return dt > 0 ? { vx: (b.x - a.x) / dt, vy: (b.y - a.y) / dt } : { vx: 0, vy: 0 };
+    },
+  };
+}
 const els = {
   win: $("window"), sideNav: $("side-nav"), title: $("tb-title"),
   back: $("tb-back"), fwd: $("tb-fwd"), content: $("content"),
@@ -395,6 +487,8 @@ function showMenu(html, x, y, ownerBtn) {
   const r = dd.getBoundingClientRect();
   dd.style.left = Math.min(x, innerWidth - r.width - 8) + "px";
   dd.style.top = Math.min(y, innerHeight - r.height - 8) + "px";
+  // menus grow out of the point that summoned them (§7 anchored origins)
+  dd.style.transformOrigin = `${Math.max(8, x - parseFloat(dd.style.left))}px top`;
   if (ownerBtn) ownerBtn.classList.add("open");
   openMenu = dd;
   dd.addEventListener("click", e => {
@@ -537,6 +631,24 @@ function runAction(act, arg) {
 
 /* ================= quick look ================= */
 function closeOverlays() { els.overlayLayer.innerHTML = ""; }
+function anchorRectFor(node) {
+  const el = elementsForItems()[items().indexOf(node)];
+  return el ? el.getBoundingClientRect() : null;
+}
+/* a surface arrives as a material — scale in from the element that summoned it */
+function materialize(box, anchorRect) {
+  const rect = box.getBoundingClientRect();
+  box.style.left = rect.left + "px"; box.style.top = rect.top + "px";
+  if (!anchorRect) {
+    setPresentation(box, { scale: 0.94, opacity: 0 });
+    springTo(box, { scale: 1, opacity: 1 }, { response: 0.3 });
+    return;
+  }
+  const dx = anchorRect.left + anchorRect.width / 2 - (rect.left + rect.width / 2);
+  const dy = anchorRect.top + anchorRect.height / 2 - (rect.top + rect.height / 2);
+  setPresentation(box, { x: dx, y: dy, scale: 0.2, opacity: 0 });
+  springTo(box, { x: 0, y: 0, scale: 1, opacity: 1 }, { response: 0.38 });
+}
 function quickLook(node) {
   closeOverlays();
   const box = document.createElement("div");
@@ -550,6 +662,7 @@ function quickLook(node) {
     <div class="ql-body">${body}</div>
     <div class="ql-meta">${node.kind}${node.children ? ` — ${node.children.length} item${node.children.length === 1 ? "" : "s"}` : ""}</div>`;
   els.overlayLayer.appendChild(box);
+  materialize(box, anchorRectFor(node));
   box.querySelector(".ql-close").addEventListener("click", closeOverlays);
   const esc = ev => { if (ev.key === "Escape" || ev.key === " " || ev.code === "Space") { ev.preventDefault(); closeOverlays(); window.removeEventListener("keydown", esc); } };
   window.addEventListener("keydown", esc);
@@ -573,6 +686,7 @@ function getInfo(node, offset) {
       <div class="gi-row"><b>Modified:</b><span>${node.date}</span></div>
     </div>`;
   els.overlayLayer.appendChild(box);
+  materialize(box, anchorRectFor(node));
   box.querySelector(".gi-close").addEventListener("click", () => box.remove());
   makeDraggable(box, box.querySelector(".gi-bar"));
 }
@@ -591,6 +705,7 @@ function showAbout() {
       <div class="gi-sub" style="padding-top:10px">This site is a working replica of macOS Finder.<br>Double-click around. Press Space for Quick Look.</div>
     </div>`;
   els.overlayLayer.appendChild(box);
+  materialize(box, null);
   box.querySelector(".gi-close").addEventListener("click", () => box.remove());
   makeDraggable(box, box.querySelector(".gi-bar"));
 }
@@ -620,39 +735,86 @@ function openApp(id) {
       </div>
     </div>`;
   els.overlayLayer.appendChild(win);
-  win.querySelector(".aw-close").addEventListener("click", () => win.remove());
-  win.querySelector(".aw-btn.quiet").addEventListener("click", () => win.remove());
+
+  // the window materializes out of its dock icon and dismisses back into it (§7 spatial consistency)
+  const rect = win.getBoundingClientRect();
+  win.style.left = rect.left + "px"; win.style.top = rect.top + "px";
+  const anchor = dockIcon ? dockIcon.getBoundingClientRect() : { left: innerWidth / 2, top: innerHeight, width: 0, height: 0 };
+  const fromX = () => ({
+    dx: anchor.left + anchor.width / 2 - (parseFloat(win.style.left) + rect.width / 2),
+    dy: anchor.top + anchor.height / 2 - (parseFloat(win.style.top) + rect.height / 2),
+  });
+  const d0 = fromX();
+  setPresentation(win, { x: d0.dx, y: d0.dy, scale: 0.08, opacity: 0 });
+  springTo(win, { x: 0, y: 0, scale: 1, opacity: 1 }, { response: 0.4 });
+
+  const dismissToDock = () => {
+    const d = fromX();
+    springTo(win, { x: d.dx, y: d.dy, scale: 0.08, opacity: 0 }, { response: 0.34, onDone: () => win.remove() });
+  };
+  const flickAway = ({ vx, vy }) => {   // thrown: momentum carries it off-screen
+    springTo(win, { x: project(vx) / 3, y: innerHeight, opacity: 0 },
+      { response: 0.5, velocity: { x: vx, y: vy }, onDone: () => win.remove() });
+  };
+  win.querySelector(".aw-close").addEventListener("click", dismissToDock);
+  win.querySelector(".aw-btn.quiet").addEventListener("click", dismissToDock);
   win.querySelector(".aw-btn.primary").addEventListener("click", () => {
     if (app.href.startsWith("mailto:")) location.href = app.href;
     else window.open(app.href, "_blank", "noopener");
   });
-  makeDraggable(win, win.querySelector(".aw-bar"));
+  makeDraggable(win, win.querySelector(".aw-bar"), { onFlickDown: flickAway });
 }
 document.querySelectorAll(".dock-item[data-app]").forEach(btn =>
   btn.addEventListener("click", () => openApp(btn.dataset.app)));
 
-/* drag by toolbar / title */
-function makeDraggable(box, handle, clampToDesktop = false) {
-  handle.addEventListener("mousedown", e => {
-    if (e.target.closest("button") || e.target.closest(".tb-btn")) return;
-    if (box.classList.contains("fullscreen")) return;
+/* drag by toolbar / title — pointer events, 1:1 with grab offset, velocity-aware.
+   Top edge rubber-bands instead of hard-stopping; release springs back. */
+function makeDraggable(box, handle, { clampToDesktop = false, onFlickDown } = {}) {
+  handle.addEventListener("pointerdown", e => {
+    if (e.button !== 0 || e.target.closest("button") || e.target.closest(".tb-btn")) return;
+    handle.setPointerCapture(e.pointerId);
     const startX = e.clientX, startY = e.clientY;
     const r = box.getBoundingClientRect();
     const parentR = clampToDesktop ? els.desktop.getBoundingClientRect() : { left: 0, top: 0 };
-    const offL = r.left - parentR.left, offT = r.top - parentR.top;
+    // fold any in-flight spring translate into the base position (animate from presentation value)
+    const st = springStates.get(box);
+    const tx = st?.props.x?.val || 0, ty = st?.props.y?.val || 0;
+    if (st) { for (const k of ["x", "y"]) if (st.props[k]) { st.props[k].val = 0; st.props[k].target = 0; st.props[k].vel = 0; } }
+    const offL = r.left - parentR.left - tx, offT = r.top - parentR.top - ty;
+    const vt = makeVelocityTracker();
+    let moved = false;
     box.classList.add("dragging");
     const onMove = ev => {
-      box.style.left = offL + (ev.clientX - startX) + "px";
-      box.style.top = Math.max(0, offT + (ev.clientY - startY)) + "px";
+      const dx = ev.clientX - startX, dy = ev.clientY - startY;
+      if (!moved && Math.hypot(dx, dy) < 3) return;
+      moved = true;
+      vt.push(ev.clientX, ev.clientY);
+      const rawTop = offT + dy;
+      box.style.left = offL + dx + "px";
+      box.style.top = (rawTop < 0 ? rubberband(rawTop) : rawTop) + "px";
     };
-    const onUp = () => {
+    const onUp = ev => {
       box.classList.remove("dragging");
-      window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp);
+      handle.releasePointerCapture(e.pointerId);
+      handle.removeEventListener("pointermove", onMove);
+      handle.removeEventListener("pointerup", onUp);
+      handle.removeEventListener("pointercancel", onUp);
+      if (!moved) return;
+      const { vx, vy } = vt.read();
+      if (onFlickDown && vy > 900) { onFlickDown({ vx, vy }); return; }
+      const top = parseFloat(box.style.top);
+      if (top < 0) { // was rubber-banding: spring home from the presentation value
+        box.style.top = "0px";
+        setPresentation(box, { y: top });
+        springTo(box, { y: 0 }, { velocity: { y: vy }, response: 0.35 });
+      }
     };
-    window.addEventListener("mousemove", onMove); window.addEventListener("mouseup", onUp);
+    handle.addEventListener("pointermove", onMove);
+    handle.addEventListener("pointerup", onUp);
+    handle.addEventListener("pointercancel", onUp);
   });
 }
-makeDraggable(els.win, $("toolbar"), true);
+makeDraggable(els.win, $("toolbar"), { clampToDesktop: true });
 
 /* resize */
 $("resize-handle").addEventListener("mousedown", e => {
@@ -669,6 +831,61 @@ $("resize-handle").addEventListener("mousedown", e => {
     window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp);
   };
   window.addEventListener("mousemove", onMove); window.addEventListener("mouseup", onUp);
+});
+
+/* ================= dock magnification =================
+   Tracks the pointer 1:1 (direct manipulation); springs back on leave. */
+(function dockMagnify() {
+  const dock = $("dock");
+  if (!dock || !FINE_POINTER.matches) return;
+  const apps = [...dock.querySelectorAll(".dock-item")];
+  const centerOf = (it) => { // layout position, immune to current transforms
+    const dr = dock.getBoundingClientRect();
+    return dr.left + it.offsetLeft + it.offsetWidth / 2;
+  };
+  dock.addEventListener("pointermove", e => {
+    if (REDUCED.matches) return;
+    apps.forEach(it => {
+      const d = e.clientX - centerOf(it);
+      const scale = 1 + 0.42 * Math.exp(-(d * d) / (90 * 90));
+      setPresentation(it, { y: -(scale - 1) * 30, scale });
+    });
+  });
+  dock.addEventListener("pointerleave", () => {
+    apps.forEach(it => springTo(it, { y: 0, scale: 1 }, { response: 0.32 }));
+  });
+})();
+
+/* ================= icon throw =================
+   Grab an icon past the 10px hysteresis and throw it; it springs home
+   carrying the release velocity (momentum gesture → a little bounce). */
+els.content.addEventListener("pointerdown", e => {
+  if (view !== "icon" || e.button !== 0) return;
+  const el = e.target.closest(".icon-item");
+  if (!el || e.target.tagName === "INPUT") return;
+  const startX = e.clientX, startY = e.clientY;
+  const vt = makeVelocityTracker();
+  let dragging = false;
+  const onMove = ev => {
+    const dx = ev.clientX - startX, dy = ev.clientY - startY;
+    if (!dragging) {
+      if (Math.hypot(dx, dy) < 10) return;
+      dragging = true;
+      el.classList.add("lifted");
+    }
+    vt.push(ev.clientX, ev.clientY);
+    setPresentation(el, { x: dx, y: dy });
+  };
+  const onUp = () => {
+    window.removeEventListener("pointermove", onMove);
+    window.removeEventListener("pointerup", onUp);
+    if (!dragging) return;
+    const { vx, vy } = vt.read();
+    springTo(el, { x: 0, y: 0 },
+      { damping: 0.8, response: 0.42, velocity: { x: vx, y: vy }, onDone: () => el.classList.remove("lifted") });
+  };
+  window.addEventListener("pointermove", onMove);
+  window.addEventListener("pointerup", onUp);
 });
 
 /* ================= misc chrome ================= */
