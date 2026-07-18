@@ -27,7 +27,7 @@ const ROOT = folder("Desktop", [
     folder("Poster Design"),
   ]),
   folder("WRITINGS", [
-    folder("Randomness"),
+    folder("Self Talk"),
     folder("Poems"),
   ]),
   folder("READINGS", [
@@ -176,7 +176,7 @@ function makeVelocityTracker() {
 const els = {
   win: $("window"), sideNav: $("side-nav"), title: $("tb-title"),
   back: $("tb-back"), fwd: $("tb-fwd"), content: $("content"),
-  iconView: $("icon-view"), listView: $("list-view"),
+  iconView: $("icon-view"), listView: $("list-view"), deskView: $("desk-view"),
   columnsView: $("columns-view"), galleryView: $("gallery-view"),
   pathbar: $("pathbar"), status: $("status-text"), rubber: $("rubber-band"),
   menuLayer: $("menu-layer"), overlayLayer: $("overlay-layer"),
@@ -206,7 +206,7 @@ function buildSidebar() {
   h += sec("AI") + item("AVA Studio", "s-folder") + item("Test Footage", "s-folder");
   h += sec("Film") + item("Short Films", "s-folder") + item("Cinematography", "s-folder")
      + item("Festival & Sales", "s-folder") + item("Poster Design", "s-folder");
-  h += sec("Writings") + item("Randomness", "s-folder") + item("Poems", "s-folder");
+  h += sec("Writings") + item("Self Talk", "s-folder") + item("Poems", "s-folder");
   h += sec("Readings") + item("Reading Notes", "s-folder") + item("Papers", "s-folder");
   h += sec("Flat Things") + item("Digital", "s-folder") + item("Celluloid", "s-folder")
      + item("Randomness", "s-folder", 'data-parent="FLAT THINGS"') + item("Mappings", "s-folder");
@@ -258,12 +258,18 @@ function render() {
   els.back.disabled = !history.length;
   els.fwd.disabled = !future.length;
 
-  els.iconView.hidden = view !== "icon";
+  // the Desktop has its own arrangement; every other folder uses the plain grid
+  const onDesk = view === "icon" && cwd === ROOT;
+  stopPortrait();
+  els.deskView.hidden = !onDesk;
+  els.iconView.hidden = view !== "icon" || onDesk;
   els.listView.hidden = view !== "list";
   els.columnsView.hidden = view !== "columns";
   els.galleryView.hidden = view !== "gallery";
 
-  if (view === "icon") {
+  if (onDesk) {
+    renderDesk(list);
+  } else if (view === "icon") {
     els.iconView.innerHTML = list.map((n, i) => `
       <div class="icon-item ${selection.has(n) ? "selected" : ""}" data-i="${i}">
         <div class="ic-frame">${iconSvg(n)}</div>
@@ -306,6 +312,113 @@ function render() {
   updateStatus();
   syncSidebar();
 }
+/* ---- the desk: portrait, weather, papers, and the folders as blocks ---- */
+const CITIES = [
+  { name: "New York", lat: 40.7128, lon: -74.006, tz: "America/New_York" },
+  { name: "Beijing",  lat: 39.9042, lon: 116.4074, tz: "Asia/Shanghai" },
+];
+const PORTRAITS = [1, 2, 3, 4, 5, 6].map(i => `assets/photos/portrait-0${i}.jpg`);
+
+function renderDesk(list) {
+  const folders = list.filter(n => n.children);
+  const papers = list.filter(n => !n.children);
+  els.deskView.innerHTML = `
+    <section class="desk-aside">
+      <div class="wx" id="wx">
+        ${CITIES.map(c => `
+          <div class="wx-row" data-city="${c.name}">
+            <span class="wx-city">${c.name}</span>
+            <span class="wx-time" data-tz="${c.tz}">—</span>
+            <span class="wx-temp">—</span>
+          </div>`).join("")}
+      </div>
+      <ul class="desk-files">
+        ${papers.map(n => `
+          <li class="desk-item desk-file" data-i="${list.indexOf(n)}">
+            ${iconSvg(n, "")}
+            <span class="df-name">${n.name.replace(/\.pdf$/i, "").replace(/_/g, " ")}</span>
+            <span class="df-kind">PDF</span>
+          </li>`).join("")}
+      </ul>
+    </section>
+
+    <figure class="portrait">
+      <div class="pt-frame" id="pt-frame"><span class="pt-mono">HL</span></div>
+      <figcaption class="pt-cap"><span>Haolang Li</span><span class="pt-dots" id="pt-dots"></span></figcaption>
+    </figure>
+
+    <section class="desk-folders">
+      ${folders.map(n => `
+        <button class="desk-item desk-block" data-i="${list.indexOf(n)}">
+          <span class="db-count">${n.children.length || ""}</span>
+          <span class="db-name">${n.name}</span>
+        </button>`).join("")}
+    </section>`;
+
+  startPortrait();
+  tickCityClocks();
+  loadWeather();
+}
+
+/* portrait: keep only the frames that actually load, then cross-fade them */
+let ptTimer = 0, clockTimer = 0;
+function stopPortrait() { clearInterval(ptTimer); ptTimer = 0; clearInterval(clockTimer); clockTimer = 0; }
+function startPortrait() {
+  const frame = $("pt-frame"), dots = $("pt-dots");
+  if (!frame) return;
+  const found = new Array(PORTRAITS.length);
+  let pending = PORTRAITS.length;
+  const settle = () => {
+    if (--pending) return;
+    const srcs = found.filter(Boolean);
+    if (!srcs.length) { frame.classList.add("empty"); return; }   // monogram stands in
+    frame.classList.remove("empty");
+    frame.innerHTML = srcs.map((s, i) => `<img src="${s}" alt="" class="${i ? "" : "on"}">`).join("");
+    if (dots && srcs.length > 1) dots.innerHTML = srcs.map((_, i) => `<i class="${i ? "" : "on"}"></i>`).join("");
+    if (srcs.length < 2 || REDUCED.matches) return;
+    let i = 0;
+    ptTimer = setInterval(() => {
+      const imgs = frame.querySelectorAll("img"), pips = dots ? dots.querySelectorAll("i") : [];
+      imgs[i].classList.remove("on"); pips[i] && pips[i].classList.remove("on");
+      i = (i + 1) % imgs.length;
+      imgs[i].classList.add("on"); pips[i] && pips[i].classList.add("on");
+    }, 4600);
+  };
+  PORTRAITS.forEach((src, idx) => {
+    const im = new Image();
+    im.onload = () => { found[idx] = src; settle(); };
+    im.onerror = settle;
+    im.src = src;
+  });
+}
+
+function tickCityClocks() {
+  const paint = () => {
+    document.querySelectorAll(".wx-time[data-tz]").forEach(el => {
+      el.textContent = new Intl.DateTimeFormat("en-US", {
+        hour: "numeric", minute: "2-digit", timeZone: el.dataset.tz,
+      }).format(new Date());
+    });
+  };
+  paint();
+  clockTimer = setInterval(paint, 30000);
+}
+
+/* live temperature from Open-Meteo (public, no key); falls back quietly */
+async function loadWeather() {
+  await Promise.all(CITIES.map(async c => {
+    const cell = document.querySelector(`.wx-row[data-city="${c.name}"] .wx-temp`);
+    if (!cell) return;
+    try {
+      const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=temperature_2m`);
+      if (!r.ok) throw new Error(r.status);
+      const j = await r.json();
+      const t = j?.current?.temperature_2m;
+      cell.textContent = Number.isFinite(t) ? `${Math.round(t)}°` : "—";
+    } catch { cell.textContent = "—"; }
+  }));
+}
+
 /* ---- columns: every level of the path stays on screen, left to right ---- */
 function renderColumns(list) {
   const chain = pathOf(cwd);                    // root … cwd
@@ -386,7 +499,7 @@ function updateStatus() {
 }
 
 /* ================= selection ================= */
-const ITEM_SEL = { icon: ".icon-item", list: ".lv-row", columns: ".col-row[data-i]", gallery: ".gal-thumb" };
+const ITEM_SEL = { icon: ".icon-item, .desk-item", list: ".lv-row", columns: ".col-row[data-i]", gallery: ".gal-thumb" };
 function elementsForItems() {
   return [...els.content.querySelectorAll(ITEM_SEL[view])]
     .filter(el => el.dataset.i !== undefined && +el.dataset.i >= 0);
@@ -982,20 +1095,25 @@ $("resize-handle").addEventListener("mousedown", e => {
    Tracks the pointer 1:1 (direct manipulation); springs back on leave. */
 /* Centre every dock glyph on its plate and give the set one optical size,
    whatever coordinate space each mark was drawn in. */
-(function fitGlyphs() {
+function fitGlyphs() {
   const TARGET = 26, PLATE_STROKE = 2.7;   // both in the 64-unit plate space
+  let measured = true;
   document.querySelectorAll(".dock-item .glyph").forEach(g => {
-    const stroked = g.querySelector(".mark-s");
     const b = g.getBBox();
-    if (!b.width && !b.height) return;
+    if (!b.width && !b.height) { measured = false; return; }  // laid out yet?
+    const stroked = g.querySelector(".mark-s");
     // getBBox ignores stroke, so add it back before measuring the visual box
-    const pad = stroked ? PLATE_STROKE : 0;
-    const s = TARGET / (Math.max(b.width, b.height) + pad);
+    const s = TARGET / (Math.max(b.width, b.height) + (stroked ? PLATE_STROKE : 0));
     const cx = b.x + b.width / 2, cy = b.y + b.height / 2;
     g.setAttribute("transform", `translate(32 32) scale(${s.toFixed(5)}) translate(${-cx} ${-cy})`);
     if (stroked) g.setAttribute("stroke-width", (PLATE_STROKE / s).toFixed(3));
   });
-})();
+  return measured;
+}
+// getBBox reads zeros before first layout, so measure once a frame exists
+requestAnimationFrame(() => {
+  if (!fitGlyphs()) window.addEventListener("load", fitGlyphs, { once: true });
+});
 
 (function dockMagnify() {
   const dock = $("dock");
