@@ -177,6 +177,7 @@ const els = {
   win: $("window"), sideNav: $("side-nav"), title: $("tb-title"),
   back: $("tb-back"), fwd: $("tb-fwd"), content: $("content"),
   iconView: $("icon-view"), listView: $("list-view"),
+  columnsView: $("columns-view"), galleryView: $("gallery-view"),
   pathbar: $("pathbar"), status: $("status-text"), rubber: $("rubber-band"),
   menuLayer: $("menu-layer"), overlayLayer: $("overlay-layer"),
   sidebar: $("sidebar"), desktop: $("desktop"),
@@ -246,8 +247,9 @@ function goForward() { if (future.length) { history.push(cwd); cwd = future.pop(
 function goUp() { if (cwd.parent) navigate(cwd.parent); }
 
 /* ================= rendering ================= */
+const ICON_BOX = { "i-folder-mac": "0 0 128 128", "i-doc-mac": "0 0 116 128", "i-pdf-mac": "0 0 116 128", "i-webloc": "0 0 120 150" };
 function iconSvg(node, cls = "file-icon") {
-  return `<svg class="${cls}" viewBox="0 0 ${node.icon === "i-folder-mac" ? "160 128" : "120 150"}"><use href="#${node.icon}"/></svg>`;
+  return `<svg class="${cls}" viewBox="${ICON_BOX[node.icon] || "0 0 120 150"}"><use href="#${node.icon}"/></svg>`;
 }
 function render() {
   const list = items();
@@ -256,15 +258,22 @@ function render() {
   els.back.disabled = !history.length;
   els.fwd.disabled = !future.length;
 
+  els.iconView.hidden = view !== "icon";
+  els.listView.hidden = view !== "list";
+  els.columnsView.hidden = view !== "columns";
+  els.galleryView.hidden = view !== "gallery";
+
   if (view === "icon") {
-    els.iconView.hidden = false; els.listView.hidden = true;
     els.iconView.innerHTML = list.map((n, i) => `
       <div class="icon-item ${selection.has(n) ? "selected" : ""}" data-i="${i}">
         <div class="ic-frame">${iconSvg(n)}</div>
         <div class="ic-label">${n.name}</div>
       </div>`).join("");
+  } else if (view === "columns") {
+    renderColumns(list);
+  } else if (view === "gallery") {
+    renderGallery(list);
   } else {
-    els.iconView.hidden = true; els.listView.hidden = false;
     els.listView.innerHTML = `
       <div class="lv-head">
         <div class="lv-col c-name" id="lv-sort">Name <span class="sort-arrow">${sortAsc ? "▲" : "▼"}</span></div>
@@ -287,7 +296,7 @@ function render() {
   els.pathbar.innerHTML = pathOf(cwd).map((n, i, arr) => `
     ${i ? '<span class="pb-sep">›</span>' : ""}
     <span class="pb-item" data-depth="${i}">
-      <svg viewBox="0 0 160 128"><use href="#i-folder-mac"/></svg>${n.name}
+      <svg viewBox="0 0 128 128"><use href="#i-folder-mac"/></svg>${n.name}
     </span>`).join("");
   els.pathbar.querySelectorAll(".pb-item").forEach(el => {
     el.addEventListener("dblclick", () => navigate(pathOf(cwd)[+el.dataset.depth]));
@@ -297,6 +306,79 @@ function render() {
   updateStatus();
   syncSidebar();
 }
+/* ---- columns: every level of the path stays on screen, left to right ---- */
+function renderColumns(list) {
+  const chain = pathOf(cwd);                    // root … cwd
+  const sel = selection.size === 1 ? [...selection][0] : null;
+  const cols = chain.map((node, depth) => {
+    const next = chain[depth + 1];
+    const kids = node.children || [];
+    const rows = kids.length ? kids.map(c => {
+      const onPath = c === next;
+      const isSel = depth === chain.length - 1 && selection.has(c);
+      return `<div class="col-row ${onPath ? "on-path" : ""} ${isSel ? "selected" : ""}"
+                   data-depth="${depth}" data-name="${c.name}"
+                   ${depth === chain.length - 1 ? `data-i="${list.indexOf(c)}"` : ""}>
+                ${iconSvg(c, "")}<span>${c.name}</span>${c.children ? '<span class="chev">›</span>' : ""}
+              </div>`;
+    }).join("") : `<div class="col-empty">Empty folder</div>`;
+    return `<div class="col" data-depth="${depth}">${rows}</div>`;
+  });
+  // a file selected in the last column gets a preview column of its own
+  if (sel && !sel.children) {
+    cols.push(`<div class="col-preview">${iconSvg(sel, "")}
+      <div class="cp-name">${sel.name}</div>
+      <div class="cp-meta">${sel.kind}${sel.size !== "--" ? ` — ${sel.size}` : ""}</div></div>`);
+  } else if (sel && sel.children) {
+    const kids = sel.children;
+    cols.push(`<div class="col">${kids.length
+      ? kids.map(c => `<div class="col-row">${iconSvg(c, "")}<span>${c.name}</span>${c.children ? '<span class="chev">›</span>' : ""}</div>`).join("")
+      : '<div class="col-empty">Empty folder</div>'}</div>`);
+  }
+  els.columnsView.innerHTML = cols.join("");
+
+  els.columnsView.querySelectorAll(".col-row[data-name]").forEach(row => {
+    row.addEventListener("click", () => {
+      const depth = +row.dataset.depth;
+      const node = (chain[depth].children || []).find(c => c.name === row.dataset.name);
+      if (!node) return;
+      if (depth < chain.length - 1) { navigate(node.children ? node : chain[depth]); return; }
+      selectOnly(node, list.indexOf(node));
+      renderColumns(items());
+    });
+    row.addEventListener("dblclick", () => {
+      const depth = +row.dataset.depth;
+      const node = (chain[depth].children || []).find(c => c.name === row.dataset.name);
+      node && openNode(node);
+    });
+  });
+  els.columnsView.scrollLeft = els.columnsView.scrollWidth;
+}
+
+/* ---- gallery: one subject large, the rest as a filmstrip ---- */
+function renderGallery(list) {
+  const star = selection.size ? [...selection][0] : list[0];
+  els.galleryView.innerHTML = star ? `
+    <div class="gal-stage">
+      ${iconSvg(star, "")}
+      <div class="gal-name">${star.name}</div>
+      <div class="gal-meta">${star.kind}${star.children ? ` — ${star.children.length} item${star.children.length === 1 ? "" : "s"}` : ""} · ${star.date}</div>
+    </div>
+    <div class="gal-strip">
+      ${list.map((n, i) => `
+        <div class="gal-thumb ${n === star ? "selected" : ""}" data-i="${i}">
+          ${iconSvg(n, "")}<span>${n.name}</span>
+        </div>`).join("")}
+    </div>` : `<div class="gal-stage"><div class="gal-meta">Empty folder</div></div>`;
+
+  els.galleryView.querySelectorAll(".gal-thumb").forEach(t => {
+    t.addEventListener("click", () => { selectOnly(list[+t.dataset.i], +t.dataset.i); renderGallery(list); });
+    t.addEventListener("dblclick", () => openNode(list[+t.dataset.i]));
+  });
+  const on = els.galleryView.querySelector(".gal-thumb.selected");
+  on && on.scrollIntoView({ block: "nearest", inline: "nearest" });
+}
+
 function updateStatus() {
   const n = items().length;
   const sel = selection.size;
@@ -304,8 +386,10 @@ function updateStatus() {
 }
 
 /* ================= selection ================= */
+const ITEM_SEL = { icon: ".icon-item", list: ".lv-row", columns: ".col-row[data-i]", gallery: ".gal-thumb" };
 function elementsForItems() {
-  return [...els.content.querySelectorAll(view === "icon" ? ".icon-item" : ".lv-row")];
+  return [...els.content.querySelectorAll(ITEM_SEL[view])]
+    .filter(el => el.dataset.i !== undefined && +el.dataset.i >= 0);
 }
 function applySelectionClasses() {
   const list = items();
@@ -317,10 +401,11 @@ function applySelectionClasses() {
 function selectOnly(node, idx) { selection.clear(); if (node) selection.add(node); anchorIndex = idx; applySelectionClasses(); }
 
 function handleItemMousedown(e) {
-  const el = e.target.closest(view === "icon" ? ".icon-item" : ".lv-row");
-  if (!el) return false;
+  const el = e.target.closest(ITEM_SEL[view]);
+  if (!el || el.dataset.i === undefined) return false;
   const list = items();
   const idx = +el.dataset.i, node = list[idx];
+  if (!node) return false;
   if (e.metaKey || e.ctrlKey) {
     selection.has(node) ? selection.delete(node) : selection.add(node);
     anchorIndex = idx;
@@ -345,18 +430,24 @@ function openNode(node) {
 /* content clicks */
 els.content.addEventListener("mousedown", e => {
   if (e.button === 2) { // right click: select target under cursor
-    const el = e.target.closest(view === "icon" ? ".icon-item" : ".lv-row");
-    if (el) { const node = items()[+el.dataset.i]; if (!selection.has(node)) selectOnly(node, +el.dataset.i); }
+    const el = e.target.closest(ITEM_SEL[view]);
+    if (el && el.dataset.i !== undefined) {
+      const node = items()[+el.dataset.i];
+      if (node && !selection.has(node)) selectOnly(node, +el.dataset.i);
+    }
     return;
   }
   if (e.target.closest(".lv-head")) return;
+  // columns and gallery wire their own clicks; only icon/list drag-select
+  if (view === "columns" || view === "gallery") { els.content.focus(); return; }
   const hit = handleItemMousedown(e);
   if (!hit) startRubberBand(e);
   els.content.focus();
 });
 els.content.addEventListener("dblclick", e => {
-  const el = e.target.closest(view === "icon" ? ".icon-item" : ".lv-row");
-  if (el) openNode(items()[+el.dataset.i]);
+  if (view === "columns" || view === "gallery") return;
+  const el = e.target.closest(ITEM_SEL[view]);
+  if (el && el.dataset.i !== undefined) openNode(items()[+el.dataset.i]);
 });
 
 /* rubber band */
@@ -412,6 +503,8 @@ els.content.addEventListener("keydown", e => {
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "a") { e.preventDefault(); list.forEach(n => selection.add(n)); applySelectionClasses(); return; }
   if ((e.metaKey || e.ctrlKey) && e.key === "1") { e.preventDefault(); setView("icon"); return; }
   if ((e.metaKey || e.ctrlKey) && e.key === "2") { e.preventDefault(); setView("list"); return; }
+  if ((e.metaKey || e.ctrlKey) && e.key === "3") { e.preventDefault(); setView("columns"); return; }
+  if ((e.metaKey || e.ctrlKey) && e.key === "4") { e.preventDefault(); setView("gallery"); return; }
   if ((e.metaKey || e.ctrlKey) && e.key === "ArrowUp") { e.preventDefault(); goUp(); return; }
   if ((e.metaKey || e.ctrlKey) && e.key === "ArrowDown") { e.preventDefault(); selection.size === 1 && openNode([...selection][0]); return; }
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "m") { e.preventDefault(); hideWindow("min"); return; }
@@ -467,10 +560,11 @@ function startRename(node) {
 }
 
 /* ================= view switching ================= */
+const VIEW_ICON = { icon: "t-grid", list: "t-list", columns: "t-columns", gallery: "t-gallery" };
 function setView(v) {
-  if (v !== "icon" && v !== "list") return;
+  if (!VIEW_ICON[v]) return;
   view = v;
-  $("tb-view-icon").innerHTML = `<use href="#${v === "icon" ? "t-grid" : "t-list"}"/>`;
+  $("tb-view-icon").innerHTML = `<use href="#${VIEW_ICON[v]}"/>`;
   render();
 }
 
@@ -567,8 +661,8 @@ $("tb-viewbtn").addEventListener("mousedown", e => {
   showMenu(
     mi("as Icons", "view-icon", "⌘1", { check: view === "icon" }) +
     mi("as List", "view-list", "⌘2", { check: view === "list" }) +
-    mi("as Columns", null, "⌘3", { disabled: true }) +
-    mi("as Gallery", null, "⌘4", { disabled: true }), r.left, r.bottom + 6);
+    mi("as Columns", "view-columns", "⌘3", { check: view === "columns" }) +
+    mi("as Gallery", "view-gallery", "⌘4", { check: view === "gallery" }), r.left, r.bottom + 6);
 });
 $("tb-group").addEventListener("mousedown", e => {
   e.stopPropagation();
@@ -586,9 +680,9 @@ $("tb-sidebar").addEventListener("click", () => els.sidebar.classList.toggle("co
 /* ================= context menu ================= */
 els.content.addEventListener("contextmenu", e => {
   e.preventDefault();
-  const el = e.target.closest(view === "icon" ? ".icon-item" : ".lv-row");
+  const el = e.target.closest(ITEM_SEL[view]);
   let html;
-  if (el) {
+  if (el && el.dataset.i !== undefined && items()[+el.dataset.i]) {
     const node = items()[+el.dataset.i];
     if (!selection.has(node)) selectOnly(node, +el.dataset.i);
     html =
@@ -623,6 +717,8 @@ function runAction(act, arg) {
     case "goto": { const n = findByName(arg); n && navigate(n); break; }
     case "view-icon": setView("icon"); break;
     case "view-list": setView("list"); break;
+    case "view-columns": setView("columns"); break;
+    case "view-gallery": setView("gallery"); break;
     case "select-all": items().forEach(n => selection.add(n)); applySelectionClasses(); break;
     case "open-sel": [...selection].forEach(openNode); break;
     case "ql-sel": selection.size && quickLook([...selection][0]); break;
@@ -884,6 +980,23 @@ $("resize-handle").addEventListener("mousedown", e => {
 
 /* ================= dock magnification =================
    Tracks the pointer 1:1 (direct manipulation); springs back on leave. */
+/* Centre every dock glyph on its plate and give the set one optical size,
+   whatever coordinate space each mark was drawn in. */
+(function fitGlyphs() {
+  const TARGET = 26, PLATE_STROKE = 2.7;   // both in the 64-unit plate space
+  document.querySelectorAll(".dock-item .glyph").forEach(g => {
+    const stroked = g.querySelector(".mark-s");
+    const b = g.getBBox();
+    if (!b.width && !b.height) return;
+    // getBBox ignores stroke, so add it back before measuring the visual box
+    const pad = stroked ? PLATE_STROKE : 0;
+    const s = TARGET / (Math.max(b.width, b.height) + pad);
+    const cx = b.x + b.width / 2, cy = b.y + b.height / 2;
+    g.setAttribute("transform", `translate(32 32) scale(${s.toFixed(5)}) translate(${-cx} ${-cy})`);
+    if (stroked) g.setAttribute("stroke-width", (PLATE_STROKE / s).toFixed(3));
+  });
+})();
+
 (function dockMagnify() {
   const dock = $("dock");
   const tip = $("dock-tip");

@@ -5,36 +5,45 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Haolang Li</title>
 <meta name="description" content="Haolang Li — filmmaker & AI video creator. Films, writings, and experiments.">
-<link rel="stylesheet" href="assets/style.css?v=3">
+<link rel="stylesheet" href="assets/style.css?v=4">
 </head>
 <body>
 
   <!-- ============ SVG icon library ============ -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
     <defs>
-      <!-- house folder: navy sleeve, one sheet edge showing — own design -->
-      <symbol id="i-folder-mac" viewBox="0 0 160 128">
+      <!-- house folder: navy sleeve, squarer stance, one sheet edge showing -->
+      <symbol id="i-folder-mac" viewBox="0 0 128 128">
         <!-- back panel + tab -->
-        <path d="M8 25c0-5.5 4.5-10 10-10h33.5c3.1 0 6 1.4 7.9 3.9l5.6 7.1H142c5.5 0 10 4.5 10 10v62c0 5.5-4.5 10-10 10H18c-5.5 0-10-4.5-10-10V25Z" fill="#16324F"/>
+        <path d="M4 24c0-5.5 4.5-10 10-10h26c3.1 0 6 1.4 7.9 3.9l5.4 7.1H114c5.5 0 10 4.5 10 10v72c0 5.5-4.5 10-10 10H14c-5.5 0-10-4.5-10-10V24Z" fill="#16324F"/>
         <!-- the sheet inside: only its edge clears the sleeve, sitting off-centre -->
-        <path d="M62 40a3 3 0 0 1 3-3h58a3 3 0 0 1 3 3v18H62V40Z" fill="#EDE8DC"/>
+        <path d="M48 44a3 3 0 0 1 3-3h42a3 3 0 0 1 3 3v18H48V44Z" fill="#EDE8DC"/>
         <!-- front panel -->
-        <path d="M8 50h144v48c0 5.5-4.5 10-10 10H18c-5.5 0-10-4.5-10-10V50Z" fill="#2E5077"/>
-        <rect x="8" y="50" width="144" height="1.6" fill="#89AFD8" opacity=".5"/>
+        <path d="M4 56h120v52c0 5.5-4.5 10-10 10H14c-5.5 0-10-4.5-10-10V56Z" fill="#2E5077"/>
+        <rect x="4" y="56" width="120" height="1.6" fill="#89AFD8" opacity=".5"/>
       </symbol>
-      <!-- generic document -->
-      <symbol id="i-doc-mac" viewBox="0 0 120 150">
-        <path d="M10 14A14 14 0 0 1 24 0h56l30 30v106a14 14 0 0 1-14 14H24a14 14 0 0 1-14-14V14Z" fill="#F6F6F6"/>
-        <path d="M80 0l30 30H92A12 12 0 0 1 80 18V0Z" fill="#DADADA"/>
-        <path d="M28 58h44M28 74h64M28 90h64M28 106h50" stroke="#C9CDD2" stroke-width="6" stroke-linecap="round"/>
+      <!-- generic document: cream sheet, navy rules — same family as the folder -->
+      <symbol id="i-doc-mac" viewBox="0 0 116 128">
+        <path d="M8 12A12 12 0 0 1 20 0h50l38 38v78a12 12 0 0 1-12 12H20A12 12 0 0 1 8 116V12Z" fill="#EDE8DC"/>
+        <path d="M70 0l38 38H82a12 12 0 0 1-12-12V0Z" fill="#C6C0B1"/>
+        <g fill="#16324F">
+          <rect x="26" y="56" width="38" height="5" rx="2.5" opacity=".3"/>
+          <rect x="26" y="71" width="58" height="5" rx="2.5" opacity=".18"/>
+          <rect x="26" y="86" width="58" height="5" rx="2.5" opacity=".18"/>
+          <rect x="26" y="101" width="40" height="5" rx="2.5" opacity=".18"/>
+        </g>
       </symbol>
-      <!-- PDF document -->
-      <symbol id="i-pdf-mac" viewBox="0 0 120 150">
-        <path d="M10 14A14 14 0 0 1 24 0h56l30 30v106a14 14 0 0 1-14 14H24a14 14 0 0 1-14-14V14Z" fill="#F6F6F6"/>
-        <path d="M80 0l30 30H92A12 12 0 0 1 80 18V0Z" fill="#DADADA"/>
-        <path d="M28 52h40M28 66h64M28 80h64" stroke="#C9CDD2" stroke-width="6" stroke-linecap="round"/>
-        <rect x="24" y="94" width="46" height="26" rx="7" fill="#E5484D"/>
-        <text x="47" y="113" text-anchor="middle" font-family="-apple-system,Helvetica,Arial" font-weight="700" font-size="16" fill="#fff" letter-spacing="1">PDF</text>
+      <!-- PDF: the format is stated on a navy footer band, not a sticker -->
+      <symbol id="i-pdf-mac" viewBox="0 0 116 128">
+        <path d="M8 12A12 12 0 0 1 20 0h50l38 38v78a12 12 0 0 1-12 12H20A12 12 0 0 1 8 116V12Z" fill="#EDE8DC"/>
+        <path d="M70 0l38 38H82a12 12 0 0 1-12-12V0Z" fill="#C6C0B1"/>
+        <g fill="#16324F">
+          <rect x="26" y="54" width="38" height="5" rx="2.5" opacity=".3"/>
+          <rect x="26" y="69" width="58" height="5" rx="2.5" opacity=".18"/>
+        </g>
+        <path d="M8 90h100v26a12 12 0 0 1-12 12H20A12 12 0 0 1 8 116V90Z" fill="#2E5077"/>
+        <text x="58" y="117" text-anchor="middle" font-family="-apple-system, Helvetica, Arial, sans-serif"
+              font-weight="700" font-size="22" fill="#EDE8DC" letter-spacing="2">PDF</text>
       </symbol>
       <!-- webloc / link file -->
       <symbol id="i-webloc" viewBox="0 0 120 150">
@@ -59,6 +68,8 @@
       <symbol id="t-fwd" viewBox="0 0 20 20"><path d="M7.5 3.5 14 10l-6.5 6.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
       <symbol id="t-grid" viewBox="0 0 20 20"><rect x="3" y="3" width="6" height="6" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="3" width="6" height="6" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="11" width="6" height="6" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="11" y="11" width="6" height="6" rx="1.4" fill="none" stroke="currentColor" stroke-width="1.5"/></symbol>
       <symbol id="t-list" viewBox="0 0 20 20"><path d="M3 5h2M3 10h2M3 15h2M8 5h9M8 10h9M8 15h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+      <symbol id="t-columns" viewBox="0 0 20 20"><rect x="3" y="3.5" width="14" height="13" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M7.7 3.5v13M12.3 3.5v13" stroke="currentColor" stroke-width="1.5"/></symbol>
+      <symbol id="t-gallery" viewBox="0 0 20 20"><rect x="4.5" y="3" width="11" height="8.5" rx="1.8" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="3" y="13.5" width="4" height="3.5" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="8" y="13.5" width="4" height="3.5" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/><rect x="13" y="13.5" width="4" height="3.5" rx="1" fill="none" stroke="currentColor" stroke-width="1.4"/></symbol>
       <symbol id="t-group" viewBox="0 0 20 20"><path d="M3 4.5h14M3 8h14M3 12.5h8M3 16h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
       <symbol id="t-share" viewBox="0 0 20 20"><path d="M10 2.5v10M6.5 5.5 10 2l3.5 3.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 9H4.5A1.5 1.5 0 0 0 3 10.5v5A1.5 1.5 0 0 0 4.5 17h11a1.5 1.5 0 0 0 1.5-1.5v-5A1.5 1.5 0 0 0 15.5 9H15" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></symbol>
       <symbol id="t-tag" viewBox="0 0 20 20"><path d="M3 4.5A1.5 1.5 0 0 1 4.5 3h4.8c.4 0 .8.16 1.06.44l6.2 6.2a1.5 1.5 0 0 1 0 2.12l-4.8 4.8a1.5 1.5 0 0 1-2.12 0l-6.2-6.2A1.5 1.5 0 0 1 3 9.3V4.5Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><circle cx="7" cy="7" r="1.2" fill="currentColor"/></symbol>
@@ -130,6 +141,8 @@
           <div class="content" id="content" tabindex="0">
             <div class="icon-view" id="icon-view"></div>
             <div class="list-view" id="list-view" hidden></div>
+            <div class="columns-view" id="columns-view" hidden></div>
+            <div class="gallery-view" id="gallery-view" hidden></div>
             <div class="rubber-band" id="rubber-band" hidden></div>
           </div>
 
@@ -151,44 +164,45 @@
     <button class="dock-item" data-app="vimeo" aria-label="Vimeo">
       <svg viewBox="0 0 64 64">
         <rect class="plate" x="2" y="2" width="60" height="60" rx="15"/>
-        <path class="mark-f" d="M50 24.3c-.15 3.3-2.45 7.8-6.9 13.5-4.6 6-8.5 9-11.7 9-2 0-3.65-1.85-5-5.5l-2.7-10c-1-3.6-2.1-5.4-3.3-5.4-.25 0-1.15.55-2.7 1.65L16 25.4c1.7-1.5 3.4-3 5-4.5 2.3-2 4-3 5.2-3.1 2.7-.25 4.35 1.6 5 5.5.7 4.2 1.2 6.8 1.5 7.9.8 3.7 1.75 5.5 2.8 5.5.8 0 2-1.25 3.6-3.75 1.6-2.5 2.45-4.4 2.55-5.7.2-2.15-.65-3.25-2.55-3.25-.9 0-1.8.2-2.75.6 1.85-6 5.35-8.9 10.55-8.75 3.85.1 5.65 2.6 5.4 7.45Z"/>
+        <g class="glyph"><path class="mark-f" d="M23.9765 6.4168c-.105 2.338-1.739 5.5429-4.894 9.6088-3.2679 4.247-6.0258 6.3699-8.2898 6.3699-1.409 0-2.578-1.294-3.553-3.881l-1.9179-7.1138c-.719-2.585-1.488-3.878-2.312-3.878-.179 0-.806.378-1.8809 1.132l-1.129-1.457a315.06 315.06 0 003.501-3.1279c1.579-1.365 2.765-2.084 3.5539-2.156 1.864-.18 3.011 1.095 3.443 3.8199.465 2.941.789 4.771.971 5.483.539 2.45 1.131 3.674 1.776 3.674.502 0 1.256-.796 2.265-2.385 1.004-1.589 1.54-2.797 1.612-3.628.144-1.371-.395-2.061-1.614-2.061-.574 0-1.167.121-1.777.391 1.186-3.868 3.434-5.757 6.762-5.637 2.473.06 3.628 1.664 3.493 4.797z"/></g>
       </svg>
     </button>
     <button class="dock-item" data-app="instagram" aria-label="Instagram">
       <svg viewBox="0 0 64 64">
         <rect class="plate" x="2" y="2" width="60" height="60" rx="15"/>
-        <rect class="mark-s" x="16" y="16" width="32" height="32" rx="9.5"/>
-        <circle class="mark-s" cx="32" cy="32" r="7.8"/>
-        <circle class="mark-f" cx="41.6" cy="22.4" r="2.4"/>
+        <g class="glyph">
+          <rect class="mark-s" x="1.7" y="1.7" width="20.6" height="20.6" rx="6"/>
+          <circle class="mark-s" cx="12" cy="12" r="5"/>
+          <circle class="mark-f" cx="18.1" cy="5.9" r="1.5"/>
+        </g>
       </svg>
     </button>
     <button class="dock-item" data-app="spotify" aria-label="Spotify">
       <svg viewBox="0 0 64 64">
         <rect class="plate" x="2" y="2" width="60" height="60" rx="15"/>
-        <circle class="mark-s" cx="32" cy="32" r="16"/>
-        <path class="mark-s" d="M23 26.6c5.6-1.6 11.9-.9 16.7 1.9M23.6 32.4c4.6-1.3 9.7-.7 13.7 1.7M24.4 38.2c3.6-1 7.6-.5 11 1.4"/>
+        <g class="glyph"><path class="mark-f" d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></g>
       </svg>
     </button>
     <button class="dock-item" data-app="discord" aria-label="Discord">
       <svg viewBox="0 0 64 64">
         <rect class="plate" x="2" y="2" width="60" height="60" rx="15"/>
-        <path class="mark-f" d="M22.9 45.6c-5.5 0-9.5-2.9-9.5-2.9.7-10 3.8-18.4 8.1-23.9 0 0 4.3-2.2 8.1-2.6l1 2.6a31.4 31.4 0 0 1 13.9 0l1-2.6c3.8.4 8.1 2.6 8.1 2.6 4.3 5.5 7.4 13.9 8.1 23.9 0 0-4 2.9-9.5 2.9l-2.3-3.8c1.8-.7 4.2-1.9 4.2-1.9-6.5 4.1-21.3 4.1-27.9 0 0 0 2.4 1.2 4.2 1.9l-2.8 3.8Z" transform="translate(-3.4 -1.5) scale(1.005)"/>
-        <ellipse class="cut" cx="24.9" cy="33.4" rx="2.9" ry="3.3"/>
-        <ellipse class="cut" cx="37.9" cy="33.4" rx="2.9" ry="3.3"/>
+        <g class="glyph"><path class="mark-f" d="M20.317 4.3698a19.7913 19.7913 0 00-4.8851-1.5152.0741.0741 0 00-.0785.0371c-.211.3753-.4447.8648-.6083 1.2495-1.8447-.2762-3.68-.2762-5.4868 0-.1636-.3933-.4058-.8742-.6177-1.2495a.077.077 0 00-.0785-.037 19.7363 19.7363 0 00-4.8852 1.515.0699.0699 0 00-.0321.0277C.5334 9.0458-.319 13.5799.0992 18.0578a.0824.0824 0 00.0312.0561c2.0528 1.5076 4.0413 2.4228 5.9929 3.0294a.0777.0777 0 00.0842-.0276c.4616-.6304.8731-1.2952 1.226-1.9942a.076.076 0 00-.0416-.1057c-.6528-.2476-1.2743-.5495-1.8722-.8923a.077.077 0 01-.0076-.1277c.1258-.0943.2517-.1923.3718-.2914a.0743.0743 0 01.0776-.0105c3.9278 1.7933 8.18 1.7933 12.0614 0a.0739.0739 0 01.0785.0095c.1202.099.246.1981.3728.2924a.077.077 0 01-.0066.1276 12.2986 12.2986 0 01-1.873.8914.0766.0766 0 00-.0407.1067c.3604.698.7719 1.3628 1.225 1.9932a.076.076 0 00.0842.0286c1.961-.6067 3.9495-1.5219 6.0023-3.0294a.077.077 0 00.0313-.0552c.5004-5.177-.8382-9.6739-3.5485-13.6604a.061.061 0 00-.0312-.0286zM8.02 15.3312c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9555-2.4189 2.157-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.9555 2.4189-2.1569 2.4189zm7.9748 0c-1.1825 0-2.1569-1.0857-2.1569-2.419 0-1.3332.9554-2.4189 2.1569-2.4189 1.2108 0 2.1757 1.0952 2.1568 2.419 0 1.3332-.946 2.4189-2.1568 2.4189z"/></g>
       </svg>
     </button>
     <button class="dock-item" data-app="email" aria-label="Email">
       <svg viewBox="0 0 64 64">
         <rect class="plate" x="2" y="2" width="60" height="60" rx="15"/>
-        <rect class="mark-s" x="14" y="19.5" width="36" height="25" rx="4.5"/>
-        <path class="mark-s" d="M16.5 23 32 34.5 47.5 23"/>
+        <g class="glyph">
+          <rect class="mark-s" x="1.6" y="1.6" width="24.8" height="18.8" rx="3.4"/>
+          <path class="mark-s" d="M3.4 4 14 12.2 24.6 4"/>
+        </g>
       </svg>
     </button>
     <button class="dock-item" data-app="arena" aria-label="Are.na">
       <svg viewBox="0 0 64 64">
         <rect class="plate" x="2" y="2" width="60" height="60" rx="15"/>
         <!-- six-pointed asterisk — Are.na's mark -->
-        <path class="mark-s" d="M32 17v30M19 24.5l26 15M45 24.5l-26 15"/>
+        <g class="glyph"><path class="mark-s" d="M12 1.6v20.8M3 6.8l18 10.4M21 6.8 3 17.2"/></g>
       </svg>
     </button>
   </div></div>
@@ -199,6 +213,6 @@
   <!-- context menu / quick look / get info render here -->
   <div id="overlay-layer"></div>
 
-  <script src="assets/app.js?v=3"></script>
+  <script src="assets/app.js?v=4"></script>
 </body>
 </html>
