@@ -86,15 +86,19 @@ const FINE_POINTER = matchMedia("(pointer: fine)");
 
 const springStates = new WeakMap(); // el -> { props: {x:{val,vel,target}...}, raf, onDone }
 function springApply(el, p) {
-  el.style.transform = `translate3d(${p.x?.val || 0}px, ${p.y?.val || 0}px, 0) scale(${p.scale ? p.scale.val : 1})`;
+  const s = (p.sx || p.sy)
+    ? `scale(${p.sx ? p.sx.val : 1}, ${p.sy ? p.sy.val : 1})`   // FLIP resizes stretch like a real surface
+    : `scale(${p.scale ? p.scale.val : 1})`;
+  el.style.transform = `translate3d(${p.x?.val || 0}px, ${p.y?.val || 0}px, 0) ${s}`;
   if (p.opacity) el.style.opacity = p.opacity.val;
 }
+const UNIT_PROPS = new Set(["scale", "opacity", "sx", "sy"]); // dimensionless props default to 1
 function springTo(el, targets, { damping = 1, response = 0.35, velocity = {}, onDone } = {}) {
   let st = springStates.get(el);
   if (!st) { st = { props: {}, raf: 0 }; springStates.set(el, st); }
   st.onDone = onDone;
   for (const k in targets) {
-    const cur = st.props[k] || { val: k === "scale" || k === "opacity" ? 1 : 0, vel: 0 };
+    const cur = st.props[k] || { val: UNIT_PROPS.has(k) ? 1 : 0, vel: 0 };
     cur.target = targets[k];
     if (velocity[k] !== undefined) cur.vel = velocity[k];
     st.props[k] = cur;
@@ -124,7 +128,7 @@ function springTo(el, targets, { damping = 1, response = 0.35, velocity = {}, on
     let settled = true;
     for (const k in st.props) {
       const p = st.props[k];
-      const eps = (k === "scale" || k === "opacity") ? 0.002 : 0.05; // unit-aware tolerance
+      const eps = UNIT_PROPS.has(k) ? 0.002 : 0.05; // unit-aware tolerance
       if (Math.abs(p.vel) > eps * 4 || Math.abs(p.target - p.val) > eps) settled = false;
     }
     if (settled) {
@@ -412,6 +416,7 @@ els.content.addEventListener("keydown", e => {
   if ((e.metaKey || e.ctrlKey) && e.key === "2") { e.preventDefault(); setView("list"); return; }
   if ((e.metaKey || e.ctrlKey) && e.key === "ArrowUp") { e.preventDefault(); goUp(); return; }
   if ((e.metaKey || e.ctrlKey) && e.key === "ArrowDown") { e.preventDefault(); selection.size === 1 && openNode([...selection][0]); return; }
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "m") { e.preventDefault(); hideWindow("min"); return; }
   if ((e.metaKey || e.ctrlKey) && e.key === "[") { e.preventDefault(); goBack(); return; }
   if ((e.metaKey || e.ctrlKey) && e.key === "]") { e.preventDefault(); goForward(); return; }
   if (e.key === " " || e.code === "Space") {
@@ -513,7 +518,7 @@ const MENUS = {
     sep + mi("Lock Screen", null, "⌃⌘Q", { disabled: true }),
   finder: () => mi("About Finder", "about") + sep + mi("Settings…", null, "⌘,", { disabled: true }) +
     sep + mi("Empty Trash…", null, "⇧⌘⌫", { disabled: true }) + sep + mi("Hide Finder", null, "⌘H", { disabled: true }),
-  file: () => mi("New Finder Window", null, "⌘N", { disabled: true }) + mi("New Folder", null, "⇧⌘N", { disabled: true }) +
+  file: () => mi("New Finder Window", "reopen", "⌘N") + mi("New Folder", null, "⇧⌘N", { disabled: true }) +
     sep + mi("Open", "open-sel", "⌘O", { disabled: !selection.size }) +
     mi("Quick Look", "ql-sel", "Space", { disabled: !selection.size }) +
     mi("Get Info", "info-sel", "⌘I", { disabled: !selection.size }) +
@@ -536,7 +541,7 @@ const MENUS = {
     mi("&nbsp;AI", "goto", "", { arg: "AI" }) + mi("&nbsp;FILM", "goto", "", { arg: "FILM" }) +
     mi("&nbsp;WRITINGS", "goto", "", { arg: "WRITINGS" }) + mi("&nbsp;READINGS", "goto", "", { arg: "READINGS" }) +
     mi("&nbsp;FLAT THINGS", "goto", "", { arg: "FLAT THINGS" }),
-  window: () => mi("Minimize", null, "⌘M", { disabled: true }) + mi("Zoom", null, "", { disabled: true }) + sep + mi("Haolang Li", null, "", { check: true, disabled: true }),
+  window: () => mi("Minimize", "minimize", "⌘M") + mi("Zoom", "zoom") + sep + mi("Haolang Li", "reopen", "", { check: true }),
   help: () => mi("About this site", "about") + sep + mi("macOS Help", null, "", { disabled: true }),
 };
 
@@ -625,6 +630,9 @@ function runAction(act, arg) {
     case "info-cwd": getInfo(cwd, 0); break;
     case "rename-sel": selection.size === 1 && startRename([...selection][0]); break;
     case "toggle-sidebar": els.sidebar.classList.toggle("collapsed"); break;
+    case "minimize": hideWindow("min"); break;
+    case "zoom": toggleFullscreen(); break;
+    case "reopen": openWindow(); break;
     case "about": showAbout(); break;
   }
 }
@@ -766,6 +774,45 @@ function openApp(id) {
 }
 document.querySelectorAll(".dock-item[data-app]").forEach(btn =>
   btn.addEventListener("click", () => openApp(btn.dataset.app)));
+
+/* ================= window management: traffic lights ================= */
+let winHidden = false;
+function hideWindow(kind) {
+  if (winHidden) return;
+  winHidden = true;
+  const r = els.win.getBoundingClientRect();
+  // minimize sinks toward the dock; close poofs in place — exit hints at where it went (§8)
+  const dy = kind === "min" ? innerHeight - r.top - r.height / 2 : 70;
+  springTo(els.win, { y: dy, scale: 0.08, opacity: 0 },
+    { response: 0.42, onDone: () => els.win.classList.add("win-gone") });
+}
+function openWindow() {
+  if (!winHidden) return;
+  winHidden = false;
+  els.win.classList.remove("win-gone");
+  springTo(els.win, { y: 0, scale: 1, opacity: 1 }, { response: 0.42 });
+}
+function toggleFullscreen() {
+  if (winHidden) return;
+  const win = els.win;
+  const r0 = win.getBoundingClientRect();
+  const fs = !win.classList.contains("fullscreen");
+  win.classList.toggle("fullscreen", fs);
+  document.body.classList.toggle("has-fullscreen", fs);
+  const r1 = win.getBoundingClientRect();
+  // FLIP: jump to the new layout, then spring the visual difference away
+  win.style.transformOrigin = "0 0";
+  setPresentation(win, {
+    x: r0.left - r1.left, y: r0.top - r1.top,
+    sx: r0.width / r1.width, sy: r0.height / r1.height,
+  });
+  springTo(win, { x: 0, y: 0, sx: 1, sy: 1 }, { response: 0.45 });
+}
+$("tl-close").addEventListener("click", () => hideWindow("close"));
+$("tl-min").addEventListener("click", () => hideWindow("min"));
+$("tl-zoom").addEventListener("click", toggleFullscreen);
+/* the desktop is the way back in: double-click any empty spot */
+els.desktop.addEventListener("dblclick", e => { if (e.target === els.desktop) openWindow(); });
 
 /* drag by toolbar / title — pointer events, 1:1 with grab offset, velocity-aware.
    Top edge rubber-bands instead of hard-stopping; release springs back. */
