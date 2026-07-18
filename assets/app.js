@@ -300,9 +300,7 @@ function render() {
 function updateStatus() {
   const n = items().length;
   const sel = selection.size;
-  els.status.textContent = sel
-    ? `${sel} of ${n} selected, 480.36 GB available`
-    : `${n} item${n === 1 ? "" : "s"}, 480.36 GB available`;
+  els.status.textContent = sel ? `${sel} of ${n} selected` : `${n} item${n === 1 ? "" : "s"}`;
 }
 
 /* ================= selection ================= */
@@ -511,7 +509,8 @@ const mi = (label, act, kbd = "", opts = {}) =>
 const sep = '<div class="dd-sep"></div>';
 const tagRow = `<div class="dd-tags">${TAG_COLORS.map(c => `<i style="background:${c}"></i>`).join("")}</div>`;
 
-const MENUS = {
+/* eslint-disable no-unused-vars */
+const MENUS_RETIRED = {
   apple: () => mi("About This Mac", "about") + sep + mi("System Settings…", null, "", { disabled: true }) +
     mi("App Store…", null, "", { disabled: true }) + sep + mi("Sleep", null, "", { disabled: true }) +
     mi("Restart…", null, "", { disabled: true }) + mi("Shut Down…", null, "", { disabled: true }) +
@@ -545,19 +544,20 @@ const MENUS = {
   help: () => mi("About this site", "about") + sep + mi("macOS Help", null, "", { disabled: true }),
 };
 
-document.querySelectorAll(".mb-item").forEach(btn => {
-  btn.addEventListener("mousedown", e => {
-    e.stopPropagation();
-    if (openMenu && btn.classList.contains("open")) { closeMenus(); return; }
-    const r = btn.getBoundingClientRect();
-    showMenu(MENUS[btn.dataset.menu](), r.left, r.bottom + 4, btn);
-  });
-  btn.addEventListener("mouseenter", () => {
-    if (openMenu && !btn.classList.contains("open")) {
-      const r = btn.getBoundingClientRect();
-      showMenu(MENUS[btn.dataset.menu](), r.left, r.bottom + 4, btn);
-    }
-  });
+/* ================= menu bar: name + appearance ================= */
+$("mb-name").addEventListener("click", () => openWindow());
+
+const THEME_KEY = "hl-theme";
+function applyTheme(t) {
+  document.documentElement.dataset.theme = t;
+  $("mb-theme").title = t === "dark" ? "Switch to light appearance" : "Switch to dark appearance";
+}
+applyTheme(localStorage.getItem(THEME_KEY)
+  || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"));
+$("mb-theme").addEventListener("click", () => {
+  const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
+  applyTheme(next);
+  try { localStorage.setItem(THEME_KEY, next); } catch {}
 });
 
 /* toolbar dropdowns */
@@ -861,7 +861,9 @@ function makeDraggable(box, handle, { clampToDesktop = false, onFlickDown } = {}
     handle.addEventListener("pointercancel", onUp);
   });
 }
+/* the whole top strip moves the window — toolbar and the sidebar's title area */
 makeDraggable(els.win, $("toolbar"), { clampToDesktop: true });
+makeDraggable(els.win, $("traffic"), { clampToDesktop: true });
 
 /* resize */
 $("resize-handle").addEventListener("mousedown", e => {
@@ -884,22 +886,58 @@ $("resize-handle").addEventListener("mousedown", e => {
    Tracks the pointer 1:1 (direct manipulation); springs back on leave. */
 (function dockMagnify() {
   const dock = $("dock");
-  if (!dock || !FINE_POINTER.matches) return;
+  const tip = $("dock-tip");
+  if (!dock) return;
   const apps = [...dock.querySelectorAll(".dock-item")];
-  const centerOf = (it) => { // layout position, immune to current transforms
-    const dr = dock.getBoundingClientRect();
-    return dr.left + it.offsetLeft + it.offsetWidth / 2;
+  const AMP = 0.55, SIGMA = 78;   // growth and how far the swell reaches
+
+  const showTip = (it) => {
+    const r = it.getBoundingClientRect();
+    tip.textContent = it.getAttribute("aria-label");
+    tip.hidden = false;
+    tip.style.left = r.left + r.width / 2 + "px";
+    tip.style.top = r.top - 10 + "px";
   };
+  const hideTip = () => { tip.hidden = true; };
+
+  if (!FINE_POINTER.matches) {   // touch: no magnification, but names on tap-hold
+    apps.forEach(it => {
+      it.addEventListener("pointerdown", () => showTip(it));
+      it.addEventListener("pointerup", hideTip);
+      it.addEventListener("pointercancel", hideTip);
+    });
+    return;
+  }
+
+  let hovered = null;
   dock.addEventListener("pointermove", e => {
     if (REDUCED.matches) return;
-    apps.forEach(it => {
-      const d = e.clientX - centerOf(it);
-      const scale = 1 + 0.42 * Math.exp(-(d * d) / (90 * 90));
-      setPresentation(it, { y: -(scale - 1) * 30, scale });
+    const dr = dock.getBoundingClientRect();
+    // 1. how much each icon swells
+    const scales = apps.map(it => {
+      const home = dr.left + it.offsetLeft + it.offsetWidth / 2;
+      const d = e.clientX - home;
+      return 1 + AMP * Math.exp(-(d * d) / (2 * SIGMA * SIGMA));
     });
+    // 2. push neighbours outward by the width the swell adds, so nothing crowds
+    const extras = scales.map((s, i) => (s - 1) * apps[i].offsetWidth);
+    const total = extras.reduce((a, b) => a + b, 0);
+    let run = 0;
+    apps.forEach((it, i) => {
+      const shift = run + extras[i] / 2 - total / 2;
+      run += extras[i];
+      setPresentation(it, { x: shift, y: -(scales[i] - 1) * 26, scale: scales[i] });
+    });
+    // 3. the name rides above whichever icon is biggest
+    const top = scales.indexOf(Math.max(...scales));
+    if (scales[top] > 1.12) {
+      if (apps[top] !== hovered) { hovered = apps[top]; }
+      showTip(apps[top]);
+    } else { hovered = null; hideTip(); }
   });
   dock.addEventListener("pointerleave", () => {
-    apps.forEach(it => springTo(it, { y: 0, scale: 1 }, { response: 0.32 }));
+    hovered = null; hideTip();
+    apps.forEach(it => springTo(it, { x: 0, y: 0, scale: 1 }, { response: 0.34 }));
   });
 })();
 

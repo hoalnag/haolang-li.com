@@ -30,6 +30,10 @@
   --menu-fg: #E8E8EA;
   --menu-dim: #7C7C82;
 
+  --folder: #7FA9D6;              /* navy family, legible on dark chrome */
+  --app-plate: #EDE8DC;           /* cream plate, near-black mark */
+  --app-mark: #16161A;
+
   --icon-size: 72px;
   --font: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
 }
@@ -71,19 +75,25 @@ svg { display: block; }
   font-size: 13px;
   z-index: 500;
 }
-.mb-left, .mb-right { display: flex; align-items: center; height: 100%; }
-.mb-item {
+.mb-left, .mb-right { display: flex; align-items: center; height: 100%; gap: 2px; }
+.mb-name {
   height: 100%; padding: 0 10px;
-  font-size: 13px; color: var(--menubar-fg);
-  display: flex; align-items: center; border-radius: 4px;
+  display: flex; align-items: center; border-radius: 5px;
+  font-size: 12.5px; font-weight: 700;
+  letter-spacing: .14em;            /* small type wants positive tracking */
+  color: var(--menubar-fg);
 }
-.mb-appname { font-weight: 700; }
-.mb-item.open { background: rgba(255, 255, 255, .18); }
-.mb-apple svg { width: 16px; height: 16px; }
-.mb-right { gap: 2px; }
-.mb-status { padding: 0 8px; display: flex; align-items: center; }
-.mb-status svg { width: 16px; height: 16px; }
-.mb-batt { width: 24px !important; height: 12px !important; }
+.mb-name:hover { background: rgba(255, 255, 255, .14); }
+.mb-theme {
+  height: 20px; width: 26px; margin-right: 2px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 5px; color: var(--menubar-fg);
+}
+.mb-theme:hover { background: rgba(255, 255, 255, .14); }
+.mb-theme svg { width: 15px; height: 15px; }
+.mb-theme .ic-moon { display: none; }
+[data-theme="light"] .mb-theme .ic-sun { display: none; }
+[data-theme="light"] .mb-theme .ic-moon { display: block; }
 .mb-clock { padding: 0 8px 0 6px; font-size: 13px; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
 /* ================= dropdown menus ================= */
@@ -157,7 +167,7 @@ body.has-fullscreen .dock-wrap { display: none; }
   transition: margin-left .22s ease;
 }
 .sidebar.collapsed { margin-left: -190px; }
-.traffic { display: flex; gap: 8px; padding: 19px 0 14px 20px; flex: 0 0 auto; }
+.traffic { display: flex; gap: 8px; padding: 19px 0 14px 20px; flex: 0 0 auto; cursor: default; }
 .tl {
   width: 12px; height: 12px; border-radius: 50%; padding: 0;
   display: flex; align-items: center; justify-content: center;
@@ -181,7 +191,8 @@ body.has-fullscreen .dock-wrap { display: none; }
   font-size: 13px; color: var(--sidebar-fg);
   text-align: left; white-space: nowrap; overflow: hidden;
 }
-.side-item svg { width: 17px; height: 17px; flex: 0 0 auto; color: var(--accent); }
+.side-item svg { width: 17px; height: 17px; flex: 0 0 auto; color: var(--folder); }
+.side-item.side-link svg { color: var(--accent); }
 .side-item span { overflow: hidden; text-overflow: ellipsis; }
 .side-item.active { background: var(--sidebar-sel); }
 .side-item:not(.active):hover { background: rgba(255, 255, 255, .06); }
@@ -402,7 +413,38 @@ body.has-fullscreen .dock-wrap { display: none; }
   pointer-events: auto;
 }
 .dock-item { position: relative; width: 46px; height: 46px; padding: 2px; will-change: transform; transform-origin: 50% 100%; }
-.dock-item svg { width: 100%; height: 100%; border-radius: 11px; box-shadow: 0 3px 8px rgba(0,0,0,.3); }
+.dock-item svg { width: 100%; height: 100%; overflow: visible; filter: drop-shadow(0 3px 8px rgba(0,0,0,.32)); }
+/* monochrome app set: one plate colour, one mark colour, one stroke weight
+   (also used by the app window, so keep these selectors unscoped) */
+.plate { fill: var(--app-plate); }
+.mark-f { fill: var(--app-mark); }
+.cut { fill: var(--app-plate); }
+.mark-s {
+  fill: none; stroke: var(--app-mark);
+  stroke-width: 3.4; stroke-linecap: round; stroke-linejoin: round;
+}
+
+/* dock tooltip — the name rides above the icon, macOS style */
+.dock-tip {
+  position: fixed; z-index: 460;
+  transform: translate(-50%, -100%);
+  padding: 4px 10px;
+  background: var(--menu-bg);
+  backdrop-filter: blur(30px) saturate(1.8);
+  -webkit-backdrop-filter: blur(30px) saturate(1.8);
+  border: .5px solid rgba(255, 255, 255, .16);
+  border-radius: 7px;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, .4);
+  font-size: 12.5px; color: var(--menu-fg);
+  white-space: nowrap; pointer-events: none;
+}
+.dock-tip::after {
+  content: ""; position: absolute; left: 50%; bottom: -4px;
+  width: 8px; height: 8px; transform: translateX(-50%) rotate(45deg);
+  background: var(--menu-bg);
+  border-right: .5px solid rgba(255, 255, 255, .16);
+  border-bottom: .5px solid rgba(255, 255, 255, .16);
+}
 .dock-item.bounce { animation: dock-bounce .5s ease 2; }
 @keyframes dock-bounce { 0%,100% { transform: translateY(0); } 40% { transform: translateY(-16px); } }
 
@@ -461,9 +503,9 @@ body.has-fullscreen .dock-wrap { display: none; }
 .icon-item.lifted { z-index: 30; }
 .icon-item.lifted .ic-frame, .icon-item.lifted .ic-label { pointer-events: none; }
 
-/* ================= light mode ================= */
-@media (prefers-color-scheme: light) {
-  :root {
+/* ================= light mode =================
+   Resolved by JS on boot (stored choice ?? system), so the toggle can override. */
+:root[data-theme="light"] {
     --desktop-bg: #cdd3de;
     --menubar-bg: rgba(246, 246, 248, .6);
     --menubar-fg: #1d1d1f;
@@ -482,26 +524,29 @@ body.has-fullscreen .dock-wrap { display: none; }
     --menu-bg: rgba(246, 246, 248, .78);
     --menu-fg: #1d1d1f;
     --menu-dim: #A6A6AC;
+    --folder: #2E5077;
+    --app-plate: #1A1A1E;
+    --app-mark: #EDE8DC;
   }
-  .desktop {
-    background:
-      radial-gradient(120% 90% at 75% 10%, #e8d9c4 0%, transparent 55%),
-      radial-gradient(110% 100% at 20% 95%, #b9cfdd 0%, transparent 60%),
-      linear-gradient(160deg, #dfe3ec 0%, #c3cbd9 55%, #aab4c5 100%);
-  }
-  .rubber-band { background: rgba(90, 90, 95, .13); border-color: rgba(0, 0, 0, .3); }
-  .content::-webkit-scrollbar-thumb { background: rgba(0,0,0,.28); border: 4px solid transparent; background-clip: padding-box; }
-  .size-slider { background: rgba(0,0,0,.2); }
-  .size-slider::-webkit-slider-thumb { background: #fff; }
-  .dock { background: rgba(246, 246, 248, .38); }
-  .tb-btn:hover:not(:disabled) { background: rgba(0, 0, 0, .06); }
-  .aw-url { background: rgba(0, 0, 0, .05); }
-  .aw-btn.quiet { background: rgba(0, 0, 0, .06); }
-  .aw-btn.quiet:hover { background: rgba(0, 0, 0, .1); }
-  .side-item:not(.active):hover { background: rgba(0, 0, 0, .05); }
-  .pb-item:hover { background: rgba(0,0,0,.06); }
-  .icon-item svg.file-icon { filter: drop-shadow(0 1px 2px rgba(0,0,0,.18)); }
+[data-theme="light"] .desktop {
+  background:
+    radial-gradient(120% 90% at 75% 10%, #e8d9c4 0%, transparent 55%),
+    radial-gradient(110% 100% at 20% 95%, #b9cfdd 0%, transparent 60%),
+    linear-gradient(160deg, #dfe3ec 0%, #c3cbd9 55%, #aab4c5 100%);
 }
+[data-theme="light"] .rubber-band { background: rgba(90, 90, 95, .13); border-color: rgba(0, 0, 0, .3); }
+[data-theme="light"] .content::-webkit-scrollbar-thumb { background: rgba(0,0,0,.28); border: 4px solid transparent; background-clip: padding-box; }
+[data-theme="light"] .size-slider { background: rgba(0,0,0,.2); }
+[data-theme="light"] .size-slider::-webkit-slider-thumb { background: #fff; }
+[data-theme="light"] .dock { background: rgba(246, 246, 248, .38); }
+[data-theme="light"] .tb-btn:hover:not(:disabled) { background: rgba(0, 0, 0, .06); }
+[data-theme="light"] .aw-url { background: rgba(0, 0, 0, .05); }
+[data-theme="light"] .aw-btn.quiet { background: rgba(0, 0, 0, .06); }
+[data-theme="light"] .aw-btn.quiet:hover { background: rgba(0, 0, 0, .1); }
+[data-theme="light"] .side-item:not(.active):hover { background: rgba(0, 0, 0, .05); }
+[data-theme="light"] .pb-item:hover { background: rgba(0,0,0,.06); }
+[data-theme="light"] .icon-item svg.file-icon { filter: drop-shadow(0 1px 2px rgba(0,0,0,.18)); }
+[data-theme="light"] .mb-theme:hover, [data-theme="light"] .mb-name:hover { background: rgba(0,0,0,.07); }
 
 /* ================= reduced motion & transparency ================= */
 @media (prefers-reduced-motion: reduce) {
