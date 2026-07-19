@@ -6,43 +6,46 @@
 "use strict";
 
 /* ================= file system ================= */
-// dates are display strings; folders emptied on purpose — content comes later
-const D = "Jul 16, 2026 at 1:24 AM";
-const folder = (name, children = [], extra = {}) =>
-  ({ name, kind: "Folder", icon: "i-folder-mac", date: D, size: "--", children, ...extra });
-const pdf = (name, href) =>
-  ({ name, kind: "PDF document", icon: "i-pdf-mac", date: D, size: "--", href });
-const webloc = (name, href) =>
-  ({ name: name + ".webloc", kind: "Web site location", icon: "i-webloc", date: D, size: "1 KB", href, external: true });
+/* `at` is the modified date (ISO). Recently Updated derives itself from these,
+   so adding an entry with a newer date is all it takes to surface it. */
+const BASE = "2026-07-01T12:00";
+const folder = (name, at = BASE, children = []) =>
+  ({ name, kind: "Folder", icon: "i-folder-mac", at, size: "--", children });
+const pdf = (name, at, href) =>
+  ({ name, kind: "PDF document", icon: "i-pdf-mac", at, size: "--", href });
+const mov = (name, at, href) =>
+  ({ name, kind: "QuickTime movie", icon: "i-mov-mac", at, size: "--", href });
+const webloc = (name, at, href) =>
+  ({ name: name + ".webloc", kind: "Web site location", icon: "i-webloc", at, size: "1 KB", href, external: true });
 
-const ROOT = folder("Desktop", [
-  folder("AI", [
-    folder("AVA Studio"),
-    folder("Test Footage"),
+const ROOT = folder("Desktop", "2026-07-18T09:00", [
+  folder("AI", "2026-07-14T16:20", [
+    folder("AVA Studio", "2026-07-14T16:20"),
+    folder("Test Footage", "2026-07-09T21:05"),
   ]),
-  folder("FILM", [
-    folder("Short Films"),
-    folder("Cinematography"),
-    folder("Festival & Sales"),
-    folder("Poster Design"),
+  folder("FILM", "2026-07-16T11:40", [
+    folder("Short Films", "2026-07-16T11:40"),
+    folder("Cinematography", "2026-07-02T18:15"),
+    folder("Festival & Sales", "2026-06-28T10:30"),
+    folder("Poster Design", "2026-06-20T14:00"),
   ]),
-  folder("WRITINGS", [
-    folder("Self Talk"),
-    folder("Poems"),
+  folder("WRITINGS", "2026-07-17T23:10", [
+    folder("Self Talk", "2026-07-17T23:10"),
+    folder("Poems", "2026-07-11T08:45"),
   ]),
-  folder("READINGS", [
-    folder("Reading Notes"),
-    folder("Papers"),
+  folder("READINGS", "2026-07-05T19:30", [
+    folder("Reading Notes", "2026-07-05T19:30"),
+    folder("Papers", "2026-06-30T13:20"),
   ]),
-  folder("FLAT THINGS", [
-    folder("Digital"),
-    folder("Celluloid"),
-    folder("Randomness"),
-    folder("Mappings"),
+  folder("FLAT THINGS", "2026-06-25T15:00", [
+    folder("Digital", "2026-06-25T15:00"),
+    folder("Celluloid", "2026-06-22T12:10"),
+    folder("Randomness", "2026-06-18T17:40"),
+    folder("Mappings", "2026-06-12T09:25"),
   ]),
-  pdf("Self_Intro.pdf", "assets/files/Self_Intro.pdf"),
-  pdf("CV_2026_6.pdf", "assets/files/CV_2026_6.pdf"),
-  pdf("Recent_Writing.pdf", "assets/files/Recent_Writing.pdf"),
+  pdf("Self_Intro.pdf", "2026-07-10T14:05", "assets/files/Self_Intro.pdf"),
+  pdf("CV-2026-7.pdf", "2026-07-18T09:00", "assets/files/CV-2026-7.pdf"),
+  mov("Filmmaker's Reel.mov", "2026-07-15T20:35", "assets/files/Filmmakers_Reel.mov"),
 ]);
 
 // parent pointers + paths
@@ -195,6 +198,34 @@ const items = () => {
 };
 const pathOf = (node) => { const p = []; for (let n = node; n; n = n.parent) p.unshift(n); return p; };
 
+/* ---- dates ---- */
+const DATE_FMT = new Intl.DateTimeFormat("en-US", {
+  month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit",
+});
+const dateOf = (n) => n.at ? DATE_FMT.format(new Date(n.at)).replace(",", "").replace(/(\d{4}) /, "$1 at ") : "—";
+function since(at) {
+  const mins = Math.round((Date.now() - new Date(at)) / 60000);
+  if (mins < 1) return "now";
+  if (mins < 60) return `${mins}m`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs}h`;
+  const days = Math.round(hrs / 24);
+  if (days < 31) return `${days}d`;
+  return `${Math.round(days / 30)}mo`;
+}
+/* Recently Updated builds itself from the tree: newest `at` first. Top-level
+   folders are skipped — they already sit as blocks right above the list. */
+function recentUpdates(limit = 5) {
+  const found = [];
+  (function walk(node, depth) {
+    (node.children || []).forEach(child => {
+      if (!(depth === 0 && child.children)) found.push(child);
+      walk(child, depth + 1);
+    });
+  })(ROOT, 0);
+  return found.filter(n => n.at).sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, limit);
+}
+
 /* ================= sidebar ================= */
 function buildSidebar() {
   const sec = (label) => `<div class="side-sec">${label}</div>`;
@@ -247,7 +278,7 @@ function goForward() { if (future.length) { history.push(cwd); cwd = future.pop(
 function goUp() { if (cwd.parent) navigate(cwd.parent); }
 
 /* ================= rendering ================= */
-const ICON_BOX = { "i-folder-mac": "0 0 128 128", "i-doc-mac": "0 0 116 128", "i-pdf-mac": "0 0 116 128", "i-webloc": "0 0 120 150" };
+const ICON_BOX = { "i-folder-mac": "0 0 128 128", "i-doc-mac": "0 0 116 128", "i-pdf-mac": "0 0 116 128", "i-mov-mac": "0 0 116 128", "i-webloc": "0 0 120 150" };
 function iconSvg(node, cls = "file-icon") {
   return `<svg class="${cls}" viewBox="${ICON_BOX[node.icon] || "0 0 120 150"}"><use href="#${node.icon}"/></svg>`;
 }
@@ -290,7 +321,7 @@ function render() {
       ${list.map((n, i) => `
       <div class="lv-row ${selection.has(n) ? "selected" : ""}" data-i="${i}">
         <div class="lv-cell c-name">${iconSvg(n, "")}<span>${n.name}</span></div>
-        <div class="lv-cell c-date lv-dim">${n.date}</div>
+        <div class="lv-cell c-date lv-dim">${dateOf(n)}</div>
         <div class="lv-cell c-size lv-dim">${n.size}</div>
         <div class="lv-cell c-kind lv-dim">${n.kind}</div>
       </div>`).join("")}`;
@@ -336,8 +367,8 @@ function renderDesk(list) {
         ${papers.map(n => `
           <li class="desk-item desk-file" data-i="${list.indexOf(n)}">
             ${iconSvg(n, "")}
-            <span class="df-name">${n.name.replace(/\.pdf$/i, "").replace(/_/g, " ")}</span>
-            <span class="df-kind">PDF</span>
+            <span class="df-name">${n.name.replace(/\.[^.]+$/, "").replace(/_/g, " ")}</span>
+            <span class="df-kind">${(n.name.split(".").pop() || "").toUpperCase()}</span>
           </li>`).join("")}
       </ul>
     </section>
@@ -353,7 +384,29 @@ function renderDesk(list) {
           <span class="db-count">${n.children.length || ""}</span>
           <span class="db-name">${n.name}</span>
         </button>`).join("")}
+    </section>
+
+    <section class="desk-recent">
+      <h2 class="dr-head">Recently Updated</h2>
+      <ul class="dr-list">
+        ${recentUpdates().map(n => `
+          <li class="dr-row" data-path="${pathOf(n).map(p => p.name).join("/")}">
+            ${iconSvg(n, "")}
+            <span class="dr-name">${n.name.replace(/\.[^.]+$/, "").replace(/_/g, " ")}</span>
+            <span class="dr-where">${n.parent && n.parent !== ROOT ? n.parent.name : "Desktop"}</span>
+            <span class="dr-when">${since(n.at)}</span>
+          </li>`).join("")}
+      </ul>
     </section>`;
+
+  els.deskView.querySelectorAll(".dr-row").forEach(row => {
+    row.addEventListener("click", () => {
+      const names = row.dataset.path.split("/").slice(1);
+      let node = ROOT;
+      for (const nm of names) node = (node.children || []).find(c => c.name === nm) || node;
+      node.children ? navigate(node) : openNode(node);
+    });
+  });
 
   startPortrait();
   tickCityClocks();
@@ -475,7 +528,7 @@ function renderGallery(list) {
     <div class="gal-stage">
       ${iconSvg(star, "")}
       <div class="gal-name">${star.name}</div>
-      <div class="gal-meta">${star.kind}${star.children ? ` — ${star.children.length} item${star.children.length === 1 ? "" : "s"}` : ""} · ${star.date}</div>
+      <div class="gal-meta">${star.kind}${star.children ? ` — ${star.children.length} item${star.children.length === 1 ? "" : "s"}` : ""} · ${dateOf(star)}</div>
     </div>
     <div class="gal-strip">
       ${list.map((n, i) => `
@@ -899,8 +952,8 @@ function getInfo(node, offset) {
       <div class="gi-row"><b>Kind:</b><span>${node.kind}</span></div>
       <div class="gi-row"><b>Size:</b><span>${node.size === "--" ? (node.children ? `${node.children.length} items` : "—") : node.size}</span></div>
       <div class="gi-row"><b>Where:</b><span>${where}</span></div>
-      <div class="gi-row"><b>Created:</b><span>${node.date}</span></div>
-      <div class="gi-row"><b>Modified:</b><span>${node.date}</span></div>
+      <div class="gi-row"><b>Created:</b><span>${dateOf(node)}</span></div>
+      <div class="gi-row"><b>Modified:</b><span>${dateOf(node)}</span></div>
     </div>`;
   els.overlayLayer.appendChild(box);
   materialize(box, anchorRectFor(node));
