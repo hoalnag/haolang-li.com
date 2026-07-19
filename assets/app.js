@@ -378,6 +378,22 @@ function renderDesk(list) {
       <figcaption class="pt-cap"><span>Haolang Li</span><span class="pt-dots" id="pt-dots"></span></figcaption>
     </figure>
 
+    <section class="drawpad">
+      <div class="dp-head">
+        <span class="dp-title">Guest Book</span>
+        <span class="dp-hint">draw something</span>
+      </div>
+      <canvas class="dp-canvas" id="dp-canvas"></canvas>
+      <div class="dp-bar">
+        <div class="dp-swatches" id="dp-swatches"></div>
+        <button class="dp-btn" id="dp-clear">Clear</button>
+        <button class="dp-btn primary" id="dp-save">Save</button>
+      </div>
+      <button class="dp-all" id="dp-all">
+        See all drawings <span class="dp-count" id="dp-count">0</span>
+      </button>
+    </section>
+
     <section class="desk-folders">
       ${folders.map(n => `
         <button class="desk-item desk-block" data-i="${list.indexOf(n)}">
@@ -411,6 +427,185 @@ function renderDesk(list) {
   startPortrait();
   tickCityClocks();
   loadWeather();
+  startDrawpad();
+}
+
+/* ================= guest book =================
+   Drawings live in this browser's localStorage — a static site has nowhere
+   shared to put them, so each visitor keeps their own book. Swapping the two
+   functions below for API calls is all a shared gallery would need. */
+const DRAW_KEY = "hl-drawings";
+const DRAW_CAP = 60;                       // localStorage is ~5MB; keep the newest
+const INKS = ["#16324F", "#2E5077", "#FF9F0A", "#16161A"];
+const esc = (s) => String(s).replace(/[&<>"']/g, c =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+function loadDrawings() {
+  try { return JSON.parse(localStorage.getItem(DRAW_KEY)) || []; } catch { return []; }
+}
+function storeDrawings(list) {
+  try { localStorage.setItem(DRAW_KEY, JSON.stringify(list)); return true; }
+  catch { return false; }                  // quota — caller trims and retries
+}
+
+function startDrawpad() {
+  const cv = $("dp-canvas");
+  if (!cv) return;
+  const ctx = cv.getContext("2d");
+  let ink = INKS[0];
+
+  const sizeCanvas = () => {
+    const r = cv.getBoundingClientRect();
+    if (!r.width || !r.height) return;
+    const dpr = devicePixelRatio || 1;
+    const keep = cv.width ? ctx.getImageData(0, 0, cv.width, cv.height) : null;
+    cv.width = Math.round(r.width * dpr);
+    cv.height = Math.round(r.height * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.lineCap = ctx.lineJoin = "round";
+    if (keep) ctx.putImageData(keep, 0, 0);
+  };
+  requestAnimationFrame(sizeCanvas);
+
+  // swatches
+  const sw = $("dp-swatches");
+  sw.innerHTML = INKS.map((c, i) =>
+    `<button class="dp-ink ${i ? "" : "on"}" data-ink="${c}" style="background:${c}" aria-label="ink ${i + 1}"></button>`).join("");
+  sw.addEventListener("click", e => {
+    const b = e.target.closest(".dp-ink");
+    if (!b) return;
+    ink = b.dataset.ink;
+    sw.querySelectorAll(".dp-ink").forEach(x => x.classList.toggle("on", x === b));
+  });
+
+  // drawing — pointer events so mouse, touch and pen all work
+  let drawing = false, last = null;
+  const at = (e) => {
+    const r = cv.getBoundingClientRect();
+    return { x: e.clientX - r.left, y: e.clientY - r.top };
+  };
+  cv.addEventListener("pointerdown", e => {
+    e.preventDefault();
+    cv.setPointerCapture(e.pointerId);
+    drawing = true; last = at(e);
+    ctx.strokeStyle = ink; ctx.lineWidth = 2.6;
+    ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(last.x + .01, last.y); ctx.stroke();
+  });
+  cv.addEventListener("pointermove", e => {
+    if (!drawing) return;
+    const p = at(e);
+    ctx.strokeStyle = ink; ctx.lineWidth = 2.6;
+    ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+    last = p;
+  });
+  const stop = () => { drawing = false; };
+  cv.addEventListener("pointerup", stop);
+  cv.addEventListener("pointercancel", stop);
+  cv.addEventListener("pointerleave", stop);
+
+  const clear = () => ctx.clearRect(0, 0, cv.width, cv.height);
+  $("dp-clear").addEventListener("click", clear);
+
+  $("dp-save").addEventListener("click", () => {
+    // a blank canvas has nothing to name
+    const px = ctx.getImageData(0, 0, cv.width, cv.height).data;
+    let inked = false;
+    for (let i = 3; i < px.length; i += 40) if (px[i]) { inked = true; break; }
+    if (!inked) { flashPad("Draw something first"); return; }
+
+    askName(name => {
+      const shot = cv.toDataURL("image/png");
+      let list = loadDrawings();
+      list.unshift({ id: Date.now().toString(36), name, src: shot, at: new Date().toISOString() });
+      while (list.length > DRAW_CAP) list.pop();
+      while (!storeDrawings(list) && list.length > 1) list.pop();   // trim until it fits
+      clear();
+      paintDrawCount();
+      flashPad("Saved to the book");
+    });
+  });
+
+  $("dp-all").addEventListener("click", openGallery);
+  paintDrawCount();
+  addEventListener("resize", sizeCanvas, { passive: true });
+}
+
+function paintDrawCount() {
+  const el = $("dp-count");
+  if (el) el.textContent = loadDrawings().length;
+}
+function flashPad(msg) {
+  const head = document.querySelector(".dp-hint");
+  if (!head) return;
+  const was = head.textContent;
+  head.textContent = msg;
+  setTimeout(() => { head.textContent = was; }, 1600);
+}
+
+/* name-it dialog — a prompt() would break the illusion */
+function askName(done) {
+  const wrap = document.createElement("div");
+  wrap.className = "nd-wrap";
+  wrap.innerHTML = `
+    <div class="nd-card">
+      <div class="nd-title">Name your drawing</div>
+      <input class="nd-input" maxlength="40" placeholder="Untitled" spellcheck="false">
+      <div class="nd-actions">
+        <button class="dp-btn" data-act="cancel">Cancel</button>
+        <button class="dp-btn primary" data-act="ok">Add to book</button>
+      </div>
+    </div>`;
+  els.overlayLayer.appendChild(wrap);
+  const input = wrap.querySelector(".nd-input");
+  input.focus();
+  const close = () => wrap.remove();
+  const commit = () => { const v = input.value.trim() || "Untitled"; close(); done(v); };
+  wrap.addEventListener("click", e => {
+    if (e.target === wrap || e.target.dataset.act === "cancel") close();
+    if (e.target.dataset.act === "ok") commit();
+  });
+  input.addEventListener("keydown", e => {
+    e.stopPropagation();
+    if (e.key === "Enter") commit();
+    if (e.key === "Escape") close();
+  });
+}
+
+/* the book itself — a floating window of everything drawn here */
+function openGallery() {
+  closeOverlays();
+  const list = loadDrawings();
+  const win = document.createElement("div");
+  win.className = "gwin";
+  win.innerHTML = `
+    <div class="aw-bar">
+      <button class="aw-close" aria-label="Close"></button>
+      <div class="gw-title">Guest Book <span class="gw-n">${list.length}</span></div>
+    </div>
+    <div class="gw-body">
+      ${list.length ? `<div class="gw-grid">${list.map(d => `
+        <figure class="gw-card" data-id="${d.id}">
+          <img src="${d.src}" alt="${esc(d.name)}">
+          <figcaption>
+            <span class="gw-name">${esc(d.name)}</span>
+            <span class="gw-when">${since(d.at)}</span>
+          </figcaption>
+          <button class="gw-del" data-del="${d.id}" title="Remove">×</button>
+        </figure>`).join("")}</div>`
+      : `<div class="gw-empty">Nothing in the book yet.<br>Draw something on the desk and save it.</div>`}
+    </div>`;
+  els.overlayLayer.appendChild(win);
+  materialize(win, null);
+  win.querySelector(".aw-close").addEventListener("click", () => win.remove());
+  win.addEventListener("click", e => {
+    const del = e.target.closest("[data-del]");
+    if (!del) return;
+    storeDrawings(loadDrawings().filter(d => d.id !== del.dataset.del));
+    paintDrawCount();
+    win.remove();
+    openGallery();
+  });
+  makeDraggable(win, win.querySelector(".aw-bar"));
 }
 
 /* portrait: keep only the frames that actually load, then cross-fade them */

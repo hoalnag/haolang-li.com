@@ -324,19 +324,20 @@ body.has-fullscreen .dock-wrap { display: none; }
   min-height: 100%;
   padding: 30px 30px 34px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: auto auto minmax(0, 1fr);
   grid-template-rows: auto auto auto;
-  column-gap: 40px; row-gap: 30px;
+  column-gap: 30px; row-gap: 30px;
   align-content: start;
 }
-/* a quiet rule keeps the portrait from floating free of the column beside it */
-.desk-view > .portrait { border-left: 1px solid var(--hairline); padding-left: 40px; }
+/* quiet rules keep the three panels from floating free of each other */
+.desk-view > .portrait { border-left: 1px solid var(--hairline); padding-left: 30px; }
+.desk-view > .drawpad { border-left: 1px solid var(--hairline); padding-left: 30px; }
 
 /* -- left column: weather over files -- */
 .desk-aside {
   grid-column: 1; grid-row: 1;
   display: flex; flex-direction: column; gap: 24px;
-  min-width: 0; max-width: 430px;   /* keep the rows readable, not stretched */
+  min-width: 300px; max-width: 360px;   /* keep the rows readable, not stretched */
 }
 
 .wx { display: flex; flex-direction: column; gap: 2px; }
@@ -407,6 +408,131 @@ body.has-fullscreen .dock-wrap { display: none; }
 }
 .pt-dots i.on { opacity: .9; }
 
+/* -- guest book: draw, name it, keep it -- */
+.drawpad { grid-column: 3; grid-row: 1; display: flex; flex-direction: column; gap: 9px; min-width: 0; }
+.dp-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.dp-title {
+  font-size: 10px; font-weight: 700; letter-spacing: .18em;
+  text-transform: uppercase; color: var(--text-dim);
+}
+.dp-hint { font-size: 11px; color: var(--text-dim); opacity: .8; }
+.dp-canvas {
+  width: 100%; height: 194px;
+  background: #EDE8DC;
+  border-radius: 3px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .07), 0 10px 26px rgba(0, 0, 0, .26);
+  cursor: crosshair;
+  touch-action: none;          /* let the pointer draw instead of scrolling */
+}
+.dp-bar { display: flex; align-items: center; gap: 8px; }
+.dp-swatches { display: flex; gap: 6px; margin-right: auto; }
+.dp-ink {
+  width: 17px; height: 17px; border-radius: 50%;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .25);
+}
+.dp-ink.on { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .25), 0 0 0 2px var(--accent); }
+.dp-btn {
+  height: 26px; padding: 0 11px; border-radius: 7px;
+  font-size: 12px; color: var(--text);
+  background: rgba(255, 255, 255, .08);
+}
+.dp-btn:hover { background: rgba(255, 255, 255, .14); }
+.dp-btn.primary { background: #2E5077; color: #fff; }
+.dp-btn.primary:hover { background: #38618f; }
+.dp-btn:active { transform: scale(.96); transition: transform 80ms ease-out; }
+.dp-all {
+  display: flex; align-items: center; gap: 7px;
+  padding: 7px 2px 0;
+  font-size: 11.5px; color: var(--text-dim);
+  border-top: 1px solid var(--hairline);
+}
+.dp-all:hover { color: var(--text); }
+.dp-count {
+  min-width: 18px; padding: 1px 6px;
+  border-radius: 9px; background: rgba(255, 255, 255, .1);
+  font-size: 10px; font-variant-numeric: tabular-nums; text-align: center;
+}
+
+/* name-it dialog */
+.nd-wrap {
+  position: fixed; inset: 0; z-index: 720;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(0, 0, 0, .3);
+}
+.nd-card {
+  width: min(320px, 88vw); padding: 18px;
+  background: var(--menu-bg);
+  backdrop-filter: blur(40px) saturate(1.8);
+  -webkit-backdrop-filter: blur(40px) saturate(1.8);
+  border: .5px solid rgba(255, 255, 255, .16);
+  border-radius: 12px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, .5);
+}
+.nd-title { font-size: 13px; font-weight: 600; color: var(--text); padding-bottom: 12px; }
+.nd-input {
+  width: 100%; height: 32px; padding: 0 10px;
+  border-radius: 7px; border: 1px solid var(--hairline);
+  background: rgba(255, 255, 255, .07);
+  font: inherit; font-size: 13px; color: var(--text);
+  outline: none;
+}
+.nd-input:focus { border-color: var(--accent); }
+.nd-actions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 14px; }
+
+/* the book, as a floating window */
+.gwin {
+  position: fixed; z-index: 700;
+  left: calc(50% - 300px); top: 14%;
+  width: min(600px, 92vw); height: min(460px, 74vh);
+  background: var(--win-bg);
+  border-radius: 11px;
+  box-shadow: 0 0 0 .5px rgba(0, 0, 0, .65), inset 0 0 0 .5px rgba(255, 255, 255, .14),
+    0 24px 68px rgba(0, 0, 0, .55);
+  display: flex; flex-direction: column; overflow: hidden;
+  will-change: transform, opacity;
+}
+.gw-title {
+  flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px;
+  margin-right: 22px;
+  font-size: 13px; font-weight: 600; color: var(--text);
+}
+.gw-n {
+  padding: 1px 7px; border-radius: 9px;
+  background: rgba(255, 255, 255, .1);
+  font-size: 10px; font-weight: 500; color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+.gw-body { flex: 1; overflow-y: auto; padding: 16px; }
+.gw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 14px; }
+.gw-card { position: relative; margin: 0; }
+.gw-card img {
+  width: 100%; aspect-ratio: 5 / 3; object-fit: contain;
+  background: #EDE8DC; border-radius: 4px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .07);
+}
+.gw-card figcaption {
+  display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
+  padding-top: 6px;
+}
+.gw-name { font-size: 12px; color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gw-when { font-size: 10px; color: var(--text-dim); font-variant-numeric: tabular-nums; }
+.gw-del {
+  position: absolute; top: 6px; right: 6px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: rgba(0, 0, 0, .5); color: #fff;
+  font-size: 14px; line-height: 1;
+  opacity: 0; transition: opacity .15s ease;
+}
+.gw-card:hover .gw-del { opacity: 1; }
+.gw-empty { padding: 44px 20px; text-align: center; font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+
+[data-theme="light"] .dp-btn { background: rgba(0, 0, 0, .07); }
+[data-theme="light"] .dp-btn:hover { background: rgba(0, 0, 0, .12); }
+[data-theme="light"] .dp-btn.primary { background: #2E5077; color: #fff; }
+[data-theme="light"] .dp-count, [data-theme="light"] .gw-n { background: rgba(0, 0, 0, .08); }
+[data-theme="light"] .nd-input { background: rgba(0, 0, 0, .04); }
+[data-theme="light"] .dp-canvas { box-shadow: 0 0 0 1px rgba(0, 0, 0, .1), 0 10px 26px rgba(0, 0, 0, .14); }
+
 /* -- the folders, as blocks -- */
 .desk-folders {
   grid-column: 1 / -1; grid-row: 2;
@@ -434,14 +560,14 @@ body.has-fullscreen .dock-wrap { display: none; }
   border-bottom-right-radius: 5px;
 }
 .db-name {
-  font-size: 10px; font-weight: 700; letter-spacing: .12em;
+  font-size: 12.5px; font-weight: 700; letter-spacing: .1em;
   text-transform: uppercase; color: #EDE8DC;
-  line-height: 1.3;
+  line-height: 1.25;
 }
 .db-count {
   position: absolute; top: 9px; right: 11px;
-  font-size: 9.5px; font-variant-numeric: tabular-nums;
-  color: #EDE8DC; opacity: .42;
+  font-size: 11px; font-variant-numeric: tabular-nums;
+  color: #EDE8DC; opacity: .45;
 }
 .desk-block:hover { background: #2C5480; transform: translateY(-2px); }
 .desk-block.selected { background: #2C5480; box-shadow: inset 0 0 0 2px var(--accent); }
@@ -487,11 +613,21 @@ body.has-fullscreen .dock-wrap { display: none; }
 [data-theme="light"] .dr-row:hover { background: rgba(0, 0, 0, .05); }
 [data-theme="light"] .pt-frame { box-shadow: 0 0 0 1px rgba(0, 0, 0, .08), 0 14px 34px rgba(0, 0, 0, .16); }
 
+@media (max-width: 1040px) {
+  .desk-view { grid-template-columns: auto minmax(0, 1fr); }
+  .drawpad { grid-column: 1 / -1; grid-row: 2; border-left: 0 !important; padding-left: 0 !important; }
+  .desk-folders { grid-row: 3; }
+  .desk-recent { grid-row: 4; }
+  .desk-view { grid-template-rows: auto auto auto auto; }
+}
 @media (max-width: 660px) {
   .desk-view { grid-template-columns: minmax(0, 1fr); }
-  .portrait { grid-column: 1; grid-row: 1; }
-  .desk-aside { grid-row: 2; }
-  .desk-folders { grid-row: 3; }
+  .portrait { grid-column: 1; grid-row: 1; border-left: 0 !important; padding-left: 0 !important; }
+  .desk-aside { grid-row: 2; min-width: 0; }
+  .drawpad { grid-row: 3; }
+  .desk-folders { grid-row: 4; }
+  .desk-recent { grid-row: 5; }
+  .desk-view { grid-template-rows: repeat(5, auto); }
   .pt-frame { width: 100%; max-width: 260px; }
 }
 
