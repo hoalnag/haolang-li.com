@@ -566,6 +566,19 @@ body.gb-on .dock-wrap { display: none; }
 }
 .gw-card:hover .gw-del { opacity: 1; }
 .gw-empty { padding: 44px 20px; text-align: center; font-size: 13px; color: var(--text-dim); line-height: 1.7; }
+.gw-note {
+  padding: 8px 11px; margin-bottom: 14px;
+  border-radius: 7px; background: rgba(255, 255, 255, .06);
+  font-size: 11.5px; color: var(--text-dim);
+}
+.gw-card.pending img { opacity: .58; }
+.gw-flag {
+  position: absolute; left: 6px; top: 6px;
+  padding: 2px 7px; border-radius: 6px;
+  background: rgba(0, 0, 0, .62); color: #EDE8DC;
+  font-size: 9.5px; font-weight: 600; letter-spacing: .06em;
+}
+[data-theme="light"] .gw-note { background: rgba(0, 0, 0, .05); }
 
 [data-theme="light"] .gb-n, [data-theme="light"] .gw-n { background: rgba(0, 0, 0, .08); }
 [data-theme="light"] .nd-input { background: rgba(0, 0, 0, .04); }

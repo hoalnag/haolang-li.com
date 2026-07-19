@@ -418,8 +418,17 @@ function renderDesk(list) {
    Drawings live in this browser's localStorage — a static site has nowhere
    shared to put them, so each visitor keeps their own book. Swapping the two
    functions below for API calls is all a shared gallery would need. */
-const DRAW_KEY = "hl-drawings";
-const DRAW_CAP = 60;                       // localStorage is ~5MB; keep the newest
+/* Backend. With a key set, the book is shared and moderated: everyone's page
+   is posted to Supabase and appears once approved. Without one, the book
+   falls back to this browser only, so the feature still works locally. */
+const SUPA = {
+  url: "https://knpwwgqkpcfjupsegouu.supabase.co",
+  key: "",                                 // paste the anon public key here
+};
+const SHARED = () => Boolean(SUPA.key);
+
+const DRAW_KEY = "hl-drawings";             // local book / local echo of pending pages
+const DRAW_CAP = 60;                        // localStorage is ~5MB; keep the newest
 const INKS = ["#16324F", "#2E5077", "#FF9F0A", "#16161A"];
 const esc = (s) => String(s).replace(/[&<>"']/g, c =>
   ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -430,6 +439,50 @@ function loadDrawings() {
 function storeDrawings(list) {
   try { localStorage.setItem(DRAW_KEY, JSON.stringify(list)); return true; }
   catch { return false; }                  // quota — caller trims and retries
+}
+const supaHeaders = () => ({ apikey: SUPA.key, Authorization: `Bearer ${SUPA.key}` });
+
+/* The book as the UI sees it: approved pages from the server, plus this
+   visitor's own pages still awaiting review, which only they can see. */
+let bookCache = [];
+async function bookList() {
+  const mine = loadDrawings();
+  if (!SHARED()) { bookCache = mine; return mine; }
+  let approved = [];
+  try {
+    const r = await fetch(
+      `${SUPA.url}/rest/v1/drawings?select=id,name,src,created_at&order=created_at.desc&limit=${DRAW_CAP}`,
+      { headers: supaHeaders() });
+    if (!r.ok) throw new Error(r.status);
+    approved = (await r.json()).map(row => ({ id: row.id, name: row.name, src: row.src, at: row.created_at }));
+  } catch {
+    bookCache = mine.map(d => ({ ...d, offline: true }));
+    return bookCache;                      // show their own rather than nothing
+  }
+  // a pending page drops off once it clears review, or after a week
+  const week = Date.now() - 7 * 864e5;
+  const pending = mine
+    .filter(d => d.pending && new Date(d.at) > week && !approved.some(a => a.name === d.name))
+    .map(d => ({ ...d, pending: true }));
+  bookCache = [...pending, ...approved];
+  return bookCache;
+}
+
+async function bookAdd(name, src) {
+  if (SHARED()) {
+    const r = await fetch(`${SUPA.url}/rest/v1/drawings`, {
+      method: "POST",
+      headers: { ...supaHeaders(), "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify({ name, src }),
+    });
+    if (!r.ok) throw new Error(await r.text() || r.status);
+  }
+  // keep a local copy either way: it is the whole book locally, and the
+  // "awaiting review" echo when shared
+  let mine = loadDrawings();
+  mine.unshift({ id: "local-" + Date.now().toString(36), name, src, at: new Date().toISOString(), pending: SHARED() });
+  while (mine.length > DRAW_CAP) mine.pop();
+  while (!storeDrawings(mine) && mine.length > 1) mine.pop();
 }
 
 /* name-it dialog — a prompt() would break the illusion */
@@ -562,13 +615,16 @@ function gbInit() {
     let inked = false;
     for (let i = 3; i < px.length; i += 80) if (px[i]) { inked = true; break; }
     if (!inked) { gbToast("Draw or write something first"); return; }
-    askName(name => {
-      let list = loadDrawings();
-      list.unshift({ id: Date.now().toString(36), name, src: gbFlatten(), at: new Date().toISOString() });
-      while (list.length > DRAW_CAP) list.pop();
-      while (!storeDrawings(list) && list.length > 1) list.pop();
+    askName(async name => {
+      gbToast("Signing…");
+      try {
+        await bookAdd(name, gbFlatten());
+        gbToast(SHARED() ? "Signed — it appears once Haolang approves it" : "Signed into the book");
+      } catch (err) {
+        gbToast("Could not reach the book — try again");
+        return;
+      }
       gbCount();
-      gbToast("Signed into the book");
     });
   });
   addEventListener("resize", () => { if (GB.on) gbSizeCanvas(); }, { passive: true });
@@ -627,7 +683,12 @@ function gbPlaceText(pt) {
   input.addEventListener("blur", commit);
 }
 
-function gbCount() { const el = $("gb-n"); if (el) el.textContent = loadDrawings().length; }
+function gbCount() {
+  const el = $("gb-n");
+  if (!el) return;
+  el.textContent = bookCache.length || loadDrawings().length;
+  bookList().then(list => { if ($("gb-n")) $("gb-n").textContent = list.length; }).catch(() => {});
+}
 function gbToast(msg) {
   let t = document.querySelector(".gb-toast");
   if (!t) { t = document.createElement("div"); t.className = "gb-toast"; $("gb-layer").appendChild(t); }
@@ -698,38 +759,51 @@ function askName(done) {
 /* the book itself — a floating window of everything drawn here */
 function openGallery() {
   closeOverlays();
-  const list = loadDrawings();
   const win = document.createElement("div");
   win.className = "gwin";
   win.innerHTML = `
     <div class="aw-bar">
       <button class="aw-close" aria-label="Close"></button>
-      <div class="gw-title">Guest Book <span class="gw-n">${list.length}</span></div>
+      <div class="gw-title">Guest Book <span class="gw-n">—</span></div>
     </div>
-    <div class="gw-body">
-      ${list.length ? `<div class="gw-grid">${list.map(d => `
-        <figure class="gw-card" data-id="${d.id}">
-          <img src="${d.src}" alt="${esc(d.name)}">
-          <figcaption>
-            <span class="gw-name">${esc(d.name)}</span>
-            <span class="gw-when">${since(d.at)}</span>
-          </figcaption>
-          <button class="gw-del" data-del="${d.id}" title="Remove">×</button>
-        </figure>`).join("")}</div>`
-      : `<div class="gw-empty">Nothing in the book yet.<br>Draw something on the desk and save it.</div>`}
-    </div>`;
+    <div class="gw-body"><div class="gw-empty">Opening the book…</div></div>`;
   els.overlayLayer.appendChild(win);
   materialize(win, null);
   win.querySelector(".aw-close").addEventListener("click", () => win.remove());
-  win.addEventListener("click", e => {
-    const del = e.target.closest("[data-del]");
-    if (!del) return;
-    storeDrawings(loadDrawings().filter(d => d.id !== del.dataset.del));
-    paintDrawCount();
-    win.remove();
-    openGallery();
-  });
   makeDraggable(win, win.querySelector(".aw-bar"));
+
+  const card = d => `
+    <figure class="gw-card ${d.pending ? "pending" : ""}" data-id="${d.id}">
+      <img src="${d.src}" alt="${esc(d.name)}">
+      ${d.pending ? '<span class="gw-flag">Awaiting review</span>' : ""}
+      <figcaption>
+        <span class="gw-name">${esc(d.name)}</span>
+        <span class="gw-when">${since(d.at)}</span>
+      </figcaption>
+      ${SHARED() && !d.pending ? "" : `<button class="gw-del" data-del="${d.id}" title="Remove from this browser">×</button>`}
+    </figure>`;
+
+  bookList().then(list => {
+    if (!win.isConnected) return;
+    win.querySelector(".gw-n").textContent = list.length;
+    const body = win.querySelector(".gw-body");
+    const offline = list.some(d => d.offline);
+    body.innerHTML = list.length
+      ? `${offline ? '<div class="gw-note">Offline — showing only your own pages.</div>' : ""}
+         <div class="gw-grid">${list.map(card).join("")}</div>`
+      : `<div class="gw-empty">Nothing in the book yet.<br>Draw something on the desk and sign it.</div>`;
+    body.addEventListener("click", e => {
+      const del = e.target.closest("[data-del]");
+      if (!del) return;
+      storeDrawings(loadDrawings().filter(d => d.id !== del.dataset.del));
+      gbCount();
+      win.remove();
+      openGallery();
+    });
+  }).catch(() => {
+    if (win.isConnected) win.querySelector(".gw-body").innerHTML =
+      '<div class="gw-empty">Could not open the book.<br>Check your connection and try again.</div>';
+  });
 }
 
 /* portrait: keep only the frames that actually load, then cross-fade them */
