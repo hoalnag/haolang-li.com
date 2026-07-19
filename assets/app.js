@@ -804,6 +804,32 @@ const MENUS_RETIRED = {
   help: () => mi("About this site", "about") + sep + mi("macOS Help", null, "", { disabled: true }),
 };
 
+/* ================= build footer =================
+   The browser will happily serve a cached style.css/app.js after a deploy.
+   This refetches both with cache:"reload" — which replaces the HTTP cache
+   entries — then reloads on a fresh URL so the HTML isn't cached either. */
+(function buildFooter() {
+  const btn = $("side-refresh"), tag = $("sf-build");
+  if (!btn) return;
+  const assetUrls = () => [
+    ...document.querySelectorAll('link[rel="stylesheet"][href]'),
+    ...document.querySelectorAll("script[src]"),
+  ].map(el => el.href || el.src).filter(u => u.startsWith(location.origin));
+
+  const mine = document.currentScript?.src || assetUrls().find(u => u.includes("app.js")) || "";
+  if (tag) tag.textContent = (mine.match(/[?&]v=([^&]+)/) || [, "dev"])[1];
+
+  btn.addEventListener("click", async () => {
+    btn.classList.add("spin");
+    try {
+      await Promise.all(assetUrls().map(u => fetch(u, { cache: "reload" })));
+    } catch { /* offline or blocked — reload anyway */ }
+    const url = new URL(location.href);
+    url.searchParams.set("r", Date.now().toString(36));
+    location.replace(url);
+  });
+})();
+
 /* ================= menu bar: name + appearance ================= */
 $("mb-name").addEventListener("click", () => openWindow());
 
