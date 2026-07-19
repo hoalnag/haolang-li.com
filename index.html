@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Haolang Li</title>
 <meta name="description" content="Haolang Li — filmmaker & AI video creator. Films, writings, and experiments.">
-<link rel="stylesheet" href="assets/style.css?v=9">
+<link rel="stylesheet" href="assets/style.css?v=15">
 </head>
 <body>
 
@@ -101,6 +101,11 @@
       <button class="mb-name" id="mb-name" title="Open the Finder window">HAOLANG</button>
     </div>
     <div class="mb-right">
+      <button class="mb-mode" id="mb-mode" title="Desktop mode">
+        <svg viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="11" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 17h7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <span id="mb-mode-name">Wallpaper</span>
+        <svg class="mb-chev" viewBox="0 0 20 20"><path d="m6 8 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
       <button class="mb-theme" id="mb-theme" title="Switch appearance" aria-label="Switch appearance">
         <svg class="ic-sun" viewBox="0 0 20 20"><circle cx="10" cy="10" r="4" fill="currentColor"/><path d="M10 1.6v2.2M10 16.2v2.2M18.4 10h-2.2M3.8 10H1.6M15.94 4.06l-1.56 1.56M5.62 14.38l-1.56 1.56M15.94 15.94l-1.56-1.56M5.62 5.62 4.06 4.06" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
         <svg class="ic-moon" viewBox="0 0 20 20"><path d="M16.5 12.4A7.2 7.2 0 0 1 7.6 3.5a7.2 7.2 0 1 0 8.9 8.9Z" fill="currentColor"/></svg>
@@ -114,6 +119,39 @@
 
   <!-- ============ desktop ============ -->
   <div class="desktop" id="desktop">
+
+    <!-- guest book: the desktop becomes a shared page -->
+    <div class="gb-layer" id="gb-layer" hidden>
+      <canvas class="gb-canvas" id="gb-canvas"></canvas>
+      <div class="gb-tools" id="gb-tools">
+        <div class="gb-group" id="gb-tool-set">
+          <button class="gb-tool on" data-tool="pen" title="Draw">
+            <svg viewBox="0 0 20 20"><path d="M3 17l1-4L14.2 2.8a1.8 1.8 0 0 1 2.5 0l.5.5a1.8 1.8 0 0 1 0 2.5L7 16l-4 1Z" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="gb-tool" data-tool="text" title="Add text">
+            <svg viewBox="0 0 20 20"><path d="M4 5.5V4h12v1.5M10 4v12M7.5 16h5" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="gb-tool" data-tool="photo" title="Add a photo">
+            <svg viewBox="0 0 20 20"><rect x="2.5" y="4" width="15" height="12" rx="2.2" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="7" cy="8.2" r="1.4" fill="currentColor"/><path d="M3.4 14.2 7.6 10l3 2.6L13.4 10l3.2 3.4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+          </button>
+        </div>
+        <div class="gb-group gb-inks" id="gb-inks"></div>
+        <div class="gb-group">
+          <button class="gb-tool" id="gb-undo" title="Undo">
+            <svg viewBox="0 0 20 20"><path d="M7 6.5H12a4.5 4.5 0 0 1 0 9H6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><path d="M9.2 3.8 6 6.6l3.2 2.8" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <button class="gb-btn" id="gb-clear">Clear</button>
+        </div>
+        <div class="gb-group gb-right">
+          <button class="gb-btn" id="gb-book">Book <span class="gb-n" id="gb-n">0</span></button>
+          <button class="gb-btn primary" id="gb-save">Sign it</button>
+          <button class="gb-btn" id="gb-exit">Done</button>
+        </div>
+      </div>
+      <input type="file" id="gb-file" accept="image/*" hidden>
+      <div class="gb-caret" id="gb-caret" hidden></div>
+    </div>
+
 
     <!-- ============ Finder window ============ -->
     <section class="window" id="window" role="application" aria-label="Finder">
@@ -230,6 +268,6 @@
   <!-- context menu / quick look / get info render here -->
   <div id="overlay-layer"></div>
 
-  <script src="assets/app.js?v=9"></script>
+  <script src="assets/app.js?v=15"></script>
 </body>
 </html>

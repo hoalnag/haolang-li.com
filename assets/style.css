@@ -324,14 +324,16 @@ body.has-fullscreen .dock-wrap { display: none; }
   min-height: 100%;
   padding: 30px 30px 34px;
   display: grid;
-  grid-template-columns: auto auto minmax(0, 1fr);
+  grid-template-columns: auto minmax(0, 1fr);
   grid-template-rows: auto auto auto;
   column-gap: 30px; row-gap: 30px;
   align-content: start;
 }
-/* quiet rules keep the three panels from floating free of each other */
-.desk-view > .portrait { border-left: 1px solid var(--hairline); padding-left: 30px; }
-.desk-view > .drawpad { border-left: 1px solid var(--hairline); padding-left: 30px; }
+/* the portrait sits straight after the papers; rows below still span the width */
+.desk-view > .portrait {
+  justify-self: start;
+  border-left: 1px solid var(--hairline); padding-left: 30px;
+}
 
 /* -- left column: weather over files -- */
 .desk-aside {
@@ -408,50 +410,89 @@ body.has-fullscreen .dock-wrap { display: none; }
 }
 .pt-dots i.on { opacity: .9; }
 
-/* -- guest book: draw, name it, keep it -- */
-.drawpad { grid-column: 3; grid-row: 1; display: flex; flex-direction: column; gap: 9px; min-width: 0; }
-.dp-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-.dp-title {
-  font-size: 10px; font-weight: 700; letter-spacing: .18em;
-  text-transform: uppercase; color: var(--text-dim);
+/* ================= guest book mode =================
+   The desktop itself becomes the page. */
+.mb-mode {
+  height: 20px; padding: 0 7px; margin-right: 2px;
+  display: flex; align-items: center; gap: 5px;
+  border-radius: 5px; color: var(--menubar-fg); font-size: 12px;
 }
-.dp-hint { font-size: 11px; color: var(--text-dim); opacity: .8; }
-.dp-canvas {
-  width: 100%; height: 194px;
-  background: #EDE8DC;
-  border-radius: 3px;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, .07), 0 10px 26px rgba(0, 0, 0, .26);
-  cursor: crosshair;
-  touch-action: none;          /* let the pointer draw instead of scrolling */
+.mb-mode:hover { background: rgba(255, 255, 255, .14); }
+.mb-mode svg { width: 14px; height: 14px; }
+.mb-mode .mb-chev { width: 11px; height: 11px; opacity: .7; }
+[data-theme="light"] .mb-mode:hover { background: rgba(0, 0, 0, .07); }
+
+.gb-layer { position: absolute; inset: 0; z-index: 40; }
+.gb-canvas { position: absolute; inset: 0; width: 100%; height: 100%; cursor: crosshair; touch-action: none; }
+body.gb-on .dock-wrap { display: none; }
+
+.gb-tools {
+  position: absolute; left: 50%; bottom: 22px; transform: translateX(-50%);
+  display: flex; align-items: center; gap: 8px;
+  padding: 7px 9px;
+  max-width: calc(100% - 32px);
+  background: var(--menu-bg);
+  backdrop-filter: blur(36px) saturate(1.7);
+  -webkit-backdrop-filter: blur(36px) saturate(1.7);
+  border: .5px solid rgba(255, 255, 255, .14);
+  border-radius: 13px;
+  box-shadow: 0 14px 40px rgba(0, 0, 0, .45);
+  flex-wrap: wrap; justify-content: center;
 }
-.dp-bar { display: flex; align-items: center; gap: 8px; }
-.dp-swatches { display: flex; gap: 6px; margin-right: auto; }
-.dp-ink {
-  width: 17px; height: 17px; border-radius: 50%;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .25);
+.gb-group { display: flex; align-items: center; gap: 5px; }
+.gb-group + .gb-group { border-left: 1px solid var(--hairline); padding-left: 9px; }
+.gb-tool {
+  width: 30px; height: 28px;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 7px; color: var(--text-dim);
 }
-.dp-ink.on { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .25), 0 0 0 2px var(--accent); }
-.dp-btn {
-  height: 26px; padding: 0 11px; border-radius: 7px;
+.gb-tool svg { width: 17px; height: 17px; }
+.gb-tool:hover { background: rgba(255, 255, 255, .08); color: var(--text); }
+.gb-tool.on { background: rgba(255, 255, 255, .14); color: var(--text); }
+.gb-inks { gap: 6px; }
+.gb-ink { width: 17px; height: 17px; border-radius: 50%; box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .25); }
+.gb-ink.on { box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .25), 0 0 0 2px var(--accent); }
+.gb-btn {
+  height: 28px; padding: 0 11px; border-radius: 7px;
   font-size: 12px; color: var(--text);
   background: rgba(255, 255, 255, .08);
+  display: flex; align-items: center; gap: 6px;
 }
-.dp-btn:hover { background: rgba(255, 255, 255, .14); }
-.dp-btn.primary { background: #2E5077; color: #fff; }
-.dp-btn.primary:hover { background: #38618f; }
-.dp-btn:active { transform: scale(.96); transition: transform 80ms ease-out; }
-.dp-all {
-  display: flex; align-items: center; gap: 7px;
-  padding: 7px 2px 0;
-  font-size: 11.5px; color: var(--text-dim);
-  border-top: 1px solid var(--hairline);
+.gb-btn:hover { background: rgba(255, 255, 255, .15); }
+.gb-btn.primary { background: #2E5077; color: #fff; }
+.gb-btn.primary:hover { background: #38618f; }
+.gb-btn:active, .gb-tool:active { transform: scale(.96); transition: transform 80ms ease-out; }
+.gb-n {
+  padding: 1px 6px; border-radius: 9px;
+  background: rgba(255, 255, 255, .12);
+  font-size: 10px; font-variant-numeric: tabular-nums;
 }
-.dp-all:hover { color: var(--text); }
-.dp-count {
-  min-width: 18px; padding: 1px 6px;
-  border-radius: 9px; background: rgba(255, 255, 255, .1);
-  font-size: 10px; font-variant-numeric: tabular-nums; text-align: center;
+[data-theme="light"] .gb-btn { background: rgba(0, 0, 0, .07); }
+[data-theme="light"] .gb-btn:hover { background: rgba(0, 0, 0, .12); }
+[data-theme="light"] .gb-btn.primary { background: #2E5077; color: #fff; }
+[data-theme="light"] .gb-tool:hover { background: rgba(0, 0, 0, .06); }
+[data-theme="light"] .gb-tool.on { background: rgba(0, 0, 0, .1); }
+
+.gb-caret { position: absolute; z-index: 5; transform: translateY(-50%); }
+.gb-text-in {
+  min-width: 200px; padding: 3px 6px;
+  background: transparent; border: 0;
+  border-bottom: 2px solid currentColor;
+  font: 600 26px var(--font);
+  outline: none;
 }
+.gb-toast {
+  position: absolute; left: 50%; bottom: 84px; transform: translate(-50%, 8px);
+  padding: 7px 14px; border-radius: 9px;
+  background: var(--menu-bg);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  border: .5px solid rgba(255, 255, 255, .14);
+  font-size: 12px; color: var(--text);
+  opacity: 0; pointer-events: none;
+  transition: opacity .2s ease, transform .2s ease;
+}
+.gb-toast.on { opacity: 1; transform: translate(-50%, 0); }
 
 /* name-it dialog */
 .nd-wrap {
@@ -506,9 +547,9 @@ body.has-fullscreen .dock-wrap { display: none; }
 .gw-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(148px, 1fr)); gap: 14px; }
 .gw-card { position: relative; margin: 0; }
 .gw-card img {
-  width: 100%; aspect-ratio: 5 / 3; object-fit: contain;
-  background: #EDE8DC; border-radius: 4px;
-  box-shadow: 0 0 0 1px rgba(255, 255, 255, .07);
+  width: 100%; aspect-ratio: 5 / 3; object-fit: cover;
+  border-radius: 4px;                       /* the wallpaper is baked in */
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, .09);
 }
 .gw-card figcaption {
   display: flex; justify-content: space-between; align-items: baseline; gap: 8px;
@@ -526,12 +567,8 @@ body.has-fullscreen .dock-wrap { display: none; }
 .gw-card:hover .gw-del { opacity: 1; }
 .gw-empty { padding: 44px 20px; text-align: center; font-size: 13px; color: var(--text-dim); line-height: 1.7; }
 
-[data-theme="light"] .dp-btn { background: rgba(0, 0, 0, .07); }
-[data-theme="light"] .dp-btn:hover { background: rgba(0, 0, 0, .12); }
-[data-theme="light"] .dp-btn.primary { background: #2E5077; color: #fff; }
-[data-theme="light"] .dp-count, [data-theme="light"] .gw-n { background: rgba(0, 0, 0, .08); }
+[data-theme="light"] .gb-n, [data-theme="light"] .gw-n { background: rgba(0, 0, 0, .08); }
 [data-theme="light"] .nd-input { background: rgba(0, 0, 0, .04); }
-[data-theme="light"] .dp-canvas { box-shadow: 0 0 0 1px rgba(0, 0, 0, .1), 0 10px 26px rgba(0, 0, 0, .14); }
 
 /* -- the folders, as blocks -- */
 .desk-folders {

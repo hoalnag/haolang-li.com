@@ -378,21 +378,6 @@ function renderDesk(list) {
       <figcaption class="pt-cap"><span>Haolang Li</span><span class="pt-dots" id="pt-dots"></span></figcaption>
     </figure>
 
-    <section class="drawpad">
-      <div class="dp-head">
-        <span class="dp-title">Guest Book</span>
-        <span class="dp-hint">draw something</span>
-      </div>
-      <canvas class="dp-canvas" id="dp-canvas"></canvas>
-      <div class="dp-bar">
-        <div class="dp-swatches" id="dp-swatches"></div>
-        <button class="dp-btn" id="dp-clear">Clear</button>
-        <button class="dp-btn primary" id="dp-save">Save</button>
-      </div>
-      <button class="dp-all" id="dp-all">
-        See all drawings <span class="dp-count" id="dp-count">0</span>
-      </button>
-    </section>
 
     <section class="desk-folders">
       ${folders.map(n => `
@@ -427,7 +412,6 @@ function renderDesk(list) {
   startPortrait();
   tickCityClocks();
   loadWeather();
-  startDrawpad();
 }
 
 /* ================= guest book =================
@@ -448,101 +432,241 @@ function storeDrawings(list) {
   catch { return false; }                  // quota — caller trims and retries
 }
 
-function startDrawpad() {
-  const cv = $("dp-canvas");
-  if (!cv) return;
-  const ctx = cv.getContext("2d");
-  let ink = INKS[0];
+/* name-it dialog — a prompt() would break the illusion */
+/* ================= guest book mode =================
+   The desktop itself becomes the page: draw on it, type on it, drop photos
+   on it, then sign it into the book. Everything lands on one canvas, so an
+   undo stack and a single toDataURL are all the state we need. */
+/* a palette that reads on both wallpapers — cream for dark, ink for light */
+const GB_INKS = ["#EDE8DC", "#7FA9D6", "#FF9F0A", "#E5484D", "#16161A"];
+const gbDefaultInk = () => document.documentElement.dataset.theme === "light" ? "#16161A" : "#EDE8DC";
+const GB = { on: false, tool: "pen", ink: gbDefaultInk(), ctx: null, undo: [], ready: false };
 
-  const sizeCanvas = () => {
-    const r = cv.getBoundingClientRect();
-    if (!r.width || !r.height) return;
-    const dpr = devicePixelRatio || 1;
-    const keep = cv.width ? ctx.getImageData(0, 0, cv.width, cv.height) : null;
-    cv.width = Math.round(r.width * dpr);
-    cv.height = Math.round(r.height * dpr);
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.lineCap = ctx.lineJoin = "round";
-    if (keep) ctx.putImageData(keep, 0, 0);
+function gbSizeCanvas() {
+  const cv = $("gb-canvas");
+  if (!GB.ctx) return;
+  const r = cv.getBoundingClientRect();
+  if (!r.width || !r.height) return;
+  const dprNow = devicePixelRatio || 1;
+  if (cv.width === Math.round(r.width * dprNow) && cv.height === Math.round(r.height * dprNow)) return;
+  const dpr = devicePixelRatio || 1;
+  const keep = cv.width ? GB.ctx.getImageData(0, 0, cv.width, cv.height) : null;
+  cv.width = Math.round(r.width * dpr);
+  cv.height = Math.round(r.height * dpr);
+  GB.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  GB.ctx.lineCap = GB.ctx.lineJoin = "round";
+  if (keep) GB.ctx.putImageData(keep, 0, 0);
+}
+function gbSnapshot() {
+  const cv = $("gb-canvas");
+  GB.undo.push(cv.toDataURL());
+  if (GB.undo.length > 20) GB.undo.shift();
+}
+function gbRestore() {
+  const src = GB.undo.pop();
+  const cv = $("gb-canvas");
+  if (!src) { GB.ctx.clearRect(0, 0, cv.width, cv.height); return; }
+  const im = new Image();
+  im.onload = () => {
+    GB.ctx.save(); GB.ctx.setTransform(1, 0, 0, 1, 0, 0);
+    GB.ctx.clearRect(0, 0, cv.width, cv.height);
+    GB.ctx.drawImage(im, 0, 0);
+    GB.ctx.restore();
   };
-  requestAnimationFrame(sizeCanvas);
+  im.src = src;
+}
 
-  // swatches
-  const sw = $("dp-swatches");
-  sw.innerHTML = INKS.map((c, i) =>
-    `<button class="dp-ink ${i ? "" : "on"}" data-ink="${c}" style="background:${c}" aria-label="ink ${i + 1}"></button>`).join("");
-  sw.addEventListener("click", e => {
-    const b = e.target.closest(".dp-ink");
+function gbInit() {
+  if (GB.ready) return;
+  GB.ready = true;
+  const cv = $("gb-canvas");
+  GB.ctx = cv.getContext("2d");
+
+  GB.ink = gbDefaultInk();
+  $("gb-inks").innerHTML = GB_INKS.map((c, i) =>
+    `<button class="gb-ink ${c === GB.ink ? "on" : ""}" data-ink="${c}" style="background:${c}" aria-label="ink ${i + 1}"></button>`).join("");
+  $("gb-inks").addEventListener("click", e => {
+    const b = e.target.closest(".gb-ink");
     if (!b) return;
-    ink = b.dataset.ink;
-    sw.querySelectorAll(".dp-ink").forEach(x => x.classList.toggle("on", x === b));
+    GB.ink = b.dataset.ink;
+    $("gb-inks").querySelectorAll(".gb-ink").forEach(x => x.classList.toggle("on", x === b));
+  });
+  $("gb-tool-set").addEventListener("click", e => {
+    const b = e.target.closest(".gb-tool");
+    if (!b) return;
+    GB.tool = b.dataset.tool;
+    $("gb-tool-set").querySelectorAll(".gb-tool").forEach(x => x.classList.toggle("on", x === b));
+    if (GB.tool === "photo") $("gb-file").click();
+    cv.style.cursor = GB.tool === "text" ? "text" : "crosshair";
   });
 
-  // drawing — pointer events so mouse, touch and pen all work
+  // pen
   let drawing = false, last = null;
-  const at = (e) => {
-    const r = cv.getBoundingClientRect();
-    return { x: e.clientX - r.left, y: e.clientY - r.top };
-  };
+  const at = e => { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
   cv.addEventListener("pointerdown", e => {
+    if (GB.tool === "text") { e.preventDefault(); gbPlaceText(at(e)); return; }
+    if (GB.tool !== "pen") return;
     e.preventDefault();
     cv.setPointerCapture(e.pointerId);
+    gbSnapshot();
     drawing = true; last = at(e);
-    ctx.strokeStyle = ink; ctx.lineWidth = 2.6;
-    ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(last.x + .01, last.y); ctx.stroke();
+    GB.ctx.strokeStyle = GB.ink; GB.ctx.lineWidth = 3;
+    GB.ctx.beginPath(); GB.ctx.moveTo(last.x, last.y); GB.ctx.lineTo(last.x + .01, last.y); GB.ctx.stroke();
   });
   cv.addEventListener("pointermove", e => {
     if (!drawing) return;
     const p = at(e);
-    ctx.strokeStyle = ink; ctx.lineWidth = 2.6;
-    ctx.beginPath(); ctx.moveTo(last.x, last.y); ctx.lineTo(p.x, p.y); ctx.stroke();
+    GB.ctx.strokeStyle = GB.ink; GB.ctx.lineWidth = 3;
+    GB.ctx.beginPath(); GB.ctx.moveTo(last.x, last.y); GB.ctx.lineTo(p.x, p.y); GB.ctx.stroke();
     last = p;
   });
-  const stop = () => { drawing = false; };
-  cv.addEventListener("pointerup", stop);
-  cv.addEventListener("pointercancel", stop);
-  cv.addEventListener("pointerleave", stop);
+  ["pointerup", "pointercancel", "pointerleave"].forEach(t =>
+    cv.addEventListener(t, () => { drawing = false; }));
 
-  const clear = () => ctx.clearRect(0, 0, cv.width, cv.height);
-  $("dp-clear").addEventListener("click", clear);
-
-  $("dp-save").addEventListener("click", () => {
-    // a blank canvas has nothing to name
-    const px = ctx.getImageData(0, 0, cv.width, cv.height).data;
-    let inked = false;
-    for (let i = 3; i < px.length; i += 40) if (px[i]) { inked = true; break; }
-    if (!inked) { flashPad("Draw something first"); return; }
-
-    askName(name => {
-      const shot = cv.toDataURL("image/png");
-      let list = loadDrawings();
-      list.unshift({ id: Date.now().toString(36), name, src: shot, at: new Date().toISOString() });
-      while (list.length > DRAW_CAP) list.pop();
-      while (!storeDrawings(list) && list.length > 1) list.pop();   // trim until it fits
-      clear();
-      paintDrawCount();
-      flashPad("Saved to the book");
-    });
+  // photo
+  $("gb-file").addEventListener("change", e => {
+    const file = e.target.files && e.target.files[0];
+    e.target.value = "";
+    if (!file) return;
+    const rd = new FileReader();
+    rd.onload = () => {
+      const im = new Image();
+      im.onload = () => {
+        gbSnapshot();
+        const r = cv.getBoundingClientRect();
+        const w = Math.min(260, im.width, r.width * .5);
+        const h = w * im.height / im.width;
+        const x = r.width / 2 - w / 2 + (Math.random() - .5) * 120;
+        const y = r.height / 2 - h / 2 + (Math.random() - .5) * 80;
+        GB.ctx.save();
+        GB.ctx.shadowColor = "rgba(0,0,0,.35)"; GB.ctx.shadowBlur = 18; GB.ctx.shadowOffsetY = 6;
+        GB.ctx.fillStyle = "#EDE8DC";
+        GB.ctx.fillRect(x - 7, y - 7, w + 14, h + 14 + 16);   // a paper border, like a print
+        GB.ctx.restore();
+        GB.ctx.drawImage(im, x, y, w, h);
+      };
+      im.src = rd.result;
+    };
+    rd.readAsDataURL(file);
   });
 
-  $("dp-all").addEventListener("click", openGallery);
-  paintDrawCount();
-  addEventListener("resize", sizeCanvas, { passive: true });
+  $("gb-undo").addEventListener("click", gbRestore);
+  $("gb-clear").addEventListener("click", () => {
+    gbSnapshot();
+    GB.ctx.clearRect(0, 0, cv.width, cv.height);
+  });
+  $("gb-book").addEventListener("click", openGallery);
+  $("gb-exit").addEventListener("click", () => setDeskMode("wallpaper"));
+  $("gb-save").addEventListener("click", () => {
+    const px = GB.ctx.getImageData(0, 0, cv.width, cv.height).data;
+    let inked = false;
+    for (let i = 3; i < px.length; i += 80) if (px[i]) { inked = true; break; }
+    if (!inked) { gbToast("Draw or write something first"); return; }
+    askName(name => {
+      let list = loadDrawings();
+      list.unshift({ id: Date.now().toString(36), name, src: gbFlatten(), at: new Date().toISOString() });
+      while (list.length > DRAW_CAP) list.pop();
+      while (!storeDrawings(list) && list.length > 1) list.pop();
+      gbCount();
+      gbToast("Signed into the book");
+    });
+  });
+  addEventListener("resize", () => { if (GB.on) gbSizeCanvas(); }, { passive: true });
+  // the layer can gain its size later (background tab, orientation change);
+  // sync the backing store whenever it actually has one
+  if (window.ResizeObserver) new ResizeObserver(() => { if (GB.on) gbSizeCanvas(); }).observe($("gb-layer"));
 }
 
-function paintDrawCount() {
-  const el = $("dp-count");
-  if (el) el.textContent = loadDrawings().length;
-}
-function flashPad(msg) {
-  const head = document.querySelector(".dp-hint");
-  if (!head) return;
-  const was = head.textContent;
-  head.textContent = msg;
-  setTimeout(() => { head.textContent = was; }, 1600);
+/* Bake the wallpaper into the saved page — the ink is often cream, which
+   would vanish on a transparent PNG shown against a pale card. */
+function gbFlatten() {
+  const cv = $("gb-canvas");
+  const out = document.createElement("canvas");
+  out.width = cv.width; out.height = cv.height;
+  const o = out.getContext("2d");
+  const light = document.documentElement.dataset.theme === "light";
+  const g = o.createLinearGradient(0, 0, out.width, out.height);
+  if (light) { g.addColorStop(0, "#dfe3ec"); g.addColorStop(.55, "#c9d0dd"); g.addColorStop(1, "#b3bccd"); }
+  else { g.addColorStop(0, "#262536"); g.addColorStop(.55, "#171821"); g.addColorStop(1, "#101119"); }
+  o.fillStyle = g;
+  o.fillRect(0, 0, out.width, out.height);
+  o.drawImage(cv, 0, 0);
+  return out.toDataURL("image/png");
 }
 
-/* name-it dialog — a prompt() would break the illusion */
+/* click, type, commit — the caret is a real input so IMEs work */
+function gbPlaceText(pt) {
+  const layer = $("gb-layer");
+  const box = $("gb-caret");
+  box.hidden = false;
+  box.style.left = pt.x + "px";
+  box.style.top = pt.y + "px";
+  box.innerHTML = `<input class="gb-text-in" placeholder="type…" spellcheck="false">`;
+  const input = box.querySelector("input");
+  input.style.color = GB.ink;
+  // focus after the pointer event settles, or the default action takes it back
+  requestAnimationFrame(() => input.focus());
+  let done = false;
+  const commit = () => {
+    if (done) return;
+    done = true;
+    const v = input.value.trim();
+    box.hidden = true; box.innerHTML = "";
+    if (!v) return;
+    gbSnapshot();
+    GB.ctx.fillStyle = GB.ink;
+    GB.ctx.font = '600 26px -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif';
+    GB.ctx.textBaseline = "middle";
+    GB.ctx.fillText(v, pt.x, pt.y);
+  };
+  input.addEventListener("keydown", e => {
+    e.stopPropagation();
+    if (e.key === "Enter") commit();
+    if (e.key === "Escape") { done = true; box.hidden = true; box.innerHTML = ""; }
+  });
+  input.addEventListener("blur", commit);
+}
+
+function gbCount() { const el = $("gb-n"); if (el) el.textContent = loadDrawings().length; }
+function gbToast(msg) {
+  let t = document.querySelector(".gb-toast");
+  if (!t) { t = document.createElement("div"); t.className = "gb-toast"; $("gb-layer").appendChild(t); }
+  t.textContent = msg;
+  t.classList.add("on");
+  clearTimeout(t._h);
+  t._h = setTimeout(() => t.classList.remove("on"), 1800);
+}
+
+/* ---- the mode switch itself ---- */
+let deskMode = "wallpaper";
+function setDeskMode(mode) {
+  deskMode = mode;
+  const gb = mode === "guestbook";
+  $("mb-mode-name").textContent = gb ? "Guest Book" : "Wallpaper";
+  $("gb-layer").hidden = !gb;
+  document.body.classList.toggle("gb-on", gb);
+  GB.on = gb;
+  if (gb) {
+    gbInit();
+    hideWindow("min");                 // clear the desk to sign it
+    // size it now — rAF never fires in a background tab, and an unsized
+    // canvas silently swallows every stroke
+    gbSizeCanvas();
+    gbCount();
+    requestAnimationFrame(gbSizeCanvas);
+  } else {
+    openWindow();
+  }
+}
+$("mb-mode").addEventListener("mousedown", e => {
+  e.stopPropagation();
+  const r = e.currentTarget.getBoundingClientRect();
+  showMenu(
+    mi("Wallpaper", "mode-wallpaper", "", { check: deskMode === "wallpaper" }) +
+    mi("Guest Book", "mode-guestbook", "", { check: deskMode === "guestbook" }),
+    r.left, r.bottom + 4);
+});
+
 function askName(done) {
   const wrap = document.createElement("div");
   wrap.className = "nd-wrap";
@@ -1112,6 +1236,8 @@ function runAction(act, arg) {
     case "info-sel": [...selection].slice(0, 3).forEach((n, i) => getInfo(n, i)); break;
     case "info-cwd": getInfo(cwd, 0); break;
     case "rename-sel": selection.size === 1 && startRename([...selection][0]); break;
+    case "mode-wallpaper": setDeskMode("wallpaper"); break;
+    case "mode-guestbook": setDeskMode("guestbook"); break;
     case "toggle-sidebar": els.sidebar.classList.toggle("collapsed"); break;
     case "minimize": hideWindow("min"); break;
     case "zoom": toggleFullscreen(); break;
