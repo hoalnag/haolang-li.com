@@ -423,7 +423,7 @@ function renderDesk(list) {
    falls back to this browser only, so the feature still works locally. */
 const SUPA = {
   url: "https://knpwwgqkpcfjupsegouu.supabase.co",
-  key: "",                                 // paste the anon public key here
+  key: "sb_publishable_2xqtnwBkGZeYEyJJf7VtyA_dm9c-pFf",   // publishable (public) key
 };
 const SHARED = () => Boolean(SUPA.key);
 
@@ -637,16 +637,19 @@ function gbInit() {
    would vanish on a transparent PNG shown against a pale card. */
 function gbFlatten() {
   const cv = $("gb-canvas");
+  // cap the exported size — a full-desktop retina PNG is multiple MB, past the
+  // server's per-page limit, and a gallery card needs nothing near that
+  const MAXW = 1400;
+  const scale = Math.min(1, MAXW / cv.width);
   const out = document.createElement("canvas");
-  out.width = cv.width; out.height = cv.height;
+  out.width = Math.round(cv.width * scale);
+  out.height = Math.round(cv.height * scale);
   const o = out.getContext("2d");
-  const light = document.documentElement.dataset.theme === "light";
-  const g = o.createLinearGradient(0, 0, out.width, out.height);
-  if (light) { g.addColorStop(0, "#dfe3ec"); g.addColorStop(.55, "#c9d0dd"); g.addColorStop(1, "#b3bccd"); }
-  else { g.addColorStop(0, "#262536"); g.addColorStop(.55, "#171821"); g.addColorStop(1, "#101119"); }
-  o.fillStyle = g;
+  // a solid backdrop (not the gradient) so the flattened PNG compresses small
+  // while cream ink still reads; matches the theme it was drawn on
+  o.fillStyle = document.documentElement.dataset.theme === "light" ? "#cfd6e2" : "#1a1b24";
   o.fillRect(0, 0, out.width, out.height);
-  o.drawImage(cv, 0, 0);
+  o.drawImage(cv, 0, 0, out.width, out.height);
   return out.toDataURL("image/png");
 }
 
