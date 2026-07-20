@@ -5,54 +5,65 @@
 (function () {
 "use strict";
 
-/* ================= file system ================= */
-/* `at` is the modified date (ISO). Recently Updated derives itself from these,
-   so adding an entry with a newer date is all it takes to surface it. */
+/* ================= file system =================
+   The folder tree is data: loaded from Supabase so the owner can edit it in
+   admin mode and every visitor sees the change. Falls back to a built-in
+   default when there is no backend yet, so the site always renders. */
 const BASE = "2026-07-01T12:00";
-const folder = (name, at = BASE, children = []) =>
-  ({ name, kind: "Folder", icon: "i-folder-mac", at, size: "--", children });
+let _fid = 0;
+const folder = (name, at = BASE, children = [], id = null) =>
+  ({ id: id || ("f" + (++_fid)), name, kind: "Folder", icon: "i-folder-mac", at, size: "--", children });
 const pdf = (name, at, href) =>
-  ({ name, kind: "PDF document", icon: "i-pdf-mac", at, size: "--", href });
+  ({ id: "file-" + (++_fid), name, kind: "PDF document", icon: "i-pdf-mac", at, size: "--", href });
 const mov = (name, at, href) =>
-  ({ name, kind: "QuickTime movie", icon: "i-mov-mac", at, size: "--", href });
+  ({ id: "file-" + (++_fid), name, kind: "QuickTime movie", icon: "i-mov-mac", at, size: "--", href });
 const webloc = (name, at, href) =>
-  ({ name: name + ".webloc", kind: "Web site location", icon: "i-webloc", at, size: "1 KB", href, external: true });
+  ({ id: "file-" + (++_fid), name: name + ".webloc", kind: "Web site location", icon: "i-webloc", at, size: "1 KB", href, external: true });
 
-const ROOT = folder("Desktop", "2026-07-18T09:00", [
-  folder("AI", "2026-07-14T16:20", [
-    folder("AVA Studio", "2026-07-14T16:20"),
-    folder("Test Footage", "2026-07-09T21:05"),
-  ]),
-  folder("FILM", "2026-07-16T11:40", [
-    folder("Short Films", "2026-07-16T11:40"),
-    folder("Cinematography", "2026-07-02T18:15"),
-    folder("Festival & Sales", "2026-06-28T10:30"),
-    folder("Poster Design", "2026-06-20T14:00"),
-  ]),
-  folder("WRITINGS", "2026-07-17T23:10", [
-    folder("Self Talk", "2026-07-17T23:10"),
-    folder("Poems", "2026-07-11T08:45"),
-  ]),
-  folder("READINGS", "2026-07-05T19:30", [
-    folder("Reading Notes", "2026-07-05T19:30"),
-    folder("Papers", "2026-06-30T13:20"),
-  ]),
-  folder("FLAT THINGS", "2026-06-25T15:00", [
-    folder("Digital", "2026-06-25T15:00"),
-    folder("Celluloid", "2026-06-22T12:10"),
-    folder("Randomness", "2026-06-18T17:40"),
-    folder("Mappings", "2026-06-12T09:25"),
-  ]),
+// the three desktop files stay fixed (the request is about folders)
+const DESK_FILES = () => [
   pdf("Self_Intro.pdf", "2026-07-10T14:05", "assets/files/Self_Intro.pdf"),
   pdf("CV-2026-7.pdf", "2026-07-18T09:00", "assets/files/CV-2026-7.pdf"),
   mov("Filmmaker's Reel.mov", "2026-07-15T20:35", "assets/files/Filmmakers_Reel.mov"),
-]);
+];
 
-// parent pointers + paths
-(function link(node, parent) {
-  node.parent = parent;
-  (node.children || []).forEach(c => link(c, node));
-})(ROOT, null);
+// built-in default folder set — matches the Supabase seed, used before setup / offline
+function defaultFolders() {
+  return [
+    folder("AI", "2026-07-14T16:20", [folder("AVA Studio"), folder("Test Footage")]),
+    folder("FILM", "2026-07-16T11:40", [folder("Short Films"), folder("Cinematography"), folder("Festival & Sales"), folder("Poster Design")]),
+    folder("WRITINGS", "2026-07-17T23:10", [folder("Self Talk"), folder("Poems")]),
+    folder("READINGS", "2026-07-05T19:30", [folder("Reading Notes"), folder("Papers")]),
+    folder("FLAT THINGS", "2026-06-25T15:00", [folder("Digital"), folder("Celluloid"), folder("Randomness"), folder("Mappings")]),
+  ];
+}
+
+// rows from Supabase → nested folder nodes, ordered by pos
+function foldersFromRows(rows) {
+  const byId = new Map();
+  rows.forEach(r => byId.set(r.id, folder(r.name, r.created_at, [], r.id)));
+  const tops = [];
+  rows.forEach(r => {
+    const node = byId.get(r.id); node.pos = r.pos;
+    if (r.parent && byId.has(r.parent)) byId.get(r.parent).children.push(node);
+    else tops.push(node);
+  });
+  const sortRec = list => { list.sort((a, b) => (a.pos || 0) - (b.pos || 0)); list.forEach(n => sortRec(n.children)); };
+  sortRec(tops);
+  return tops;
+}
+
+let ROOT;
+const INDEX = new Map();                 // id -> node, rebuilt on every tree change
+function setTree(folderTops) {
+  ROOT = folder("Desktop", "2026-07-18T09:00", [...folderTops, ...DESK_FILES()], "desktop");
+  INDEX.clear();
+  (function link(node, parent) {
+    node.parent = parent; INDEX.set(node.id, node);
+    (node.children || []).forEach(c => link(c, node));
+  })(ROOT, null);
+}
+setTree(defaultFolders());               // render immediately; Supabase refines it at boot
 
 const LINKS = [
   { id: "vimeo", name: "Vimeo", icon: "s-vimeo", href: "https://vimeo.com/YOUR_VIMEO",
@@ -226,43 +237,33 @@ function recentUpdates(limit = 5) {
   return found.filter(n => n.at).sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, limit);
 }
 
-/* ================= sidebar ================= */
+/* ================= sidebar (built from the live tree, keyed by id) ========= */
 function buildSidebar() {
   const sec = (label) => `<div class="side-sec">${label}</div>`;
-  const item = (name, icon, attrs = "") =>
-    `<button class="side-item" data-target="${name}" ${attrs}><svg viewBox="0 0 20 20"><use href="#${icon}"/></svg><span>${name}</span></button>`;
-  let h = "";
-  h += sec("Favorites");
-  h += item("Desktop", "s-desktop");
-  h += sec("AI") + item("AVA Studio", "s-folder") + item("Test Footage", "s-folder");
-  h += sec("Film") + item("Short Films", "s-folder") + item("Cinematography", "s-folder")
-     + item("Festival & Sales", "s-folder") + item("Poster Design", "s-folder");
-  h += sec("Writings") + item("Self Talk", "s-folder") + item("Poems", "s-folder");
-  h += sec("Readings") + item("Reading Notes", "s-folder") + item("Papers", "s-folder");
-  h += sec("Flat Things") + item("Digital", "s-folder") + item("Celluloid", "s-folder")
-     + item("Randomness", "s-folder", 'data-parent="FLAT THINGS"') + item("Mappings", "s-folder");
+  const item = (node, icon = "s-folder") =>
+    `<button class="side-item" data-fid="${node.id}"><svg viewBox="0 0 20 20"><use href="#${icon}"/></svg><span>${node.name}</span></button>`;
+  let h = sec("Favorites") +
+    `<button class="side-item" data-fid="desktop"><svg viewBox="0 0 20 20"><use href="#s-desktop"/></svg><span>Desktop</span></button>`;
+  ROOT.children.filter(n => n.children).forEach(top => {
+    h += sec(top.name);
+    top.children.forEach(sub => h += item(sub));
+  });
   h += sec("Links");
   LINKS.forEach(l => {
     h += `<button class="side-item side-link" data-app="${l.id}"><svg viewBox="0 0 20 20"><use href="#${l.icon}"/></svg><span>${l.name}</span></button>`;
   });
   els.sideNav.innerHTML = h;
-
-  els.sideNav.addEventListener("click", e => {
+  els.sideNav.onclick = e => {
     const btn = e.target.closest(".side-item");
     if (!btn) return;
     if (btn.dataset.app) { openApp(btn.dataset.app); return; }
-    let node;
-    if (btn.dataset.parent) node = (findByName(btn.dataset.parent).children || []).find(c => c.name === btn.dataset.target);
-    else node = findByName(btn.dataset.target);
+    const node = INDEX.get(btn.dataset.fid);
     if (node) navigate(node);
-  });
+  };
 }
 function syncSidebar() {
-  els.sideNav.querySelectorAll(".side-item").forEach(b => {
-    const match = !b.dataset.href && b.dataset.target === cwd.name &&
-      (!b.dataset.parent || (cwd.parent && cwd.parent.name === b.dataset.parent));
-    b.classList.toggle("active", match);
-  });
+  els.sideNav.querySelectorAll(".side-item").forEach(b =>
+    b.classList.toggle("active", b.dataset.fid === cwd.id));
 }
 
 /* ================= navigation ================= */
@@ -342,6 +343,7 @@ function render() {
 
   updateStatus();
   syncSidebar();
+  adminDecorate();
 }
 /* ---- the desk: portrait, weather, papers, and the folders as blocks ---- */
 const CITIES = [
@@ -1189,6 +1191,8 @@ function runAction(act, arg) {
     case "info-sel": [...selection].slice(0, 3).forEach((n, i) => getInfo(n, i)); break;
     case "info-cwd": getInfo(cwd, 0); break;
     case "rename-sel": selection.size === 1 && startRename([...selection][0]); break;
+    case "admin-uploads": openUploads(); break;
+    case "admin-out": adminLogout(); break;
     case "mode-wallpaper": setDeskMode("wallpaper"); break;
     case "mode-guestbook": setDeskMode("guestbook"); break;
     case "toggle-sidebar": els.sidebar.classList.toggle("collapsed"); break;
@@ -1578,9 +1582,272 @@ const syncNarrow = () => els.sidebar.classList.toggle("collapsed", narrowMQ.matc
 narrowMQ.addEventListener("change", syncNarrow);
 syncNarrow();
 
+/* ================= admin =================
+   The owner signs in with Supabase Auth; the JWT is what actually unlocks
+   writes (folders + uploads), enforced by RLS. Visitors can't get one. */
+const ADMIN = { token: null, email: null, exp: 0 };
+const isAdmin = () => Boolean(ADMIN.token) && Date.now() < ADMIN.exp;
+const bearer = () => ({ apikey: SUPA.key, Authorization: `Bearer ${ADMIN.token}` });
+
+function adminRestore() {
+  try {
+    const s = JSON.parse(localStorage.getItem("hl-admin") || "null");
+    if (s && s.token && Date.now() < s.exp) { ADMIN.token = s.token; ADMIN.email = s.email; ADMIN.exp = s.exp; }
+  } catch {}
+}
+async function adminLogin(email, password) {
+  const r = await fetch(`${SUPA.url}/auth/v1/token?grant_type=password`, {
+    method: "POST", headers: { apikey: SUPA.key, "Content-Type": "application/json" },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!r.ok) throw new Error("bad");
+  const j = await r.json();
+  ADMIN.token = j.access_token; ADMIN.email = email;
+  ADMIN.exp = Date.now() + (j.expires_in || 3600) * 1000;
+  try { localStorage.setItem("hl-admin", JSON.stringify({ token: ADMIN.token, email, exp: ADMIN.exp })); } catch {}
+}
+function adminLogout() {
+  ADMIN.token = ADMIN.email = null; ADMIN.exp = 0;
+  try { localStorage.removeItem("hl-admin"); } catch {}
+  document.body.classList.remove("admin-on");
+  render();
+}
+
+/* ---- folder data ops (owner only) ---- */
+async function foldersFetch() {
+  const r = await fetch(`${SUPA.url}/rest/v1/folders?select=id,parent,name,pos,created_at&order=pos.asc`, { headers: supaHeaders() });
+  if (!r.ok) throw new Error(r.status);
+  return r.json();
+}
+async function reloadFolders() {
+  if (!SHARED()) return;
+  try {
+    const rows = await foldersFetch();
+    if (!Array.isArray(rows) || !rows.length) return;   // keep default set if empty
+    const curId = cwd && cwd.id;
+    setTree(foldersFromRows(rows));
+    cwd = INDEX.get(curId) || ROOT;
+    history = []; future = [];
+    buildSidebar(); render();
+  } catch { /* offline — keep whatever we have */ }
+}
+async function fWrite(method, path, body) {
+  if (!isAdmin()) throw new Error("not signed in");
+  const r = await fetch(`${SUPA.url}/rest/v1/${path}`, {
+    method, headers: { ...bearer(), "Content-Type": "application/json", Prefer: "return=minimal" },
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  if (!r.ok) throw new Error(await r.text() || r.status);
+}
+const siblingsOf = (node) =>
+  (node.parent && node.parent.id !== "desktop") ? node.parent.children : ROOT.children.filter(n => n.children);
+async function fAdd(parentId) {
+  const name = await askText("New folder", "Folder name", "Untitled");
+  if (name == null) return;
+  const sibs = parentId ? (INDEX.get(parentId)?.children || []) : ROOT.children.filter(n => n.children);
+  try { await fWrite("POST", "folders", { parent: parentId || null, name, pos: sibs.length }); await reloadFolders(); }
+  catch { toast("Couldn't add — are you still signed in?"); }
+}
+async function fRename(id) {
+  const node = INDEX.get(id); if (!node) return;
+  const name = await askText("Rename", "New name", node.name);
+  if (name == null || name === node.name) return;
+  try { await fWrite("PATCH", `folders?id=eq.${id}`, { name }); await reloadFolders(); }
+  catch { toast("Couldn't rename"); }
+}
+async function fDelete(id) {
+  const node = INDEX.get(id); if (!node) return;
+  const n = node.children ? node.children.length : 0;
+  if (!await askConfirm(`Delete "${node.name}"${n ? ` and its ${n} item${n === 1 ? "" : "s"}` : ""}?`)) return;
+  try { await fWrite("DELETE", `folders?id=eq.${id}`); await reloadFolders(); }
+  catch { toast("Couldn't delete"); }
+}
+async function fMove(id, dir) {
+  const node = INDEX.get(id); if (!node) return;
+  const sibs = siblingsOf(node).slice();
+  const i = sibs.indexOf(node), j = i + dir;
+  if (j < 0 || j >= sibs.length) return;
+  [sibs[i], sibs[j]] = [sibs[j], sibs[i]];
+  try { for (let k = 0; k < sibs.length; k++) await fWrite("PATCH", `folders?id=eq.${sibs[k].id}`, { pos: k }); await reloadFolders(); }
+  catch { toast("Couldn't reorder"); }
+}
+
+/* ---- uploads (materials for later) ---- */
+async function uploadPut(file) {
+  const path = Date.now().toString(36) + "-" + file.name.replace(/[^\w.\-]+/g, "_");
+  const r = await fetch(`${SUPA.url}/storage/v1/object/uploads/${encodeURIComponent(path)}`, {
+    method: "POST", headers: { ...bearer(), "Content-Type": file.type || "application/octet-stream" }, body: file,
+  });
+  if (!r.ok) throw new Error(await r.text() || r.status);
+}
+async function uploadList() {
+  const r = await fetch(`${SUPA.url}/storage/v1/object/list/uploads`, {
+    method: "POST", headers: { apikey: SUPA.key, Authorization: `Bearer ${ADMIN.token || SUPA.key}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ prefix: "", limit: 100, sortBy: { column: "created_at", order: "desc" } }),
+  });
+  if (!r.ok) throw new Error(r.status);
+  return (await r.json()).filter(o => o.name && o.id !== null);
+}
+async function uploadDelete(name) {
+  const r = await fetch(`${SUPA.url}/storage/v1/object/uploads/${encodeURIComponent(name)}`, { method: "DELETE", headers: bearer() });
+  if (!r.ok) throw new Error(r.status);
+}
+const uploadUrl = (name) => `${SUPA.url}/storage/v1/object/public/uploads/${encodeURIComponent(name)}`;
+
+/* ---- small dialogs + toast (shared by admin) ---- */
+function toast(msg) {
+  let t = document.querySelector(".hl-toast");
+  if (!t) { t = document.createElement("div"); t.className = "hl-toast"; document.body.appendChild(t); }
+  t.textContent = msg; t.classList.add("on");
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("on"), 2200);
+}
+function askText(title, ph, val = "") {
+  return new Promise(res => {
+    const w = document.createElement("div"); w.className = "nd-wrap";
+    w.innerHTML = `<div class="nd-card"><div class="nd-title">${title}</div>
+      <input class="nd-input" maxlength="40" placeholder="${ph}" spellcheck="false">
+      <div class="nd-actions"><button class="dp-btn" data-a="c">Cancel</button><button class="dp-btn primary" data-a="k">OK</button></div></div>`;
+    document.body.appendChild(w);
+    const inp = w.querySelector("input"); inp.value = val; inp.focus(); inp.select();
+    const done = v => { w.remove(); res(v); };
+    w.addEventListener("click", e => { if (e.target === w || e.target.dataset.a === "c") done(null); if (e.target.dataset.a === "k") done(inp.value.trim() || val); });
+    inp.addEventListener("keydown", e => { e.stopPropagation(); if (e.key === "Enter") done(inp.value.trim() || val); if (e.key === "Escape") done(null); });
+  });
+}
+function askConfirm(msg) {
+  return new Promise(res => {
+    const w = document.createElement("div"); w.className = "nd-wrap";
+    w.innerHTML = `<div class="nd-card"><div class="nd-title">${msg}</div>
+      <div class="nd-actions"><button class="dp-btn" data-a="c">Cancel</button><button class="dp-btn danger" data-a="k">Delete</button></div></div>`;
+    document.body.appendChild(w);
+    w.addEventListener("click", e => { if (e.target === w || e.target.dataset.a === "c") { w.remove(); res(false); } if (e.target.dataset.a === "k") { w.remove(); res(true); } });
+  });
+}
+
+/* ---- login dialog ---- */
+function openLogin() {
+  const w = document.createElement("div"); w.className = "nd-wrap";
+  w.innerHTML = `<div class="nd-card"><div class="nd-title">Admin sign in</div>
+    <input class="nd-input" id="li-email" type="email" placeholder="email" spellcheck="false" autocomplete="username">
+    <input class="nd-input" id="li-pass" type="password" placeholder="password" style="margin-top:8px" autocomplete="current-password">
+    <div class="nd-actions"><button class="dp-btn" data-a="c">Cancel</button><button class="dp-btn primary" data-a="k">Sign in</button></div></div>`;
+  document.body.appendChild(w);
+  const email = w.querySelector("#li-email"), pass = w.querySelector("#li-pass");
+  email.focus();
+  [email, pass].forEach(i => i.addEventListener("keydown", e => { e.stopPropagation(); if (e.key === "Enter") go(); if (e.key === "Escape") w.remove(); }));
+  async function go() {
+    try {
+      await adminLogin(email.value.trim(), pass.value);
+      w.remove();
+      document.body.classList.add("admin-on");
+      toast("Signed in — folders are editable");
+      render();
+    } catch { toast("Sign-in failed — check email and password"); }
+  }
+  w.addEventListener("click", e => { if (e.target === w || e.target.dataset.a === "c") w.remove(); if (e.target.dataset.a === "k") go(); });
+}
+
+/* the lock button in the menu bar */
+$("mb-admin").addEventListener("mousedown", e => {
+  e.stopPropagation();
+  if (!isAdmin()) { openLogin(); return; }
+  const r = e.currentTarget.getBoundingClientRect();
+  showMenu(mi("Manage materials…", "admin-uploads") + sep + mi("Sign out", "admin-out"), r.right - 180, r.bottom + 4);
+});
+
+/* ---- admin decoration of the current view ---- */
+function adminDecorate() {
+  document.body.classList.toggle("admin-on", isAdmin());
+  if (!isAdmin()) return;
+  const ctrl = (id, opts = {}) =>
+    `<span class="fadmin" data-fid="${id}">
+       ${opts.move ? `<button class="fa-btn" data-fa="left" title="Move left/up">◀</button><button class="fa-btn" data-fa="right" title="Move right/down">▶</button>` : ""}
+       <button class="fa-btn" data-fa="rename" title="Rename">✎</button>
+       <button class="fa-btn" data-fa="del" title="Delete">✕</button>
+     </span>`;
+
+  // desktop: the five big folders as blocks, plus a New-folder block
+  const folders = $("desk-view") && !$("desk-view").hidden ? $("desk-view").querySelector(".desk-folders") : null;
+  if (folders) {
+    folders.querySelectorAll(".desk-block").forEach(b => {
+      const id = INDEX.get(cwd.id) === ROOT ? items()[+b.dataset.i]?.id : null;
+      if (id) b.insertAdjacentHTML("beforeend", ctrl(id, { move: true }));
+    });
+    folders.insertAdjacentHTML("beforeend", `<button class="desk-block new-folder" data-fadd="">＋<span class="db-name" style="margin-top:8px">New folder</span></button>`);
+  }
+  // inside a folder (icon view): New-folder tile + per-folder controls
+  if (view === "icon" && cwd.id !== "desktop") {
+    const iv = $("icon-view");
+    items().forEach((n, i) => {
+      if (!n.children) return;
+      const el = iv.querySelector(`.icon-item[data-i="${i}"]`);
+      if (el) el.insertAdjacentHTML("beforeend", ctrl(n.id, { move: true }));
+    });
+    iv.insertAdjacentHTML("beforeend",
+      `<div class="icon-item new-folder" data-fadd="${cwd.id}"><div class="ic-frame">＋</div><div class="ic-label">New folder</div></div>`);
+  }
+}
+// one delegated handler for every admin control
+document.addEventListener("click", e => {
+  const add = e.target.closest("[data-fadd]");
+  if (add) { e.stopPropagation(); fAdd(add.dataset.fadd || null); return; }
+  const fa = e.target.closest(".fa-btn");
+  if (!fa) return;
+  e.stopPropagation();
+  const id = fa.closest(".fadmin").dataset.fid, a = fa.dataset.fa;
+  if (a === "rename") fRename(id);
+  else if (a === "del") fDelete(id);
+  else if (a === "left") fMove(id, -1);
+  else if (a === "right") fMove(id, 1);
+}, true);
+
+/* ---- materials panel ---- */
+function openUploads() {
+  const w = document.createElement("div"); w.className = "gwin";
+  w.innerHTML = `<div class="aw-bar"><button class="aw-close"></button><div class="gw-title">Materials</div></div>
+    <div class="up-head">
+      <label class="dp-btn primary">Upload files<input type="file" id="up-file" multiple hidden></label>
+      <span class="up-note">Uploaded files are kept for me to use when building out folders.</span>
+    </div>
+    <div class="gw-body" id="up-body"><div class="gw-empty">Loading…</div></div>`;
+  document.body.appendChild(w);
+  materialize(w, null);
+  w.querySelector(".aw-close").addEventListener("click", () => w.remove());
+  makeDraggable(w, w.querySelector(".aw-bar"));
+  const body = w.querySelector("#up-body");
+  const isImg = n => /\.(png|jpe?g|gif|webp|avif|svg)$/i.test(n);
+  async function refresh() {
+    try {
+      const files = await uploadList();
+      body.innerHTML = files.length ? `<div class="gw-grid">${files.map(f => `
+        <figure class="gw-card">
+          ${isImg(f.name) ? `<img src="${uploadUrl(f.name)}" alt="">` : `<div class="up-file">${f.name.split(".").pop().toUpperCase()}</div>`}
+          <figcaption><span class="gw-name">${f.name.replace(/^[a-z0-9]+-/, "")}</span></figcaption>
+          <button class="gw-del" data-del="${f.name}">×</button>
+        </figure>`).join("")}</div>` : `<div class="gw-empty">Nothing uploaded yet.</div>`;
+    } catch { body.innerHTML = `<div class="gw-empty">Couldn't load materials.</div>`; }
+  }
+  w.querySelector("#up-file").addEventListener("change", async e => {
+    const files = [...e.target.files]; e.target.value = "";
+    if (!files.length) return;
+    toast(`Uploading ${files.length} file${files.length === 1 ? "" : "s"}…`);
+    try { for (const f of files) await uploadPut(f); toast("Uploaded"); refresh(); }
+    catch { toast("Upload failed — still signed in?"); }
+  });
+  body.addEventListener("click", async e => {
+    const del = e.target.closest("[data-del]"); if (!del) return;
+    if (!await askConfirm(`Remove "${del.dataset.del.replace(/^[a-z0-9]+-/, "")}"?`)) return;
+    try { await uploadDelete(del.dataset.del); refresh(); } catch { toast("Couldn't remove"); }
+  });
+  refresh();
+}
+
 /* ================= boot ================= */
+adminRestore();
+if (isAdmin()) document.body.classList.add("admin-on");
 buildSidebar();
 render();
 els.content.focus();
+reloadFolders();          // pull the live folder tree; refines the default set
 
 })();

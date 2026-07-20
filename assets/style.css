@@ -523,6 +523,71 @@ body.gb-on .dock-wrap { display: none; }
 }
 .nd-input:focus { border-color: var(--accent); }
 .nd-actions { display: flex; justify-content: flex-end; gap: 8px; padding-top: 14px; }
+.dp-btn.danger { background: #B23B3B; color: #fff; }
+.dp-btn.danger:hover { background: #c74747; }
+
+/* ================= admin ================= */
+#mb-admin.on-admin { color: #57C785; }        /* lock turns green when signed in */
+body.admin-on #mb-admin { color: #57C785; }
+
+/* a small control cluster pinned to each editable folder */
+.fadmin {
+  position: absolute; top: 6px; left: 6px;
+  display: none; gap: 3px; z-index: 4;
+  padding: 3px; border-radius: 8px;
+  background: rgba(0, 0, 0, .62);
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+body.admin-on .desk-block .fadmin,
+body.admin-on .icon-item .fadmin { display: flex; }
+.fa-btn {
+  width: 20px; height: 20px; border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: #EDE8DC; line-height: 1;
+}
+.fa-btn:hover { background: rgba(255, 255, 255, .18); }
+.desk-block { }
+.icon-item { position: relative; }
+
+/* the "New folder" affordances */
+.desk-block.new-folder {
+  align-items: center; justify-content: center;
+  background: transparent;
+  border: 1.5px dashed var(--hairline);
+  color: var(--text-dim); font-size: 22px; font-weight: 300;
+}
+.desk-block.new-folder::before { display: none; }
+.desk-block.new-folder .db-name { font-size: 10px; letter-spacing: .12em; opacity: .8; }
+.desk-block.new-folder:hover { background: rgba(255, 255, 255, .04); color: var(--text); transform: none; }
+.icon-item.new-folder .ic-frame {
+  font-size: 34px; font-weight: 300; color: var(--text-dim);
+  border: 1.5px dashed var(--hairline); border-radius: 10px;
+  width: calc(var(--icon-size) + 8px); height: calc(var(--icon-size) + 8px);
+}
+.icon-item.new-folder:hover .ic-frame { color: var(--text); }
+
+/* materials panel extras (reuses .gwin / .gw-* ) */
+.up-head {
+  display: flex; align-items: center; gap: 12px;
+  padding: 10px 16px; border-bottom: 1px solid var(--hairline);
+}
+.up-note { font-size: 11px; color: var(--text-dim); }
+.up-file {
+  width: 100%; aspect-ratio: 5 / 3; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  background: #2E5077; color: #EDE8DC; font-size: 12px; font-weight: 700; letter-spacing: .1em;
+}
+
+/* shared toast */
+.hl-toast {
+  position: fixed; left: 50%; bottom: 26px; transform: translate(-50%, 8px);
+  z-index: 900; padding: 9px 16px; border-radius: 10px;
+  background: var(--menu-bg); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+  border: .5px solid rgba(255, 255, 255, .14);
+  font-size: 12.5px; color: var(--text);
+  opacity: 0; pointer-events: none; transition: opacity .2s ease, transform .2s ease;
+}
+.hl-toast.on { opacity: 1; transform: translate(-50%, 0); }
 
 /* the book, as a floating window */
 .gwin {
