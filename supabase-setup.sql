@@ -1,48 +1,33 @@
--- Guest Book — run this once in Supabase → SQL Editor.
--- Safe to re-run: brings an existing `drawings` table up to the moderated spec.
+-- Guest Book — one shared public canvas.
+-- Every mark (a pen stroke, a line of text, a photo) is one row; the board is
+-- replayed from these in time order. Run once in Supabase → SQL Editor.
 
--- table (created earlier without the review column in some setups)
-create table if not exists drawings (
+create table if not exists board (
   id         uuid primary key default gen_random_uuid(),
-  name       text not null,
-  src        text not null,
-  approved   boolean not null default false,
+  kind       text not null check (kind in ('path','text','photo')),
+  payload    jsonb not null,
   created_at timestamptz not null default now()
 );
 
--- the review column, if the table predates it
-alter table drawings add column if not exists approved boolean not null default false;
+-- keep a single row small (a downscaled photo is the largest case)
+alter table board drop constraint if exists payload_size;
+alter table board add  constraint payload_size check (length(payload::text) <= 400000);
 
--- guardrails, so a public endpoint can't be used to dump junk into the table
-alter table drawings drop constraint if exists name_len;
-alter table drawings add  constraint name_len  check (char_length(name) between 1 and 60);
-alter table drawings drop constraint if exists src_is_png;
-alter table drawings add  constraint src_is_png check (src like 'data:image/png;base64,%');
-alter table drawings drop constraint if exists src_size;
-alter table drawings add  constraint src_size  check (char_length(src) <= 900000);  -- ~650 KB
+create index if not exists board_order on board (created_at);
 
-create index if not exists drawings_recent
-  on drawings (created_at desc) where approved;
+-- API roles reach the table; RLS still governs what they may do
+grant select, insert on board to anon, authenticated;
+alter table board enable row level security;
 
-alter table drawings enable row level security;
+drop policy if exists "read board" on board;
+drop policy if exists "draw on board" on board;
 
--- replace any earlier permissive policies with the moderated pair
-drop policy if exists "anyone can read"  on drawings;
-drop policy if exists "anyone can sign"  on drawings;
-drop policy if exists "read approved"    on drawings;
-drop policy if exists "anyone may sign"  on drawings;
+-- it is a public wall: anyone may read the whole board and add to it
+create policy "read board"    on board for select to anon, authenticated using (true);
+create policy "draw on board" on board for insert to anon, authenticated with check (true);
 
--- visitors read only what you have approved
-create policy "read approved" on drawings
-  for select using (approved = true);
+-- No update or delete policy, so visitors can't erase the wall.
+-- To wipe it yourself: run  delete from board;  here in the SQL editor.
 
--- visitors may sign the book, but cannot approve their own page
-create policy "anyone may sign" on drawings
-  for insert with check (approved = false);
-
--- No update or delete policy exists, so nobody can edit or wipe the book.
--- Moderate from Table Editor → drawings: tick `approved` to publish, or
--- delete the row to reject.
-
--- clear the probe row from testing, if present
-delete from drawings where name = 'probe test';
+-- The old per-drawing table is no longer used; uncomment to remove it:
+-- drop table if exists drawings;

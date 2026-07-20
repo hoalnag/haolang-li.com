@@ -413,270 +413,232 @@ function renderDesk(list) {
   tickCityClocks();
   loadWeather();
 }
-
-/* ================= guest book =================
-   Drawings live in this browser's localStorage — a static site has nowhere
-   shared to put them, so each visitor keeps their own book. Swapping the two
-   functions below for API calls is all a shared gallery would need. */
-/* Backend. With a key set, the book is shared and moderated: everyone's page
-   is posted to Supabase and appears once approved. Without one, the book
-   falls back to this browser only, so the feature still works locally. */
+/* ================= guest book: one public canvas =================
+   A single shared board. Everyone draws, types and drops photos onto the
+   same canvas; every mark is one row in Supabase, replayed in order, so
+   nothing clobbers anything and the board is the sum of every visit.
+   Coordinates are stored 0..1 of the canvas, so it renders at any size. */
 const SUPA = {
   url: "https://knpwwgqkpcfjupsegouu.supabase.co",
   key: "sb_publishable_2xqtnwBkGZeYEyJJf7VtyA_dm9c-pFf",   // publishable (public) key
 };
 const SHARED = () => Boolean(SUPA.key);
-
-const DRAW_KEY = "hl-drawings";             // local book / local echo of pending pages
-const DRAW_CAP = 60;                        // localStorage is ~5MB; keep the newest
-const INKS = ["#16324F", "#2E5077", "#FF9F0A", "#16161A"];
-const esc = (s) => String(s).replace(/[&<>"']/g, c =>
-  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
-
-function loadDrawings() {
-  try { return JSON.parse(localStorage.getItem(DRAW_KEY)) || []; } catch { return []; }
-}
-function storeDrawings(list) {
-  try { localStorage.setItem(DRAW_KEY, JSON.stringify(list)); return true; }
-  catch { return false; }                  // quota — caller trims and retries
-}
 const supaHeaders = () => ({ apikey: SUPA.key, Authorization: `Bearer ${SUPA.key}` });
 
-/* The book as the UI sees it: approved pages from the server, plus this
-   visitor's own pages still awaiting review, which only they can see. */
-let bookCache = [];
-async function bookList() {
-  const mine = loadDrawings();
-  if (!SHARED()) { bookCache = mine; return mine; }
-  let approved = [];
-  try {
-    const r = await fetch(
-      `${SUPA.url}/rest/v1/drawings?select=id,name,src,created_at&order=created_at.desc&limit=${DRAW_CAP}`,
-      { headers: supaHeaders() });
-    if (!r.ok) throw new Error(r.status);
-    approved = (await r.json()).map(row => ({ id: row.id, name: row.name, src: row.src, at: row.created_at }));
-  } catch {
-    bookCache = mine.map(d => ({ ...d, offline: true }));
-    return bookCache;                      // show their own rather than nothing
-  }
-  // a pending page drops off once it clears review, or after a week
-  const week = Date.now() - 7 * 864e5;
-  const pending = mine
-    .filter(d => d.pending && new Date(d.at) > week && !approved.some(a => a.name === d.name))
-    .map(d => ({ ...d, pending: true }));
-  bookCache = [...pending, ...approved];
-  return bookCache;
+const GB_INKS = ["#EDE8DC", "#7FA9D6", "#FF9F0A", "#E5484D", "#F05CA8", "#57C785"];
+const BOARD = { on: false, tool: "pen", ink: GB_INKS[0], ctx: null, ready: false,
+  lastAt: null, poll: 0, drawing: false, pts: [], strokes: [] };
+
+/* ---- geometry helpers: everything stored 0..1 ---- */
+function boardMetrics() {
+  const cv = $("gb-canvas"); const r = cv.getBoundingClientRect();
+  return { w: r.width, h: r.height };
 }
-
-async function bookAdd(name, src) {
-  if (SHARED()) {
-    const r = await fetch(`${SUPA.url}/rest/v1/drawings`, {
-      method: "POST",
-      headers: { ...supaHeaders(), "Content-Type": "application/json", Prefer: "return=minimal" },
-      body: JSON.stringify({ name, src }),
-    });
-    if (!r.ok) throw new Error(await r.text() || r.status);
-  }
-  // keep a local copy either way: it is the whole book locally, and the
-  // "awaiting review" echo when shared
-  let mine = loadDrawings();
-  mine.unshift({ id: "local-" + Date.now().toString(36), name, src, at: new Date().toISOString(), pending: SHARED() });
-  while (mine.length > DRAW_CAP) mine.pop();
-  while (!storeDrawings(mine) && mine.length > 1) mine.pop();
-}
-
-/* name-it dialog — a prompt() would break the illusion */
-/* ================= guest book mode =================
-   The desktop itself becomes the page: draw on it, type on it, drop photos
-   on it, then sign it into the book. Everything lands on one canvas, so an
-   undo stack and a single toDataURL are all the state we need. */
-/* a palette that reads on both wallpapers — cream for dark, ink for light */
-const GB_INKS = ["#EDE8DC", "#7FA9D6", "#FF9F0A", "#E5484D", "#16161A"];
-const gbDefaultInk = () => document.documentElement.dataset.theme === "light" ? "#16161A" : "#EDE8DC";
-const GB = { on: false, tool: "pen", ink: gbDefaultInk(), ctx: null, undo: [], ready: false };
-
-function gbSizeCanvas() {
+function boardSize() {
   const cv = $("gb-canvas");
-  if (!GB.ctx) return;
+  if (!BOARD.ctx) return;
   const r = cv.getBoundingClientRect();
   if (!r.width || !r.height) return;
-  const dprNow = devicePixelRatio || 1;
-  if (cv.width === Math.round(r.width * dprNow) && cv.height === Math.round(r.height * dprNow)) return;
   const dpr = devicePixelRatio || 1;
-  const keep = cv.width ? GB.ctx.getImageData(0, 0, cv.width, cv.height) : null;
+  if (cv.width === Math.round(r.width * dpr) && cv.height === Math.round(r.height * dpr)) return;
   cv.width = Math.round(r.width * dpr);
   cv.height = Math.round(r.height * dpr);
-  GB.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  GB.ctx.lineCap = GB.ctx.lineJoin = "round";
-  if (keep) GB.ctx.putImageData(keep, 0, 0);
+  BOARD.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  BOARD.ctx.lineCap = BOARD.ctx.lineJoin = "round";
+  boardRepaint();                    // size changed → redraw everything to scale
 }
-function gbSnapshot() {
-  const cv = $("gb-canvas");
-  GB.undo.push(cv.toDataURL());
-  if (GB.undo.length > 20) GB.undo.shift();
+
+/* ---- rendering ---- */
+function drawEl(el) {
+  const ctx = BOARD.ctx, { w, h } = boardMetrics();
+  if (el.kind === "path") {
+    const p = el.payload; if (!p.pts || p.pts.length < 1) return;
+    ctx.strokeStyle = p.color; ctx.lineWidth = Math.max(1, p.w * w);
+    ctx.beginPath();
+    p.pts.forEach(([x, y], i) => i ? ctx.lineTo(x * w, y * h) : ctx.moveTo(x * w, y * h));
+    if (p.pts.length === 1) { const [x, y] = p.pts[0]; ctx.lineTo(x * w + .01, y * h); }
+    ctx.stroke();
+  } else if (el.kind === "text") {
+    const p = el.payload;
+    ctx.fillStyle = p.color; ctx.textBaseline = "middle";
+    ctx.font = `600 ${Math.round(p.size * h)}px ${getComputedStyle(document.body).fontFamily}`;
+    ctx.fillText(p.text, p.x * w, p.y * h);
+  } else if (el.kind === "photo" && el._img) {
+    const p = el.payload;
+    ctx.save();
+    ctx.shadowColor = "rgba(0,0,0,.4)"; ctx.shadowBlur = 16; ctx.shadowOffsetY = 5;
+    ctx.fillStyle = "#EDE8DC";
+    ctx.fillRect(p.x * w - 6, p.y * h - 6, p.w * w + 12, p.h * h + 12);
+    ctx.restore();
+    ctx.drawImage(el._img, p.x * w, p.y * h, p.w * w, p.h * h);
+  }
 }
-function gbRestore() {
-  const src = GB.undo.pop();
+function boardRepaint() {
   const cv = $("gb-canvas");
-  if (!src) { GB.ctx.clearRect(0, 0, cv.width, cv.height); return; }
+  BOARD.ctx.clearRect(0, 0, cv.width, cv.height);
+  BOARD.strokes.forEach(drawEl);
+}
+
+/* photos need their image decoded before they can paint; do it once, then repaint */
+function hydratePhoto(el) {
+  if (el.kind !== "photo" || el._img) return;
   const im = new Image();
-  im.onload = () => {
-    GB.ctx.save(); GB.ctx.setTransform(1, 0, 0, 1, 0, 0);
-    GB.ctx.clearRect(0, 0, cv.width, cv.height);
-    GB.ctx.drawImage(im, 0, 0);
-    GB.ctx.restore();
-  };
-  im.src = src;
+  im.onload = () => { el._img = im; boardRepaint(); };
+  im.src = el.payload.src;
 }
 
-function gbInit() {
-  if (GB.ready) return;
-  GB.ready = true;
-  const cv = $("gb-canvas");
-  GB.ctx = cv.getContext("2d");
+/* ---- server ---- */
+async function boardFetch(since) {
+  const q = since
+    ? `created_at=gt.${encodeURIComponent(since)}&order=created_at.asc`
+    : `order=created_at.asc&limit=4000`;
+  const r = await fetch(`${SUPA.url}/rest/v1/board?select=id,kind,payload,created_at&${q}`, { headers: supaHeaders() });
+  if (!r.ok) throw new Error(r.status);
+  return (await r.json()).map(row => ({ id: row.id, kind: row.kind, payload: row.payload, at: row.created_at }));
+}
+async function boardCommit(kind, payload) {
+  // draw locally at once so it feels instant
+  const el = { kind, payload, at: new Date().toISOString(), local: true };
+  hydratePhoto(el);
+  BOARD.strokes.push(el);
+  drawEl(el);
+  if (!SHARED()) return;
+  try {
+    const r = await fetch(`${SUPA.url}/rest/v1/board`, {
+      method: "POST",
+      headers: { ...supaHeaders(), "Content-Type": "application/json", Prefer: "return=minimal" },
+      body: JSON.stringify({ kind, payload }),
+    });
+    if (!r.ok) throw new Error(await r.text() || r.status);
+  } catch { gbToast("Offline — others won't see this one"); }
+}
+async function boardLoad() {
+  if (!SHARED()) { boardRepaint(); return; }
+  try {
+    const list = await boardFetch(null);
+    BOARD.strokes = list;
+    BOARD.lastAt = list.length ? list[list.length - 1].at : null;
+    list.forEach(hydratePhoto);
+    boardRepaint();
+  } catch { gbToast("Could not load the board"); }
+}
+function boardStartPoll() {
+  clearInterval(BOARD.poll);
+  if (!SHARED()) return;
+  BOARD.poll = setInterval(async () => {
+    if (!BOARD.on) return;
+    try {
+      const fresh = await boardFetch(BOARD.lastAt);
+      if (!fresh.length) return;
+      // drop echoes of our own just-committed marks (match on rounded time+kind)
+      fresh.forEach(el => {
+        BOARD.lastAt = el.at;
+        hydratePhoto(el);
+        BOARD.strokes.push(el);
+        drawEl(el);
+      });
+    } catch { /* transient */ }
+  }, 4000);
+}
 
-  GB.ink = gbDefaultInk();
+/* ---- input ---- */
+function gbInit() {
+  if (BOARD.ready) return;
+  BOARD.ready = true;
+  const cv = $("gb-canvas");
+  BOARD.ctx = cv.getContext("2d");
+
   $("gb-inks").innerHTML = GB_INKS.map((c, i) =>
-    `<button class="gb-ink ${c === GB.ink ? "on" : ""}" data-ink="${c}" style="background:${c}" aria-label="ink ${i + 1}"></button>`).join("");
+    `<button class="gb-ink ${i ? "" : "on"}" data-ink="${c}" style="background:${c}" aria-label="ink ${i + 1}"></button>`).join("");
   $("gb-inks").addEventListener("click", e => {
-    const b = e.target.closest(".gb-ink");
-    if (!b) return;
-    GB.ink = b.dataset.ink;
+    const b = e.target.closest(".gb-ink"); if (!b) return;
+    BOARD.ink = b.dataset.ink;
     $("gb-inks").querySelectorAll(".gb-ink").forEach(x => x.classList.toggle("on", x === b));
   });
   $("gb-tool-set").addEventListener("click", e => {
-    const b = e.target.closest(".gb-tool");
-    if (!b) return;
-    GB.tool = b.dataset.tool;
+    const b = e.target.closest(".gb-tool"); if (!b) return;
+    BOARD.tool = b.dataset.tool;
     $("gb-tool-set").querySelectorAll(".gb-tool").forEach(x => x.classList.toggle("on", x === b));
-    if (GB.tool === "photo") $("gb-file").click();
-    cv.style.cursor = GB.tool === "text" ? "text" : "crosshair";
+    if (BOARD.tool === "photo") $("gb-file").click();
+    cv.style.cursor = BOARD.tool === "text" ? "text" : "crosshair";
   });
 
-  // pen
-  let drawing = false, last = null;
-  const at = e => { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+  const norm = e => { const r = cv.getBoundingClientRect(); return [ (e.clientX - r.left) / r.width, (e.clientY - r.top) / r.height ]; };
+  const atPx = e => { const r = cv.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; };
+
   cv.addEventListener("pointerdown", e => {
-    if (GB.tool === "text") { e.preventDefault(); gbPlaceText(at(e)); return; }
-    if (GB.tool !== "pen") return;
-    e.preventDefault();
-    cv.setPointerCapture(e.pointerId);
-    gbSnapshot();
-    drawing = true; last = at(e);
-    GB.ctx.strokeStyle = GB.ink; GB.ctx.lineWidth = 3;
-    GB.ctx.beginPath(); GB.ctx.moveTo(last.x, last.y); GB.ctx.lineTo(last.x + .01, last.y); GB.ctx.stroke();
+    if (BOARD.tool === "text") { e.preventDefault(); gbPlaceText(atPx(e), norm(e)); return; }
+    if (BOARD.tool !== "pen") return;
+    e.preventDefault(); cv.setPointerCapture(e.pointerId);
+    BOARD.drawing = true; BOARD.pts = [norm(e)];
+    // live feedback: draw the first dab
+    const { w, h } = boardMetrics();
+    BOARD.ctx.strokeStyle = BOARD.ink; BOARD.ctx.lineWidth = Math.max(1, .0022 * w);
+    BOARD.ctx.beginPath(); BOARD.ctx.moveTo(BOARD.pts[0][0] * w, BOARD.pts[0][1] * h);
   });
   cv.addEventListener("pointermove", e => {
-    if (!drawing) return;
-    const p = at(e);
-    GB.ctx.strokeStyle = GB.ink; GB.ctx.lineWidth = 3;
-    GB.ctx.beginPath(); GB.ctx.moveTo(last.x, last.y); GB.ctx.lineTo(p.x, p.y); GB.ctx.stroke();
-    last = p;
+    if (!BOARD.drawing) return;
+    const { w, h } = boardMetrics();
+    const p = norm(e); BOARD.pts.push(p);
+    BOARD.ctx.strokeStyle = BOARD.ink; BOARD.ctx.lineWidth = Math.max(1, .0022 * w);
+    BOARD.ctx.lineTo(p[0] * w, p[1] * h); BOARD.ctx.stroke();
+    BOARD.ctx.beginPath(); BOARD.ctx.moveTo(p[0] * w, p[1] * h);
   });
-  ["pointerup", "pointercancel", "pointerleave"].forEach(t =>
-    cv.addEventListener(t, () => { drawing = false; }));
+  const endStroke = () => {
+    if (!BOARD.drawing) return;
+    BOARD.drawing = false;
+    if (!BOARD.pts.length) return;
+    boardCommit("path", { color: BOARD.ink, w: .0022, pts: BOARD.pts.map(([x, y]) => [ +x.toFixed(4), +y.toFixed(4) ]) });
+    BOARD.pts = [];
+  };
+  ["pointerup", "pointercancel", "pointerleave"].forEach(t => cv.addEventListener(t, endStroke));
 
-  // photo
   $("gb-file").addEventListener("change", e => {
-    const file = e.target.files && e.target.files[0];
-    e.target.value = "";
+    const file = e.target.files && e.target.files[0]; e.target.value = "";
     if (!file) return;
     const rd = new FileReader();
     rd.onload = () => {
       const im = new Image();
       im.onload = () => {
-        gbSnapshot();
-        const r = cv.getBoundingClientRect();
-        const w = Math.min(260, im.width, r.width * .5);
-        const h = w * im.height / im.width;
-        const x = r.width / 2 - w / 2 + (Math.random() - .5) * 120;
-        const y = r.height / 2 - h / 2 + (Math.random() - .5) * 80;
-        GB.ctx.save();
-        GB.ctx.shadowColor = "rgba(0,0,0,.35)"; GB.ctx.shadowBlur = 18; GB.ctx.shadowOffsetY = 6;
-        GB.ctx.fillStyle = "#EDE8DC";
-        GB.ctx.fillRect(x - 7, y - 7, w + 14, h + 14 + 16);   // a paper border, like a print
-        GB.ctx.restore();
-        GB.ctx.drawImage(im, x, y, w, h);
+        // downscale so one photo row stays small
+        const MAX = 520, s = Math.min(1, MAX / im.width);
+        const oc = document.createElement("canvas");
+        oc.width = Math.round(im.width * s); oc.height = Math.round(im.height * s);
+        oc.getContext("2d").drawImage(im, 0, 0, oc.width, oc.height);
+        const src = oc.toDataURL("image/jpeg", 0.82);
+        const { w, h } = boardMetrics();
+        const pw = Math.min(260, oc.width), ph = pw * oc.height / oc.width;
+        const x = (w / 2 - pw / 2 + (Math.random() - .5) * 120) / w;
+        const y = (h / 2 - ph / 2 + (Math.random() - .5) * 80) / h;
+        boardCommit("photo", { x: +x.toFixed(4), y: +y.toFixed(4), w: +(pw / w).toFixed(4), h: +(ph / h).toFixed(4), src });
       };
       im.src = rd.result;
     };
     rd.readAsDataURL(file);
   });
 
-  $("gb-undo").addEventListener("click", gbRestore);
-  $("gb-clear").addEventListener("click", () => {
-    gbSnapshot();
-    GB.ctx.clearRect(0, 0, cv.width, cv.height);
-  });
-  $("gb-book").addEventListener("click", openGallery);
   $("gb-exit").addEventListener("click", () => setDeskMode("wallpaper"));
-  $("gb-save").addEventListener("click", () => {
-    const px = GB.ctx.getImageData(0, 0, cv.width, cv.height).data;
-    let inked = false;
-    for (let i = 3; i < px.length; i += 80) if (px[i]) { inked = true; break; }
-    if (!inked) { gbToast("Draw or write something first"); return; }
-    askName(async name => {
-      gbToast("Signing…");
-      try {
-        await bookAdd(name, gbFlatten());
-        gbToast(SHARED() ? "Signed — it appears once Haolang approves it" : "Signed into the book");
-      } catch (err) {
-        gbToast("Could not reach the book — try again");
-        return;
-      }
-      gbCount();
-    });
-  });
-  addEventListener("resize", () => { if (GB.on) gbSizeCanvas(); }, { passive: true });
-  // the layer can gain its size later (background tab, orientation change);
-  // sync the backing store whenever it actually has one
-  if (window.ResizeObserver) new ResizeObserver(() => { if (GB.on) gbSizeCanvas(); }).observe($("gb-layer"));
+  addEventListener("resize", () => { if (BOARD.on) boardSize(); }, { passive: true });
+  if (window.ResizeObserver) new ResizeObserver(() => { if (BOARD.on) boardSize(); }).observe($("gb-layer"));
 }
 
-/* Bake the wallpaper into the saved page — the ink is often cream, which
-   would vanish on a transparent PNG shown against a pale card. */
-function gbFlatten() {
-  const cv = $("gb-canvas");
-  // cap the exported size — a full-desktop retina PNG is multiple MB, past the
-  // server's per-page limit, and a gallery card needs nothing near that
-  const MAXW = 1400;
-  const scale = Math.min(1, MAXW / cv.width);
-  const out = document.createElement("canvas");
-  out.width = Math.round(cv.width * scale);
-  out.height = Math.round(cv.height * scale);
-  const o = out.getContext("2d");
-  // a solid backdrop (not the gradient) so the flattened PNG compresses small
-  // while cream ink still reads; matches the theme it was drawn on
-  o.fillStyle = document.documentElement.dataset.theme === "light" ? "#cfd6e2" : "#1a1b24";
-  o.fillRect(0, 0, out.width, out.height);
-  o.drawImage(cv, 0, 0, out.width, out.height);
-  return out.toDataURL("image/png");
-}
-
-/* click, type, commit — the caret is a real input so IMEs work */
-function gbPlaceText(pt) {
-  const layer = $("gb-layer");
+/* click, type, Enter commits the text as one element */
+function gbPlaceText(px, n) {
   const box = $("gb-caret");
   box.hidden = false;
-  box.style.left = pt.x + "px";
-  box.style.top = pt.y + "px";
-  box.innerHTML = `<input class="gb-text-in" placeholder="type…" spellcheck="false">`;
+  box.style.left = px.x + "px"; box.style.top = px.y + "px";
+  box.innerHTML = `<input class="gb-text-in" placeholder="type…" spellcheck="false" maxlength="80">`;
   const input = box.querySelector("input");
-  input.style.color = GB.ink;
-  // focus after the pointer event settles, or the default action takes it back
+  input.style.color = BOARD.ink;
   requestAnimationFrame(() => input.focus());
   let done = false;
   const commit = () => {
-    if (done) return;
-    done = true;
+    if (done) return; done = true;
     const v = input.value.trim();
     box.hidden = true; box.innerHTML = "";
     if (!v) return;
-    gbSnapshot();
-    GB.ctx.fillStyle = GB.ink;
-    GB.ctx.font = '600 26px -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif';
-    GB.ctx.textBaseline = "middle";
-    GB.ctx.fillText(v, pt.x, pt.y);
+    const { h } = boardMetrics();
+    boardCommit("text", { color: BOARD.ink, x: +n[0].toFixed(4), y: +n[1].toFixed(4), size: +(26 / h).toFixed(4), text: v });
   };
   input.addEventListener("keydown", e => {
     e.stopPropagation();
@@ -686,39 +648,31 @@ function gbPlaceText(pt) {
   input.addEventListener("blur", commit);
 }
 
-function gbCount() {
-  const el = $("gb-n");
-  if (!el) return;
-  el.textContent = bookCache.length || loadDrawings().length;
-  bookList().then(list => { if ($("gb-n")) $("gb-n").textContent = list.length; }).catch(() => {});
-}
 function gbToast(msg) {
   let t = document.querySelector(".gb-toast");
   if (!t) { t = document.createElement("div"); t.className = "gb-toast"; $("gb-layer").appendChild(t); }
-  t.textContent = msg;
-  t.classList.add("on");
-  clearTimeout(t._h);
-  t._h = setTimeout(() => t.classList.remove("on"), 1800);
+  t.textContent = msg; t.classList.add("on");
+  clearTimeout(t._h); t._h = setTimeout(() => t.classList.remove("on"), 1800);
 }
 
-/* ---- the mode switch itself ---- */
+/* ---- the mode switch ---- */
 let deskMode = "wallpaper";
 function setDeskMode(mode) {
   deskMode = mode;
-  const gb = mode === "guestbook";
-  $("mb-mode-name").textContent = gb ? "Guest Book" : "Wallpaper";
-  $("gb-layer").hidden = !gb;
-  document.body.classList.toggle("gb-on", gb);
-  GB.on = gb;
-  if (gb) {
+  const on = mode === "guestbook";
+  $("mb-mode-name").textContent = on ? "Guest Book" : "Wallpaper";
+  $("gb-layer").hidden = !on;
+  document.body.classList.toggle("gb-on", on);
+  BOARD.on = on;
+  if (on) {
     gbInit();
-    hideWindow("min");                 // clear the desk to sign it
-    // size it now — rAF never fires in a background tab, and an unsized
-    // canvas silently swallows every stroke
-    gbSizeCanvas();
-    gbCount();
-    requestAnimationFrame(gbSizeCanvas);
+    hideWindow("min");
+    boardSize();
+    boardLoad();
+    boardStartPoll();
+    requestAnimationFrame(boardSize);
   } else {
+    clearInterval(BOARD.poll);
     openWindow();
   }
 }
@@ -730,84 +684,6 @@ $("mb-mode").addEventListener("mousedown", e => {
     mi("Guest Book", "mode-guestbook", "", { check: deskMode === "guestbook" }),
     r.left, r.bottom + 4);
 });
-
-function askName(done) {
-  const wrap = document.createElement("div");
-  wrap.className = "nd-wrap";
-  wrap.innerHTML = `
-    <div class="nd-card">
-      <div class="nd-title">Name your drawing</div>
-      <input class="nd-input" maxlength="40" placeholder="Untitled" spellcheck="false">
-      <div class="nd-actions">
-        <button class="dp-btn" data-act="cancel">Cancel</button>
-        <button class="dp-btn primary" data-act="ok">Add to book</button>
-      </div>
-    </div>`;
-  els.overlayLayer.appendChild(wrap);
-  const input = wrap.querySelector(".nd-input");
-  input.focus();
-  const close = () => wrap.remove();
-  const commit = () => { const v = input.value.trim() || "Untitled"; close(); done(v); };
-  wrap.addEventListener("click", e => {
-    if (e.target === wrap || e.target.dataset.act === "cancel") close();
-    if (e.target.dataset.act === "ok") commit();
-  });
-  input.addEventListener("keydown", e => {
-    e.stopPropagation();
-    if (e.key === "Enter") commit();
-    if (e.key === "Escape") close();
-  });
-}
-
-/* the book itself — a floating window of everything drawn here */
-function openGallery() {
-  closeOverlays();
-  const win = document.createElement("div");
-  win.className = "gwin";
-  win.innerHTML = `
-    <div class="aw-bar">
-      <button class="aw-close" aria-label="Close"></button>
-      <div class="gw-title">Guest Book <span class="gw-n">—</span></div>
-    </div>
-    <div class="gw-body"><div class="gw-empty">Opening the book…</div></div>`;
-  els.overlayLayer.appendChild(win);
-  materialize(win, null);
-  win.querySelector(".aw-close").addEventListener("click", () => win.remove());
-  makeDraggable(win, win.querySelector(".aw-bar"));
-
-  const card = d => `
-    <figure class="gw-card ${d.pending ? "pending" : ""}" data-id="${d.id}">
-      <img src="${d.src}" alt="${esc(d.name)}">
-      ${d.pending ? '<span class="gw-flag">Awaiting review</span>' : ""}
-      <figcaption>
-        <span class="gw-name">${esc(d.name)}</span>
-        <span class="gw-when">${since(d.at)}</span>
-      </figcaption>
-      ${SHARED() && !d.pending ? "" : `<button class="gw-del" data-del="${d.id}" title="Remove from this browser">×</button>`}
-    </figure>`;
-
-  bookList().then(list => {
-    if (!win.isConnected) return;
-    win.querySelector(".gw-n").textContent = list.length;
-    const body = win.querySelector(".gw-body");
-    const offline = list.some(d => d.offline);
-    body.innerHTML = list.length
-      ? `${offline ? '<div class="gw-note">Offline — showing only your own pages.</div>' : ""}
-         <div class="gw-grid">${list.map(card).join("")}</div>`
-      : `<div class="gw-empty">Nothing in the book yet.<br>Draw something on the desk and sign it.</div>`;
-    body.addEventListener("click", e => {
-      const del = e.target.closest("[data-del]");
-      if (!del) return;
-      storeDrawings(loadDrawings().filter(d => d.id !== del.dataset.del));
-      gbCount();
-      win.remove();
-      openGallery();
-    });
-  }).catch(() => {
-    if (win.isConnected) win.querySelector(".gw-body").innerHTML =
-      '<div class="gw-empty">Could not open the book.<br>Check your connection and try again.</div>';
-  });
-}
 
 /* portrait: keep only the frames that actually load, then cross-fade them */
 let ptTimer = 0, clockTimer = 0;
