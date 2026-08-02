@@ -63,6 +63,25 @@ svg { display: block; }
   overflow: hidden;
 }
 
+/* ================= wallpaper video (the reel, muted, looping) ================= */
+.wallpaper-video { position: absolute; inset: 0; overflow: hidden; z-index: 0; }
+/* cover the desktop: an iframe can't object-fit, so blow it up past the edges */
+.wallpaper-video iframe {
+  position: absolute; top: 50%; left: 50%;
+  width: 100vw; height: 56.25vw;            /* 16:9 */
+  min-width: 177.78vh; min-height: 100vh;   /* whichever axis needs to fill */
+  transform: translate(-50%, -50%);
+  border: 0; pointer-events: none;
+}
+.wallpaper-scrim {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(10,11,16,.55), rgba(10,11,16,.68));
+}
+[data-theme="light"] .wallpaper-scrim { background: linear-gradient(180deg, rgba(220,224,232,.5), rgba(200,206,218,.62)); }
+body.gb-on .wallpaper-video { display: none; }   /* guest book is solid black */
+.window { z-index: 1; }                          /* sit above the wallpaper video */
+.gb-layer { z-index: 40; }
+
 /* ================= menu bar ================= */
 .menubar {
   position: fixed; top: 0; left: 0; right: 0; height: 25px;

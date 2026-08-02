@@ -24,8 +24,18 @@ const webloc = (name, at, href) =>
 const DESK_FILES = () => [
   pdf("Self_Intro.pdf", "2026-07-10T14:05", "assets/files/Self_Intro.pdf"),
   pdf("CV-2026-7.pdf", "2026-07-18T09:00", "assets/files/CV-2026-7.pdf"),
-  mov("Filmmaker's Reel.mov", "2026-07-15T20:35", "assets/files/Filmmakers_Reel.mov"),
 ];
+
+// the filmmaker's reel, on Vimeo
+const REEL = { id: "1203912931", url: "https://vimeo.com/1203912931" };
+
+// content that lives inside named folders, merged onto whatever the tree loads.
+// This is the "you add material, I place it" hook — extend it per folder.
+function folderContent() {
+  return {
+    FILM: [{ ...mov("Filmmaker's Reel.mov", "2026-07-15T20:35", REEL.url), external: true }],
+  };
+}
 
 // built-in default folder set — matches the Supabase seed, used before setup / offline
 function defaultFolders() {
@@ -56,6 +66,16 @@ function foldersFromRows(rows) {
 let ROOT;
 const INDEX = new Map();                 // id -> node, rebuilt on every tree change
 function setTree(folderTops) {
+  // drop known content into folders by name (survives Supabase folder loads)
+  const content = folderContent();
+  (function place(list) {
+    list.forEach(n => {
+      if (n.children) {
+        if (content[n.name]) n.children.push(...content[n.name].map(c => ({ ...c })));
+        place(n.children);
+      }
+    });
+  })(folderTops);
   ROOT = folder("Desktop", "2026-07-18T09:00", [...folderTops, ...DESK_FILES()], "desktop");
   INDEX.clear();
   (function link(node, parent) {
@@ -66,17 +86,17 @@ function setTree(folderTops) {
 setTree(defaultFolders());               // render immediately; Supabase refines it at boot
 
 const LINKS = [
-  { id: "vimeo", name: "Vimeo", icon: "s-vimeo", href: "https://vimeo.com/YOUR_VIMEO",
+  { id: "vimeo", name: "Vimeo", icon: "s-vimeo", href: "https://vimeo.com/haolangli",
     desc: "Films and video work — shorts, cinematography, AI experiments." },
   { id: "instagram", name: "Instagram", icon: "s-ig", href: "https://instagram.com/YOUR_IG",
     desc: "Stills, behind-the-scenes, and everything in between." },
-  { id: "spotify", name: "Spotify", icon: "s-spotify", href: "https://open.spotify.com/user/YOUR_SPOTIFY",
+  { id: "spotify", name: "Spotify", icon: "s-spotify", href: "https://open.spotify.com/user/mws60vypvaj8xc6ldz50t98ky?si=12b56e912e50412c",
     desc: "What I listen to while cutting." },
-  { id: "discord", name: "Discord", icon: "s-discord", href: "https://discord.com/users/YOUR_DISCORD",
-    desc: "Reach me where the AI video people hang out." },
-  { id: "email", name: "Email", icon: "s-mail", href: "mailto:you@haolang-li.com",
+  { id: "x", name: "X", icon: "s-x", href: "https://x.com/YIPIhaolang",
+    desc: "Notes, links, and thinking out loud." },
+  { id: "email", name: "Email", icon: "s-mail", href: "mailto:hl5250@nyu.edu", mail: true,
     desc: "For collaborations, screenings, and everything serious." },
-  { id: "arena", name: "Are.na", icon: "s-arena", href: "https://www.are.na/YOUR_ARENA",
+  { id: "arena", name: "Are.na", icon: "s-arena", href: "https://www.are.na/haolang-li/channels",
     desc: "Research boards — references, moods, maps." },
 ];
 
@@ -246,7 +266,7 @@ function buildSidebar() {
     `<button class="side-item" data-fid="desktop"><svg viewBox="0 0 20 20"><use href="#s-desktop"/></svg><span>Desktop</span></button>`;
   ROOT.children.filter(n => n.children).forEach(top => {
     h += sec(top.name);
-    top.children.forEach(sub => h += item(sub));
+    top.children.filter(sub => sub.children).forEach(sub => h += item(sub));  // folders only
   });
   h += sec("Links");
   LINKS.forEach(l => {
@@ -1288,9 +1308,11 @@ function showAbout() {
 function openApp(id) {
   const app = LINKS.find(l => l.id === id);
   if (!app) return;
-  closeOverlays();
   const dockIcon = document.querySelector(`.dock-item[data-app="${id}"]`);
   if (dockIcon) { dockIcon.classList.add("bounce"); setTimeout(() => dockIcon.classList.remove("bounce"), 1100); }
+  // email goes straight to the mail app; the OS lets you pick which one
+  if (app.mail) { location.href = app.href; return; }
+  closeOverlays();
   const host = app.href.startsWith("mailto:") ? app.href.replace("mailto:", "") : app.href.replace(/^https?:\/\//, "").replace(/\/$/, "");
   const win = document.createElement("div");
   win.className = "appwin";
