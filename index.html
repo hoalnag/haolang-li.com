@@ -2,12 +2,22 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- viewport-fit=cover so the notch/home-indicator insets reach env(safe-area-inset-*) -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Haolang Li</title>
 <meta name="description" content="Haolang Li — filmmaker & AI video creator. Films, writings, and experiments.">
+<meta name="theme-color" content="#14151c" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#e9e9ec" media="(prefers-color-scheme: light)">
+<link rel="canonical" href="https://haolang-li.com/">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Haolang Li">
+<meta property="og:description" content="Filmmaker & AI video creator. Films, writings, and experiments.">
+<meta property="og:url" content="https://haolang-li.com/">
+<meta property="og:image" content="https://haolang-li.com/assets/photos/portrait-01.jpg">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="assets/logo.png">
 <link rel="apple-touch-icon" href="assets/logo.png">
-<link rel="stylesheet" href="assets/style.css?v=21">
+<link rel="stylesheet" href="assets/style.css?v=27">
 </head>
 <body>
 
@@ -126,14 +136,6 @@
   <!-- ============ desktop ============ -->
   <div class="desktop" id="desktop">
 
-    <!-- the reel, running as a muted looping wallpaper behind everything -->
-    <div class="wallpaper-video" id="wallpaper-video">
-      <iframe id="bg-vimeo" title="" tabindex="-1"
-        src="https://player.vimeo.com/video/1203912931?background=1&amp;autoplay=1&amp;loop=1&amp;muted=1&amp;autopause=0"
-        frameborder="0" allow="autoplay" referrerpolicy="strict-origin-when-cross-origin"></iframe>
-      <div class="wallpaper-scrim"></div>
-    </div>
-
     <!-- guest book: the desktop becomes a shared page -->
     <div class="gb-layer" id="gb-layer" hidden>
       <canvas class="gb-canvas" id="gb-canvas"></canvas>
@@ -178,6 +180,9 @@
             </button>
           </div>
         </aside>
+
+        <!-- narrow screens: the sidebar floats over the content, so give it a way out -->
+        <div class="side-scrim" id="side-scrim"></div>
 
         <div class="main">
           <div class="toolbar" id="toolbar">
@@ -275,6 +280,6 @@
   <!-- context menu / quick look / get info render here -->
   <div id="overlay-layer"></div>
 
-  <script src="assets/app.js?v=21"></script>
+  <script src="assets/app.js?v=27"></script>
 </body>
 </html>

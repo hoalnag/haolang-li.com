@@ -3,6 +3,8 @@
 macOS Finder 复刻版作品集网站。纯静态 HTML/CSS/JS,零依赖,零构建。
 外观与交互以我自己的 Mac(Sequoia 深色模式 + 橙色强调色)为准 1:1 复刻。
 
+本地路径:`~/github/haolang-li.com`(和其他仓库放一起)。
+
 ## 文件结构
 
 ```
@@ -96,6 +98,23 @@ mov("Filmmaker's Reel.mov", "2026-07-15T20:35", "assets/files/Filmmakers_Reel.mo
 现在树里的日期是占位值,按你的真实情况改即可——列表和"最近更新"都会跟着变。
 
 切到 List / Columns / Gallery 视图时,Desktop 会回到常规显示。
+
+## 桌面背景
+
+静态渐变,写在 `style.css` 的 `.desktop`(深色)和 `[data-theme="light"] .desktop`(浅色)里。
+以前这里放过 Vimeo 的 reel 当动态壁纸,已经拿掉了——改背景只要动这两条 `background` 即可。
+
+## 手机端
+
+窄屏(≤740px)的规则集中在 `style.css` 末尾的 "small screens" 一段:
+
+- 窗口铺满全屏,侧边栏浮在内容上,点遮罩或点任一条目都会收起
+- Dock 隐藏,社交链接走侧边栏的 Links 区
+- **触屏单击即打开**(触屏没有双击,双击是浏览器的缩放手势)。
+  逻辑在 `app.js` 的 content `click` 监听里,按 `pointerType` 判断,所以
+  触屏笔电上鼠标仍然是"单击选中、双击打开"
+- ≤480px 时菜单栏只留时间,日期让位
+- 底部状态栏 / 画板工具条避开 iPhone 的 Home Indicator(`env(safe-area-inset-bottom)`)
 
 ## 修改内容
 

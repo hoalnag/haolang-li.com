@@ -909,6 +909,19 @@ els.content.addEventListener("dblclick", e => {
   const el = e.target.closest(ITEM_SEL[view]);
   if (el && el.dataset.i !== undefined) openNode(items()[+el.dataset.i]);
 });
+/* Touch has no double-click: a second tap is the browser's zoom gesture, not ours.
+   So a tap opens, the way every phone file browser behaves, while a mouse click
+   still only selects. Reading pointerType per event (rather than asking the media
+   query once) gets hybrid machines right — trackpad selects, touchscreen opens. */
+els.content.addEventListener("click", e => {
+  const tap = e.pointerType === "touch" || e.pointerType === "pen"
+    || (e.pointerType === undefined && !FINE_POINTER.matches);
+  if (!tap) return;
+  if (view === "columns" || view === "gallery") return;
+  if (e.target.tagName === "INPUT") return;          // don't hijack an inline rename
+  const el = e.target.closest(ITEM_SEL[view]);
+  if (el && el.dataset.i !== undefined) openNode(items()[+el.dataset.i]);
+});
 
 /* rubber band */
 function startRubberBand(e) {
@@ -1584,14 +1597,20 @@ els.content.addEventListener("pointerdown", e => {
 });
 
 /* ================= misc chrome ================= */
-/* live clock — same format as the macOS menu bar */
+/* live clock — same format as the macOS menu bar, and the same as macOS does it,
+   the date drops away first when the bar runs out of room. */
+const TIGHT_BAR = matchMedia("(max-width: 480px)");
 function tickClock() {
   const d = new Date();
   const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"], months = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
   let h = d.getHours(); const ap = h >= 12 ? "PM" : "AM"; h = h % 12 || 12;
-  $("mb-clock").textContent = `${days[d.getDay()]} ${months[d.getMonth()]} ${d.getDate()} ${h}:${String(d.getMinutes()).padStart(2, "0")} ${ap}`;
+  const time = `${h}:${String(d.getMinutes()).padStart(2, "0")} ${ap}`;
+  $("mb-clock").textContent = TIGHT_BAR.matches
+    ? time
+    : `${days[d.getDay()]} ${months[d.getMonth()]} ${d.getDate()} ${time}`;
 }
 tickClock(); setInterval(tickClock, 15000);
+TIGHT_BAR.addEventListener("change", tickClock);
 
 /* icon size slider */
 $("size-slider").addEventListener("input", e => {
@@ -1603,6 +1622,11 @@ const narrowMQ = matchMedia("(max-width: 740px)");
 const syncNarrow = () => els.sidebar.classList.toggle("collapsed", narrowMQ.matches);
 narrowMQ.addEventListener("change", syncNarrow);
 syncNarrow();
+/* on narrow screens the sidebar sits on top of the content, so it has to get out
+   of the way once it has been used — and the scrim is the way back out. */
+const closeSidebarIfNarrow = () => { if (narrowMQ.matches) els.sidebar.classList.add("collapsed"); };
+$("side-scrim").addEventListener("click", closeSidebarIfNarrow);
+els.sideNav.addEventListener("click", e => { if (e.target.closest(".side-item")) closeSidebarIfNarrow(); });
 
 /* ================= admin =================
    The owner signs in with Supabase Auth; the JWT is what actually unlocks

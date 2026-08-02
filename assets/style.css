@@ -40,7 +40,10 @@
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 [hidden] { display: none !important; }
-html, body { height: 100%; overflow: hidden; }
+html, body { height: 100%; overflow: hidden; overscroll-behavior: none; }
+/* dvh tracks the browser chrome on phones, so the status bar never falls off-screen */
+@supports (height: 100dvh) { html, body { height: 100dvh; } }
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
 body {
   font-family: var(--font);
   background: var(--desktop-bg);
@@ -49,6 +52,10 @@ body {
   user-select: none;
   -webkit-user-select: none;
   cursor: default;
+}
+/* no double-tap zoom, no 300ms tap delay — every control answers on the first tap */
+button, .desk-item, .icon-item, .lv-row, .col-row, .gal-thumb, .dr-row, .side-item {
+  touch-action: manipulation;
 }
 button { font-family: inherit; background: none; border: 0; color: inherit; cursor: default; }
 svg { display: block; }
@@ -63,25 +70,6 @@ svg { display: block; }
   overflow: hidden;
 }
 
-/* ================= wallpaper video (the reel, muted, looping) ================= */
-.wallpaper-video { position: absolute; inset: 0; overflow: hidden; z-index: 0; }
-/* cover the desktop: an iframe can't object-fit, so blow it up past the edges */
-.wallpaper-video iframe {
-  position: absolute; top: 50%; left: 50%;
-  width: 100vw; height: 56.25vw;            /* 16:9 */
-  min-width: 177.78vh; min-height: 100vh;   /* whichever axis needs to fill */
-  transform: translate(-50%, -50%);
-  border: 0; pointer-events: none;
-}
-.wallpaper-scrim {
-  position: absolute; inset: 0;
-  background: linear-gradient(180deg, rgba(10,11,16,.55), rgba(10,11,16,.68));
-}
-[data-theme="light"] .wallpaper-scrim { background: linear-gradient(180deg, rgba(220,224,232,.5), rgba(200,206,218,.62)); }
-body.gb-on .wallpaper-video { display: none; }   /* guest book is solid black */
-.window { z-index: 1; }                          /* sit above the wallpaper video */
-.gb-layer { z-index: 40; }
-
 /* ================= menu bar ================= */
 .menubar {
   position: fixed; top: 0; left: 0; right: 0; height: 25px;
@@ -95,6 +83,8 @@ body.gb-on .wallpaper-video { display: none; }   /* guest book is solid black */
   z-index: 500;
 }
 .mb-left, .mb-right { display: flex; align-items: center; height: 100%; gap: 2px; }
+.mb-left { min-width: 0; flex: 0 1 auto; overflow: hidden; }
+.mb-right { min-width: 0; flex: 0 0 auto; }
 .mb-name {
   height: 100%; padding: 0 10px;
   display: flex; align-items: center; border-radius: 5px;
@@ -611,8 +601,8 @@ body.admin-on .icon-item .fadmin { display: flex; }
 /* the book, as a floating window */
 .gwin {
   position: fixed; z-index: 700;
-  left: calc(50% - 300px); top: 14%;
-  width: min(600px, 92vw); height: min(460px, 74vh);
+  left: max(8px, calc(50% - 300px)); top: 14%;
+  width: min(600px, calc(100% - 16px)); height: min(460px, 74vh);
   background: var(--win-bg);
   border-radius: 11px;
   box-shadow: 0 0 0 .5px rgba(0, 0, 0, .65), inset 0 0 0 .5px rgba(255, 255, 255, .14),
@@ -751,22 +741,15 @@ body.admin-on .icon-item .fadmin { display: flex; }
 [data-theme="light"] .dr-row:hover { background: rgba(0, 0, 0, .05); }
 [data-theme="light"] .pt-frame { box-shadow: 0 0 0 1px rgba(0, 0, 0, .08), 0 14px 34px rgba(0, 0, 0, .16); }
 
-@media (max-width: 1040px) {
-  .desk-view { grid-template-columns: auto minmax(0, 1fr); }
-  .drawpad { grid-column: 1 / -1; grid-row: 2; border-left: 0 !important; padding-left: 0 !important; }
+/* one column: the portrait leads, then the papers, then the folders, then recent */
+@media (max-width: 660px) {
+  .desk-view { grid-template-columns: minmax(0, 1fr); grid-template-rows: repeat(4, auto); }
+  .desk-view > .portrait { grid-column: 1; grid-row: 1; justify-self: start; border-left: 0; padding-left: 0; }
+  .desk-aside { grid-column: 1; grid-row: 2; min-width: 0; }
   .desk-folders { grid-row: 3; }
   .desk-recent { grid-row: 4; }
-  .desk-view { grid-template-rows: auto auto auto auto; }
-}
-@media (max-width: 660px) {
-  .desk-view { grid-template-columns: minmax(0, 1fr); }
-  .portrait { grid-column: 1; grid-row: 1; border-left: 0 !important; padding-left: 0 !important; }
-  .desk-aside { grid-row: 2; min-width: 0; }
-  .drawpad { grid-row: 3; }
-  .desk-folders { grid-row: 4; }
-  .desk-recent { grid-row: 5; }
-  .desk-view { grid-template-rows: repeat(5, auto); }
-  .pt-frame { width: 100%; max-width: 260px; }
+  /* a percentage width here would resolve against a shrink-to-fit track and collapse */
+  .pt-frame { width: min(220px, 62vw); }
 }
 
 /* columns view — the hierarchy laid out left to right */
@@ -975,8 +958,9 @@ body.admin-on .icon-item .fadmin { display: flex; }
 /* ================= in-OS browser window (signature element) ================= */
 .appwin {
   position: fixed; z-index: 680;
-  left: calc(50% - 310px); top: 16%;
-  width: min(620px, 92vw); height: min(460px, 72vh);
+  /* max() keeps it on-screen once the viewport is narrower than the window */
+  left: max(8px, calc(50% - 310px)); top: 16%;
+  width: min(620px, calc(100% - 16px)); height: min(460px, 72vh);
   background: var(--win-bg);
   border-radius: 11px;
   box-shadow: 0 0 0 .5px rgba(0,0,0,.65), inset 0 0 0 .5px rgba(255,255,255,.14),
@@ -1092,12 +1076,76 @@ body.admin-on .icon-item .fadmin { display: flex; }
   .getinfo { background: #2a2a2d; }
 }
 
+/* the scrim only exists on narrow screens, where the sidebar floats over content */
+.side-scrim { display: none; }
+
+/* ================= tight menu bar ================= */
+/* Below this the bar can't hold name + mode label + clock, so the labels go and
+   the marks stay — same order macOS sheds them in. */
+@media (max-width: 480px) {
+  .mb-mode #mb-mode-name, .mb-mode .mb-chev { display: none; }
+  .mb-mode { padding: 0 6px; }
+  .mb-name { padding: 0 6px; letter-spacing: .1em; }
+  .mb-clock { padding: 0 4px 0 4px; }
+
+  /* the toolbar runs out of room too — "Group by" is inert here, so it goes first
+     and the folder name gets the width back */
+  .toolbar { padding: 0 8px 0 6px; }
+  .tb-nav { margin-right: 4px; }
+  .tb-group { display: none; }
+  .tb-actions { gap: 2px; }
+}
+
 /* ================= small screens ================= */
 @media (max-width: 740px) {
   .window { left: 0 !important; top: 0 !important; width: 100% !important; height: 100% !important; border-radius: 0; }
-  .sidebar { position: absolute; z-index: 20; height: 100%; }
+  .sidebar { position: absolute; z-index: 20; height: 100%; box-shadow: 0 0 40px rgba(0, 0, 0, .5); }
   .tb-sidebar-toggle { display: flex !important; }
   .mb-item:not(.mb-apple):not(.mb-appname) { display: none; }
   .dock-wrap { display: none; }
   .resize-handle { display: none; }
+
+  /* tap anywhere outside the open sidebar to dismiss it */
+  .side-scrim {
+    display: block; position: absolute; inset: 0; z-index: 19;
+    background: rgba(0, 0, 0, .34);
+    opacity: 0; pointer-events: none; transition: opacity .22s ease;
+  }
+  .win-body:has(.sidebar:not(.collapsed)) .side-scrim { opacity: 1; pointer-events: auto; }
+
+  /* the icon-size slider is a mouse affordance; there is nothing to drag it with */
+  .size-slider { display: none; }
+  .statusbar { grid-template-columns: 1fr; }
+  .status-text { text-align: center; }
+
+  /* 12px traffic lights are far under the 44px touch target — pad the hit area out */
+  .traffic { gap: 18px; padding: 20px 0 16px 22px; }
+  .tl { position: relative; }
+  .tl::after { content: ""; position: absolute; inset: -13px; }
+
+  /* the desktop layout is drawn for a wide screen; tighten it to a phone */
+  .desk-view { padding: 20px 16px 28px; column-gap: 18px; row-gap: 24px; }
+  .desk-aside { gap: 18px; }
+  .desk-folders { gap: 14px; padding-top: 20px; grid-template-columns: repeat(auto-fit, minmax(96px, 1fr)); }
+  .desk-recent { padding-top: 18px; }
+  .desk-file { gap: 12px; padding: 12px 8px; grid-template-columns: 34px 1fr auto; }
+  .desk-file svg { width: 34px; height: 34px; }
+
+  /* "where" is the least load-bearing column; drop it before the name truncates */
+  .dr-row { grid-template-columns: 20px minmax(0, 1fr) auto; gap: 10px; }
+  .dr-where { display: none; }
+
+  /* floating panels get the full width they can, minus a margin */
+  .qlook { width: calc(100% - 16px); height: min(560px, 72dvh); }
+  .getinfo { width: min(270px, calc(100% - 16px)); }
+  .appwin, .gwin { top: 10%; }
+}
+
+/* keep the bottom chrome clear of the home indicator */
+@supports (padding: env(safe-area-inset-bottom)) {
+  @media (max-width: 740px) {
+    .statusbar { padding-bottom: max(6px, env(safe-area-inset-bottom)); height: auto; min-height: 24px; }
+    .hl-toast { bottom: calc(26px + env(safe-area-inset-bottom)); }
+    .gb-tools { bottom: calc(22px + env(safe-area-inset-bottom)); }
+  }
 }
