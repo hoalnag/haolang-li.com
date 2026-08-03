@@ -20,14 +20,15 @@ const mov = (name, at, href) =>
 const webloc = (name, at, href) =>
   ({ id: "file-" + (++_fid), name: name + ".webloc", kind: "Web site location", icon: "i-webloc", at, size: "1 KB", href, external: true });
 
-// the three desktop files stay fixed (the request is about folders)
+// the filmmaker's reel, on Vimeo
+const REEL = { id: "1203912931", url: "https://vimeo.com/1203912931" };
+
+// the desktop files stay fixed (the request is about folders)
 const DESK_FILES = () => [
   pdf("Self_Intro.pdf", "2026-07-10T14:05", "assets/files/Self_Intro.pdf"),
   pdf("CV-2026-7.pdf", "2026-07-18T09:00", "assets/files/CV-2026-7.pdf"),
+  { ...mov("Filmmaker's Reel.mov", "2026-07-15T20:35", REEL.url), external: true },
 ];
-
-// the filmmaker's reel, on Vimeo
-const REEL = { id: "1203912931", url: "https://vimeo.com/1203912931" };
 
 // content that lives inside named folders, merged onto whatever the tree loads.
 // This is the "you add material, I place it" hook — extend it per folder.
@@ -254,7 +255,13 @@ function recentUpdates(limit = 5) {
       walk(child, depth + 1);
     });
   })(ROOT, 0);
-  return found.filter(n => n.at).sort((a, b) => new Date(b.at) - new Date(a.at)).slice(0, limit);
+  // the reel sits on the desktop and inside FILM; the feed should still name it once
+  const seen = new Set();
+  return found
+    .filter(n => n.at)
+    .sort((a, b) => new Date(b.at) - new Date(a.at))
+    .filter(n => { const k = n.href || n.id; return !seen.has(k) && seen.add(k); })
+    .slice(0, limit);
 }
 
 /* ================= sidebar (built from the live tree, keyed by id) ========= */
@@ -377,14 +384,6 @@ function renderDesk(list) {
   const papers = list.filter(n => !n.children);
   els.deskView.innerHTML = `
     <section class="desk-aside">
-      <div class="wx" id="wx">
-        ${CITIES.map(c => `
-          <div class="wx-row" data-city="${c.name}">
-            <span class="wx-city">${c.name}</span>
-            <span class="wx-time" data-tz="${c.tz}">—</span>
-            <span class="wx-temp">—</span>
-          </div>`).join("")}
-      </div>
       <ul class="desk-files">
         ${papers.map(n => `
           <li class="desk-item desk-file" data-i="${list.indexOf(n)}">
@@ -397,8 +396,17 @@ function renderDesk(list) {
 
     <figure class="portrait">
       <div class="pt-frame" id="pt-frame"><span class="pt-mono">HL</span></div>
-      <figcaption class="pt-cap"><span>Haolang Li</span><span class="pt-dots" id="pt-dots"></span></figcaption>
+      <figcaption class="pt-cap"><span class="pt-dots" id="pt-dots"></span></figcaption>
     </figure>
+
+    <div class="wx" id="wx">
+      ${CITIES.map(c => `
+        <div class="wx-row" data-city="${c.name}">
+          <span class="wx-city">${c.name}</span>
+          <span class="wx-time" data-tz="${c.tz}">—</span>
+          <span class="wx-temp">—</span>
+        </div>`).join("")}
+    </div>
 
 
     <section class="desk-folders">

@@ -329,29 +329,38 @@ body.has-fullscreen .dock-wrap { display: none; }
 /* ================= desk: the Desktop's own arrangement =================
    Restrained: one navy, one cream, wide tracking, generous air. The portrait
    is the only thing that moves. */
+/* Top band reads left to right: the papers, then who wrote them, then where he is.
+   Rows below span the full width. */
 .desk-view {
   min-height: 100%;
   padding: 30px 30px 34px;
   display: grid;
-  grid-template-columns: auto minmax(0, 1fr);
+  grid-template-columns: auto auto minmax(0, 1fr);
   grid-template-rows: auto auto auto;
   column-gap: 30px; row-gap: 30px;
   align-content: start;
 }
-/* the portrait sits straight after the papers; rows below still span the width */
+/* the portrait sits straight after the papers */
 .desk-view > .portrait {
+  grid-column: 2; grid-row: 1;
   justify-self: start;
   border-left: 1px solid var(--hairline); padding-left: 30px;
 }
 
-/* -- left column: weather over files -- */
+/* -- left: the papers -- */
 .desk-aside {
   grid-column: 1; grid-row: 1;
   display: flex; flex-direction: column; gap: 24px;
   min-width: 300px; max-width: 360px;   /* keep the rows readable, not stretched */
 }
 
-.wx { display: flex; flex-direction: column; gap: 2px; }
+/* -- right corner: the two clocks -- */
+.wx {
+  grid-column: 3; grid-row: 1;
+  justify-self: end; align-self: start;
+  width: min(300px, 100%);
+  display: flex; flex-direction: column; gap: 2px;
+}
 .wx-row {
   display: grid; grid-template-columns: 1fr auto auto;
   align-items: baseline; gap: 14px;
@@ -741,13 +750,23 @@ body.admin-on .icon-item .fadmin { display: flex; }
 [data-theme="light"] .dr-row:hover { background: rgba(0, 0, 0, .05); }
 [data-theme="light"] .pt-frame { box-shadow: 0 0 0 1px rgba(0, 0, 0, .08), 0 14px 34px rgba(0, 0, 0, .16); }
 
-/* one column: the portrait leads, then the papers, then the folders, then recent */
-@media (max-width: 660px) {
-  .desk-view { grid-template-columns: minmax(0, 1fr); grid-template-rows: repeat(4, auto); }
-  .desk-view > .portrait { grid-column: 1; grid-row: 1; justify-self: start; border-left: 0; padding-left: 0; }
-  .desk-aside { grid-column: 1; grid-row: 2; min-width: 0; }
+/* Below this the three top zones can't share a row without crushing the clocks,
+   so the clocks take a row of their own — still hugging the right edge. */
+@media (max-width: 940px) {
+  .desk-view { grid-template-columns: auto minmax(0, 1fr); grid-template-rows: repeat(4, auto); }
+  .wx { grid-column: 1 / -1; grid-row: 2; row-gap: 0; }
   .desk-folders { grid-row: 3; }
   .desk-recent { grid-row: 4; }
+}
+
+/* one column: the portrait leads, then the clocks, then the papers */
+@media (max-width: 660px) {
+  .desk-view { grid-template-columns: minmax(0, 1fr); grid-template-rows: repeat(5, auto); }
+  .desk-view > .portrait { grid-column: 1; grid-row: 1; justify-self: start; border-left: 0; padding-left: 0; }
+  .wx { grid-column: 1; grid-row: 2; justify-self: stretch; width: auto; }
+  .desk-aside { grid-column: 1; grid-row: 3; min-width: 0; }
+  .desk-folders { grid-row: 4; }
+  .desk-recent { grid-row: 5; }
   /* a percentage width here would resolve against a shrink-to-fit track and collapse */
   .pt-frame { width: min(220px, 62vw); }
 }
