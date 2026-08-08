@@ -19,8 +19,8 @@ const mov = (name, at, href) =>
   ({ id: "file-" + (++_fid), name, kind: "QuickTime movie", icon: "i-mov-mac", at, size: "--", href });
 const webloc = (name, at, href) =>
   ({ id: "file-" + (++_fid), name: name + ".webloc", kind: "Web site location", icon: "i-webloc", at, size: "1 KB", href, external: true });
-const img = (name, at, href) =>
-  ({ id: "file-" + (++_fid), name, kind: "JPEG image", icon: "i-jpg-mac", at, size: "--", href, isPhoto: true });
+const img = (name, at, href, ar = 1) =>
+  ({ id: "file-" + (++_fid), name, kind: "JPEG image", icon: "i-jpg-mac", at, size: "--", href, isPhoto: true, ar });
 
 // the filmmaker's reel, on Vimeo
 const REEL = { id: "1203912931", url: "https://vimeo.com/1203912931" };
@@ -35,83 +35,83 @@ const DESK_FILES = () => [
 // Digital folder — Dazz-shot stills, chronological. Renders as its own
 // minimalist photo grid (see renderDigital) instead of the plain file grid.
 const DIGITAL_PHOTOS = [
-  img("digital-01.jpg", "2025-01-06T17:12:00", "assets/photos/digital/digital-01.jpg"),
-  img("digital-02.jpg", "2025-01-06T17:12:00", "assets/photos/digital/digital-02.jpg"),
-  img("digital-03.jpg", "2025-03-14T14:11:00", "assets/photos/digital/digital-03.jpg"),
-  img("digital-04.jpg", "2025-03-14T14:12:00", "assets/photos/digital/digital-04.jpg"),
-  img("digital-05.jpg", "2025-03-14T14:14:00", "assets/photos/digital/digital-05.jpg"),
-  img("digital-06.jpg", "2025-03-25T13:11:00", "assets/photos/digital/digital-06.jpg"),
-  img("digital-07.jpg", "2025-04-05T15:48:00", "assets/photos/digital/digital-07.jpg"),
-  img("digital-08.jpg", "2025-04-19T11:29:00", "assets/photos/digital/digital-08.jpg"),
-  img("digital-09.jpg", "2025-04-25T19:12:00", "assets/photos/digital/digital-09.jpg"),
-  img("digital-10.jpg", "2025-04-25T19:12:00", "assets/photos/digital/digital-10.jpg"),
-  img("digital-11.jpg", "2025-04-25T19:13:00", "assets/photos/digital/digital-11.jpg"),
-  img("digital-12.jpg", "2025-04-25T19:13:00", "assets/photos/digital/digital-12.jpg"),
-  img("digital-13.jpg", "2025-04-25T19:13:00", "assets/photos/digital/digital-13.jpg"),
-  img("digital-14.jpg", "2025-06-02T15:14:00", "assets/photos/digital/digital-14.jpg"),
-  img("digital-15.jpg", "2025-06-02T15:14:00", "assets/photos/digital/digital-15.jpg"),
-  img("digital-16.jpg", "2025-06-02T15:49:00", "assets/photos/digital/digital-16.jpg"),
-  img("digital-17.jpg", "2025-06-02T15:50:00", "assets/photos/digital/digital-17.jpg"),
-  img("digital-18.jpg", "2025-06-02T15:50:00", "assets/photos/digital/digital-18.jpg"),
-  img("digital-19.jpg", "2025-06-02T15:50:00", "assets/photos/digital/digital-19.jpg"),
-  img("digital-20.jpg", "2025-06-02T15:50:00", "assets/photos/digital/digital-20.jpg"),
-  img("digital-21.jpg", "2025-06-02T15:54:00", "assets/photos/digital/digital-21.jpg"),
-  img("digital-22.jpg", "2025-06-02T15:54:00", "assets/photos/digital/digital-22.jpg"),
-  img("digital-23.jpg", "2025-08-27T14:46:00", "assets/photos/digital/digital-23.jpg"),
-  img("digital-24.jpg", "2025-08-27T14:46:00", "assets/photos/digital/digital-24.jpg"),
-  img("digital-25.jpg", "2025-08-27T14:46:00", "assets/photos/digital/digital-25.jpg"),
-  img("digital-26.jpg", "2025-08-27T14:46:00", "assets/photos/digital/digital-26.jpg"),
-  img("digital-27.jpg", "2025-08-27T14:46:00", "assets/photos/digital/digital-27.jpg"),
-  img("digital-28.jpg", "2025-08-27T14:54:00", "assets/photos/digital/digital-28.jpg"),
-  img("digital-29.jpg", "2025-08-27T14:56:00", "assets/photos/digital/digital-29.jpg"),
-  img("digital-30.jpg", "2025-09-06T16:37:00", "assets/photos/digital/digital-30.jpg"),
-  img("digital-31.jpg", "2025-09-06T16:37:00", "assets/photos/digital/digital-31.jpg"),
-  img("digital-32.jpg", "2025-09-06T16:37:00", "assets/photos/digital/digital-32.jpg"),
-  img("digital-33.jpg", "2025-09-12T09:40:00", "assets/photos/digital/digital-33.jpg"),
-  img("digital-34.jpg", "2025-09-12T09:42:00", "assets/photos/digital/digital-34.jpg"),
-  img("digital-35.jpg", "2025-09-12T09:48:00", "assets/photos/digital/digital-35.jpg"),
-  img("digital-36.jpg", "2025-09-12T09:48:00", "assets/photos/digital/digital-36.jpg"),
-  img("digital-37.jpg", "2025-10-10T16:59:00", "assets/photos/digital/digital-37.jpg"),
-  img("digital-38.jpg", "2025-10-30T10:26:00", "assets/photos/digital/digital-38.jpg"),
-  img("digital-39.jpg", "2025-10-31T16:24:00", "assets/photos/digital/digital-39.jpg"),
-  img("digital-40.jpg", "2025-10-31T16:24:00", "assets/photos/digital/digital-40.jpg"),
-  img("digital-41.jpg", "2025-11-14T13:25:00", "assets/photos/digital/digital-41.jpg"),
-  img("digital-42.jpg", "2025-11-15T15:11:00", "assets/photos/digital/digital-42.jpg"),
-  img("digital-43.jpg", "2025-11-15T15:11:00", "assets/photos/digital/digital-43.jpg"),
-  img("digital-44.jpg", "2025-11-15T15:11:00", "assets/photos/digital/digital-44.jpg"),
-  img("digital-45.jpg", "2025-11-28T09:33:00", "assets/photos/digital/digital-45.jpg"),
-  img("digital-46.jpg", "2025-11-28T11:27:00", "assets/photos/digital/digital-46.jpg"),
-  img("digital-47.jpg", "2025-11-28T11:27:00", "assets/photos/digital/digital-47.jpg"),
-  img("digital-48.jpg", "2025-11-28T11:35:00", "assets/photos/digital/digital-48.jpg"),
-  img("digital-49.jpg", "2025-11-28T11:35:00", "assets/photos/digital/digital-49.jpg"),
-  img("digital-50.jpg", "2025-11-28T11:37:00", "assets/photos/digital/digital-50.jpg"),
-  img("digital-51.jpg", "2025-11-28T12:16:00", "assets/photos/digital/digital-51.jpg"),
-  img("digital-52.jpg", "2025-11-28T12:16:00", "assets/photos/digital/digital-52.jpg"),
-  img("digital-53.jpg", "2025-12-21T01:30:00", "assets/photos/digital/digital-53.jpg"),
-  img("digital-54.jpg", "2025-12-21T01:37:00", "assets/photos/digital/digital-54.jpg"),
-  img("digital-55.jpg", "2025-12-21T01:37:00", "assets/photos/digital/digital-55.jpg"),
-  img("digital-56.jpg", "2025-12-21T01:37:00", "assets/photos/digital/digital-56.jpg"),
-  img("digital-57.jpg", "2025-12-21T01:47:00", "assets/photos/digital/digital-57.jpg"),
-  img("digital-58.jpg", "2025-12-21T01:47:00", "assets/photos/digital/digital-58.jpg"),
-  img("digital-59.jpg", "2025-12-21T01:47:00", "assets/photos/digital/digital-59.jpg"),
-  img("digital-60.jpg", "2026-01-13T16:39:00", "assets/photos/digital/digital-60.jpg"),
-  img("digital-61.jpg", "2026-01-31T00:26:00", "assets/photos/digital/digital-61.jpg"),
-  img("digital-62.jpg", "2026-02-08T20:19:00", "assets/photos/digital/digital-62.jpg"),
-  img("digital-63.jpg", "2026-02-15T16:48:00", "assets/photos/digital/digital-63.jpg"),
-  img("digital-64.jpg", "2026-03-14T10:23:00", "assets/photos/digital/digital-64.jpg"),
-  img("digital-65.jpg", "2026-03-16T20:01:00", "assets/photos/digital/digital-65.jpg"),
-  img("digital-66.jpg", "2026-04-12T18:57:00", "assets/photos/digital/digital-66.jpg"),
-  img("digital-67.jpg", "2026-05-07T17:52:00", "assets/photos/digital/digital-67.jpg"),
-  img("digital-68.jpg", "2026-05-09T13:48:00", "assets/photos/digital/digital-68.jpg"),
-  img("digital-69.jpg", "2026-05-09T13:48:00", "assets/photos/digital/digital-69.jpg"),
-  img("digital-70.jpg", "2026-05-15T15:57:00", "assets/photos/digital/digital-70.jpg"),
-  img("digital-71.jpg", "2026-06-06T18:18:00", "assets/photos/digital/digital-71.jpg"),
-  img("digital-72.jpg", "2026-06-08T20:08:00", "assets/photos/digital/digital-72.jpg"),
-  img("digital-73.jpg", "2026-06-08T20:08:00", "assets/photos/digital/digital-73.jpg"),
-  img("digital-74.jpg", "2026-07-04T13:29:00", "assets/photos/digital/digital-74.jpg"),
-  img("digital-75.jpg", "2026-07-05T17:54:00", "assets/photos/digital/digital-75.jpg"),
-  img("digital-76.jpg", "2026-07-05T20:19:00", "assets/photos/digital/digital-76.jpg"),
-  img("digital-77.jpg", "2026-07-05T20:19:00", "assets/photos/digital/digital-77.jpg"),
+  img("digital-01.jpg", "2025-01-06T17:12:00", "assets/photos/digital/digital-01.jpg", 1.3333),
+  img("digital-02.jpg", "2025-01-06T17:12:00", "assets/photos/digital/digital-02.jpg", 1.3333),
+  img("digital-03.jpg", "2025-03-14T14:11:00", "assets/photos/digital/digital-03.jpg", 1.3333),
+  img("digital-04.jpg", "2025-03-14T14:12:00", "assets/photos/digital/digital-04.jpg", 1.3346),
+  img("digital-05.jpg", "2025-03-14T14:14:00", "assets/photos/digital/digital-05.jpg", 1.3333),
+  img("digital-06.jpg", "2025-03-25T13:11:00", "assets/photos/digital/digital-06.jpg", 1.3333),
+  img("digital-07.jpg", "2025-04-05T15:48:00", "assets/photos/digital/digital-07.jpg", 1.3333),
+  img("digital-08.jpg", "2025-04-19T11:29:00", "assets/photos/digital/digital-08.jpg", 1.5016),
+  img("digital-09.jpg", "2025-04-25T19:12:00", "assets/photos/digital/digital-09.jpg", 2.3529),
+  img("digital-10.jpg", "2025-04-25T19:12:00", "assets/photos/digital/digital-10.jpg", 1.78),
+  img("digital-11.jpg", "2025-04-25T19:13:00", "assets/photos/digital/digital-11.jpg", 1.5016),
+  img("digital-12.jpg", "2025-04-25T19:13:00", "assets/photos/digital/digital-12.jpg", 2.3529),
+  img("digital-13.jpg", "2025-04-25T19:13:00", "assets/photos/digital/digital-13.jpg", 2.3529),
+  img("digital-14.jpg", "2025-06-02T15:14:00", "assets/photos/digital/digital-14.jpg", 1.5),
+  img("digital-15.jpg", "2025-06-02T15:14:00", "assets/photos/digital/digital-15.jpg", 2.3529),
+  img("digital-16.jpg", "2025-06-02T15:49:00", "assets/photos/digital/digital-16.jpg", 2.3529),
+  img("digital-17.jpg", "2025-06-02T15:50:00", "assets/photos/digital/digital-17.jpg", 2.3529),
+  img("digital-18.jpg", "2025-06-02T15:50:00", "assets/photos/digital/digital-18.jpg", 2.3529),
+  img("digital-19.jpg", "2025-06-02T15:50:00", "assets/photos/digital/digital-19.jpg", 2.3529),
+  img("digital-20.jpg", "2025-06-02T15:50:00", "assets/photos/digital/digital-20.jpg", 2.3529),
+  img("digital-21.jpg", "2025-06-02T15:54:00", "assets/photos/digital/digital-21.jpg", 2.3529),
+  img("digital-22.jpg", "2025-06-02T15:54:00", "assets/photos/digital/digital-22.jpg", 2.3529),
+  img("digital-23.jpg", "2025-08-27T14:46:00", "assets/photos/digital/digital-23.jpg", 1.5),
+  img("digital-24.jpg", "2025-08-27T14:46:00", "assets/photos/digital/digital-24.jpg", 2.3529),
+  img("digital-25.jpg", "2025-08-27T14:46:00", "assets/photos/digital/digital-25.jpg", 2.3529),
+  img("digital-26.jpg", "2025-08-27T14:46:00", "assets/photos/digital/digital-26.jpg", 2.3529),
+  img("digital-27.jpg", "2025-08-27T14:46:00", "assets/photos/digital/digital-27.jpg", 2.3529),
+  img("digital-28.jpg", "2025-08-27T14:54:00", "assets/photos/digital/digital-28.jpg", 0.6667),
+  img("digital-29.jpg", "2025-08-27T14:56:00", "assets/photos/digital/digital-29.jpg", 2.3529),
+  img("digital-30.jpg", "2025-09-06T16:37:00", "assets/photos/digital/digital-30.jpg", 1.5),
+  img("digital-31.jpg", "2025-09-06T16:37:00", "assets/photos/digital/digital-31.jpg", 1.5),
+  img("digital-32.jpg", "2025-09-06T16:37:00", "assets/photos/digital/digital-32.jpg", 1.5),
+  img("digital-33.jpg", "2025-09-12T09:40:00", "assets/photos/digital/digital-33.jpg", 1.5),
+  img("digital-34.jpg", "2025-09-12T09:42:00", "assets/photos/digital/digital-34.jpg", 2.3529),
+  img("digital-35.jpg", "2025-09-12T09:48:00", "assets/photos/digital/digital-35.jpg", 1.5),
+  img("digital-36.jpg", "2025-09-12T09:48:00", "assets/photos/digital/digital-36.jpg", 1.5),
+  img("digital-37.jpg", "2025-10-10T16:59:00", "assets/photos/digital/digital-37.jpg", 1.7778),
+  img("digital-38.jpg", "2025-10-30T10:26:00", "assets/photos/digital/digital-38.jpg", 1.7778),
+  img("digital-39.jpg", "2025-10-31T16:24:00", "assets/photos/digital/digital-39.jpg", 2.3529),
+  img("digital-40.jpg", "2025-10-31T16:24:00", "assets/photos/digital/digital-40.jpg", 1.5),
+  img("digital-41.jpg", "2025-11-14T13:25:00", "assets/photos/digital/digital-41.jpg", 2.3529),
+  img("digital-42.jpg", "2025-11-15T15:11:00", "assets/photos/digital/digital-42.jpg", 1.7778),
+  img("digital-43.jpg", "2025-11-15T15:11:00", "assets/photos/digital/digital-43.jpg", 1.7778),
+  img("digital-44.jpg", "2025-11-15T15:11:00", "assets/photos/digital/digital-44.jpg", 1.7778),
+  img("digital-45.jpg", "2025-11-28T09:33:00", "assets/photos/digital/digital-45.jpg", 1.5),
+  img("digital-46.jpg", "2025-11-28T11:27:00", "assets/photos/digital/digital-46.jpg", 1.5),
+  img("digital-47.jpg", "2025-11-28T11:27:00", "assets/photos/digital/digital-47.jpg", 1.5),
+  img("digital-48.jpg", "2025-11-28T11:35:00", "assets/photos/digital/digital-48.jpg", 1.7778),
+  img("digital-49.jpg", "2025-11-28T11:35:00", "assets/photos/digital/digital-49.jpg", 1.78),
+  img("digital-50.jpg", "2025-11-28T11:37:00", "assets/photos/digital/digital-50.jpg", 1.7778),
+  img("digital-51.jpg", "2025-11-28T12:16:00", "assets/photos/digital/digital-51.jpg", 1.78),
+  img("digital-52.jpg", "2025-11-28T12:16:00", "assets/photos/digital/digital-52.jpg", 1.78),
+  img("digital-53.jpg", "2025-12-21T01:30:00", "assets/photos/digital/digital-53.jpg", 2.3529),
+  img("digital-54.jpg", "2025-12-21T01:37:00", "assets/photos/digital/digital-54.jpg", 2.3529),
+  img("digital-55.jpg", "2025-12-21T01:37:00", "assets/photos/digital/digital-55.jpg", 2.3529),
+  img("digital-56.jpg", "2025-12-21T01:37:00", "assets/photos/digital/digital-56.jpg", 2.3529),
+  img("digital-57.jpg", "2025-12-21T01:47:00", "assets/photos/digital/digital-57.jpg", 2.3529),
+  img("digital-58.jpg", "2025-12-21T01:47:00", "assets/photos/digital/digital-58.jpg", 2.3529),
+  img("digital-59.jpg", "2025-12-21T01:47:00", "assets/photos/digital/digital-59.jpg", 2.3529),
+  img("digital-60.jpg", "2026-01-13T16:39:00", "assets/photos/digital/digital-60.jpg", 2.3491),
+  img("digital-61.jpg", "2026-01-31T00:26:00", "assets/photos/digital/digital-61.jpg", 1.5),
+  img("digital-62.jpg", "2026-02-08T20:19:00", "assets/photos/digital/digital-62.jpg", 0.666),
+  img("digital-63.jpg", "2026-02-15T16:48:00", "assets/photos/digital/digital-63.jpg", 1.5),
+  img("digital-64.jpg", "2026-03-14T10:23:00", "assets/photos/digital/digital-64.jpg", 1.5),
+  img("digital-65.jpg", "2026-03-16T20:01:00", "assets/photos/digital/digital-65.jpg", 1.5),
+  img("digital-66.jpg", "2026-04-12T18:57:00", "assets/photos/digital/digital-66.jpg", 2.3529),
+  img("digital-67.jpg", "2026-05-07T17:52:00", "assets/photos/digital/digital-67.jpg", 2.3529),
+  img("digital-68.jpg", "2026-05-09T13:48:00", "assets/photos/digital/digital-68.jpg", 1.5),
+  img("digital-69.jpg", "2026-05-09T13:48:00", "assets/photos/digital/digital-69.jpg", 1.5),
+  img("digital-70.jpg", "2026-05-15T15:57:00", "assets/photos/digital/digital-70.jpg", 1.5),
+  img("digital-71.jpg", "2026-06-06T18:18:00", "assets/photos/digital/digital-71.jpg", 1.5),
+  img("digital-72.jpg", "2026-06-08T20:08:00", "assets/photos/digital/digital-72.jpg", 1.5016),
+  img("digital-73.jpg", "2026-06-08T20:08:00", "assets/photos/digital/digital-73.jpg", 1.5016),
+  img("digital-74.jpg", "2026-07-04T13:29:00", "assets/photos/digital/digital-74.jpg", 1.5),
+  img("digital-75.jpg", "2026-07-05T17:54:00", "assets/photos/digital/digital-75.jpg", 1.5),
+  img("digital-76.jpg", "2026-07-05T20:19:00", "assets/photos/digital/digital-76.jpg", 2.3529),
+  img("digital-77.jpg", "2026-07-05T20:19:00", "assets/photos/digital/digital-77.jpg", 2.3529),
 ];
 
 // content that lives inside named folders, merged onto whatever the tree loads.
@@ -310,7 +310,7 @@ const findByName = (name) => {
 };
 const items = () => {
   const list = (cwd.children || []).slice();
-  if (view === "list") list.sort((a, b) => sortAsc ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name));
+  if (curView() === "list") list.sort((a, b) => sortAsc ? a.name.localeCompare(b.name) : b.name.localeCompare(a.name));
   return list;
 };
 const pathOf = (node) => { const p = []; for (let n = node; n; n = n.parent) p.unshift(n); return p; };
@@ -404,17 +404,18 @@ function render() {
   els.back.disabled = !history.length;
   els.fwd.disabled = !future.length;
 
-  // the Desktop has its own arrangement; Digital is a plain photo wall;
-  // every other folder uses the plain grid
+  // the Desktop has its own arrangement; Digital is a photo wall with no
+  // other view — it never falls back to the plain grid/list/columns/gallery.
   const onDesk = view === "icon" && cwd === ROOT;
-  const onDigital = view === "icon" && cwd.name === "Digital" && list.some(n => n.isPhoto);
+  const onDigital = cwd.name === "Digital" && list.some(n => n.isPhoto);
   stopPortrait();
   els.deskView.hidden = !onDesk;
   els.digitalView.hidden = !onDigital;
-  els.iconView.hidden = view !== "icon" || onDesk || onDigital;
-  els.listView.hidden = view !== "list";
-  els.columnsView.hidden = view !== "columns";
-  els.galleryView.hidden = view !== "gallery";
+  els.iconView.hidden = onDigital || view !== "icon" || onDesk;
+  els.listView.hidden = onDigital || view !== "list";
+  els.columnsView.hidden = onDigital || view !== "columns";
+  els.galleryView.hidden = onDigital || view !== "gallery";
+  $("tb-viewbtn").hidden = onDigital;
 
   if (onDesk) {
     renderDesk(list);
@@ -537,14 +538,62 @@ function renderDesk(list) {
 }
 
 /* ---- digital: a quiet contact-sheet wall, one tap opens the full frame ---- */
+/* Justified rows (Flickr/Google Photos style): every photo keeps its own
+   aspect ratio — nothing is ever cropped. Images are packed into rows whose
+   height is solved so the row's total width lands exactly on the container
+   width; the last, incomplete row sits at the target height unstretched. */
+function layoutDigitalRows(list, containerW, targetH, gap) {
+  const rows = [];
+  let row = [], sumAr = 0;
+  const finalize = (items, h, stretch) => {
+    const widths = items.map(n => Math.round(n.ar * h));
+    if (stretch) {
+      const total = widths.reduce((a, b) => a + b, 0) + (items.length - 1) * gap;
+      widths[widths.length - 1] += containerW - total; // absorb rounding onto the last tile
+    }
+    rows.push({ items, h, widths });
+  };
+  list.forEach(n => {
+    row.push(n); sumAr += n.ar;
+    const naturalW = sumAr * targetH + (row.length - 1) * gap;
+    if (naturalW >= containerW) {
+      const availW = containerW - (row.length - 1) * gap;
+      finalize(row, availW / sumAr, true);
+      row = []; sumAr = 0;
+    }
+  });
+  if (row.length) finalize(row, targetH, false);
+  return rows;
+}
 function renderDigital(list) {
+  const containerW = els.digitalView.clientWidth || els.content.clientWidth || 800;
+  const gap = containerW < 640 ? 2 : 3;
+  const targetH = containerW < 640 ? 130 : 230;
+  const rows = layoutDigitalRows(list, containerW, targetH, gap);
   els.digitalView.innerHTML = `
-    <div class="dg-grid">
-      ${list.map((n, i) => `
-        <button class="dg-item ${selection.has(n) ? "selected" : ""}" data-i="${i}" aria-label="${n.name}">
-          <img src="${n.href}" loading="lazy" decoding="async" alt="">
-        </button>`).join("")}
+    <div class="dg-rows" style="gap:${gap}px">
+      ${rows.map(row => `
+        <div class="dg-row" style="height:${Math.round(row.h)}px;gap:${gap}px">
+          ${row.items.map((n, k) => {
+            const i = list.indexOf(n);
+            return `<button class="dg-item ${selection.has(n) ? "selected" : ""}" data-i="${i}" style="width:${row.widths[k]}px" aria-label="${n.name}">
+              <img src="${n.href}" loading="lazy" decoding="async" alt="">
+            </button>`;
+          }).join("")}
+        </div>`).join("")}
     </div>`;
+  armDigitalResize();
+}
+let digitalResizeArmed = false;
+function armDigitalResize() {
+  if (digitalResizeArmed) return;
+  digitalResizeArmed = true;
+  let raf = 0;
+  new ResizeObserver(() => {
+    if (els.digitalView.hidden) return;
+    cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(() => renderDigital(items()));
+  }).observe(els.digitalView);
 }
 
 /* ================= guest book: one public canvas =================
@@ -958,9 +1007,13 @@ function updateStatus() {
 }
 
 /* ================= selection ================= */
-const ITEM_SEL = { icon: ".icon-item, .desk-item, .dg-item", list: ".lv-row", columns: ".col-row[data-i]", gallery: ".gal-thumb" };
+const ITEM_SEL = { icon: ".icon-item, .desk-item", list: ".lv-row", columns: ".col-row[data-i]", gallery: ".gal-thumb", digital: ".dg-item" };
+// Digital is its own mode regardless of what `view` is set to (it has no
+// icon/list/columns/gallery fallback) — this is the single source of truth
+// for "what's actually on screen right now" that selection/clicks key off.
+function curView() { return (cwd.name === "Digital" && !els.digitalView.hidden) ? "digital" : view; }
 function elementsForItems() {
-  return [...els.content.querySelectorAll(ITEM_SEL[view])]
+  return [...els.content.querySelectorAll(ITEM_SEL[curView()])]
     .filter(el => el.dataset.i !== undefined && +el.dataset.i >= 0);
 }
 function applySelectionClasses() {
@@ -973,7 +1026,7 @@ function applySelectionClasses() {
 function selectOnly(node, idx) { selection.clear(); if (node) selection.add(node); anchorIndex = idx; applySelectionClasses(); }
 
 function handleItemMousedown(e) {
-  const el = e.target.closest(ITEM_SEL[view]);
+  const el = e.target.closest(ITEM_SEL[curView()]);
   if (!el || el.dataset.i === undefined) return false;
   const list = items();
   const idx = +el.dataset.i, node = list[idx];
@@ -1003,7 +1056,7 @@ function openNode(node) {
 /* content clicks */
 els.content.addEventListener("mousedown", e => {
   if (e.button === 2) { // right click: select target under cursor
-    const el = e.target.closest(ITEM_SEL[view]);
+    const el = e.target.closest(ITEM_SEL[curView()]);
     if (el && el.dataset.i !== undefined) {
       const node = items()[+el.dataset.i];
       if (node && !selection.has(node)) selectOnly(node, +el.dataset.i);
@@ -1011,15 +1064,15 @@ els.content.addEventListener("mousedown", e => {
     return;
   }
   if (e.target.closest(".lv-head")) return;
-  // columns and gallery wire their own clicks; only icon/list drag-select
-  if (view === "columns" || view === "gallery") { els.content.focus(); return; }
+  // columns and gallery wire their own clicks; only icon/list/digital drag-select
+  if (curView() === "columns" || curView() === "gallery") { els.content.focus(); return; }
   const hit = handleItemMousedown(e);
   if (!hit) startRubberBand(e);
   els.content.focus();
 });
 els.content.addEventListener("dblclick", e => {
-  if (view === "columns" || view === "gallery") return;
-  const el = e.target.closest(ITEM_SEL[view]);
+  if (curView() === "columns" || curView() === "gallery") return;
+  const el = e.target.closest(ITEM_SEL[curView()]);
   if (el && el.dataset.i !== undefined) openNode(items()[+el.dataset.i]);
 });
 /* Touch has no double-click: a second tap is the browser's zoom gesture, not ours.
@@ -1030,9 +1083,9 @@ els.content.addEventListener("click", e => {
   const tap = e.pointerType === "touch" || e.pointerType === "pen"
     || (e.pointerType === undefined && !FINE_POINTER.matches);
   if (!tap) return;
-  if (view === "columns" || view === "gallery") return;
+  if (curView() === "columns" || curView() === "gallery") return;
   if (e.target.tagName === "INPUT") return;          // don't hijack an inline rename
-  const el = e.target.closest(ITEM_SEL[view]);
+  const el = e.target.closest(ITEM_SEL[curView()]);
   if (el && el.dataset.i !== undefined) openNode(items()[+el.dataset.i]);
 });
 
@@ -1082,10 +1135,10 @@ els.content.addEventListener("keydown", e => {
   const list = items();
   const idxOf = n => list.indexOf(n);
   const selIdx = [...selection].map(idxOf).sort((a, b) => a - b);
-  const onDigitalNow = view === "icon" && !els.digitalView.hidden;
-  const cols = onDigitalNow
+  const cv = curView();
+  const cols = cv === "digital"
     ? Math.max(1, Math.round(els.digitalView.clientWidth / (els.digitalView.querySelector(".dg-item")?.getBoundingClientRect().width || 160)))
-    : view === "icon"
+    : cv === "icon"
       ? Math.max(1, Math.floor(els.iconView.clientWidth / (parseInt(getComputedStyle(document.documentElement).getPropertyValue("--icon-size")) + 50)))
       : 1;
 
@@ -1152,6 +1205,7 @@ function startRename(node) {
 const VIEW_ICON = { icon: "t-grid", list: "t-list", columns: "t-columns", gallery: "t-gallery" };
 function setView(v) {
   if (!VIEW_ICON[v]) return;
+  if (cwd.name === "Digital") return; // one view here — nothing to switch to
   view = v;
   $("tb-view-icon").innerHTML = `<use href="#${VIEW_ICON[v]}"/>`;
   render();
@@ -1295,7 +1349,7 @@ $("tb-sidebar").addEventListener("click", () => els.sidebar.classList.toggle("co
 /* ================= context menu ================= */
 els.content.addEventListener("contextmenu", e => {
   e.preventDefault();
-  const el = e.target.closest(ITEM_SEL[view]);
+  const el = e.target.closest(ITEM_SEL[curView()]);
   let html;
   if (el && el.dataset.i !== undefined && items()[+el.dataset.i]) {
     const node = items()[+el.dataset.i];
@@ -1393,13 +1447,49 @@ function quickLook(node) {
 }
 
 /* ---- photo viewer: full frame, no chrome, arrow-key through the roll ---- */
+/* the photo itself grows out of the exact tile that was clicked (a true FLIP:
+   translate + independent x/y scale, not the generic uniform-scale materialize
+   used for panels), with a scrim that dims the room in behind it. */
+function materializePhoto(box, backdrop, anchorRect) {
+  const rect = box.getBoundingClientRect();
+  box.style.left = rect.left + "px"; box.style.top = rect.top + "px";
+  setPresentation(backdrop, { opacity: 0 });
+  springTo(backdrop, { opacity: 1 }, { response: 0.42 });
+  if (!anchorRect || !anchorRect.width || !anchorRect.height) {
+    setPresentation(box, { scale: 0.92, opacity: 0 });
+    springTo(box, { scale: 1, opacity: 1 }, { response: 0.34 });
+    return;
+  }
+  const sx = anchorRect.width / rect.width, sy = anchorRect.height / rect.height;
+  const dx = anchorRect.left + anchorRect.width / 2 - (rect.left + rect.width / 2);
+  const dy = anchorRect.top + anchorRect.height / 2 - (rect.top + rect.height / 2);
+  setPresentation(box, { x: dx, y: dy, sx, sy, opacity: 0.5 });
+  springTo(box, { x: 0, y: 0, sx: 1, sy: 1, opacity: 1 }, { response: 0.4 });
+}
+/* the reverse of materializePhoto: shrinks back into the tile it came from
+   (or the tile now under it, if the roll moved on) before it's removed */
+function dematerializePhoto(box, backdrop, anchorRect, onDone) {
+  springTo(backdrop, { opacity: 0 }, { response: 0.26 });
+  const rect = box.getBoundingClientRect();
+  if (!anchorRect || !anchorRect.width || !anchorRect.height) {
+    springTo(box, { scale: 0.92, opacity: 0 }, { response: 0.24, onDone });
+    return;
+  }
+  const sx = anchorRect.width / rect.width, sy = anchorRect.height / rect.height;
+  const dx = anchorRect.left + anchorRect.width / 2 - (rect.left + rect.width / 2);
+  const dy = anchorRect.top + anchorRect.height / 2 - (rect.top + rect.height / 2);
+  springTo(box, { x: dx, y: dy, sx, sy, opacity: 0 }, { response: 0.28, onDone });
+}
 function photoViewer(node) {
   closeOverlays();
   const roll = (node.parent ? node.parent.children : [node]).filter(n => n.isPhoto);
   let i = Math.max(0, roll.indexOf(node));
+  const backdrop = document.createElement("div");
+  backdrop.className = "ql-backdrop";
   const box = document.createElement("div");
   box.className = "qlook qlook-photo";
-  els.overlayLayer.appendChild(box);
+  els.overlayLayer.append(backdrop, box);
+  backdrop.addEventListener("click", close);
 
   function paint(anchor) {
     const n = roll[i];
@@ -1410,19 +1500,23 @@ function photoViewer(node) {
         <button class="ql-nav ql-next" aria-label="Next"></button>
         <div class="ql-count">${i + 1} / ${roll.length}</div>` : ""}
       <div class="ql-body"><img class="ql-img" src="${n.href}" alt=""></div>`;
-    box.querySelector(".ql-close").addEventListener("click", closeOverlays);
+    box.querySelector(".ql-close").addEventListener("click", close);
     if (roll.length > 1) {
       box.querySelector(".ql-prev").addEventListener("click", () => step(-1));
       box.querySelector(".ql-next").addEventListener("click", () => step(1));
     }
     selectOnly(n, items().indexOf(n));
-    if (anchor !== undefined) materialize(box, anchor);
+    if (anchor !== undefined) materializePhoto(box, backdrop, anchor);
   }
   function step(d) { i = (i + d + roll.length) % roll.length; paint(); }
+  function close() {
+    window.removeEventListener("keydown", esc);
+    dematerializePhoto(box, backdrop, anchorRectFor(roll[i]), () => { box.remove(); backdrop.remove(); });
+  }
 
   paint(anchorRectFor(node));
   const esc = ev => {
-    if (ev.key === "Escape" || ev.code === "Space") { ev.preventDefault(); closeOverlays(); window.removeEventListener("keydown", esc); }
+    if (ev.key === "Escape" || ev.code === "Space") { ev.preventDefault(); close(); }
     else if (roll.length > 1 && ev.key === "ArrowLeft") { ev.preventDefault(); step(-1); }
     else if (roll.length > 1 && ev.key === "ArrowRight") { ev.preventDefault(); step(1); }
   };
