@@ -19,6 +19,8 @@ const mov = (name, at, href) =>
   ({ id: "file-" + (++_fid), name, kind: "QuickTime movie", icon: "i-mov-mac", at, size: "--", href });
 const webloc = (name, at, href) =>
   ({ id: "file-" + (++_fid), name: name + ".webloc", kind: "Web site location", icon: "i-webloc", at, size: "1 KB", href, external: true });
+const img = (name, at, href) =>
+  ({ id: "file-" + (++_fid), name, kind: "JPEG image", icon: "i-jpg-mac", at, size: "--", href, isPhoto: true });
 
 // the filmmaker's reel, on Vimeo
 const REEL = { id: "1203912931", url: "https://vimeo.com/1203912931" };
@@ -30,11 +32,94 @@ const DESK_FILES = () => [
   { ...mov("Filmmaker's Reel.mov", "2026-07-15T20:35", REEL.url), external: true },
 ];
 
+// Digital folder — Dazz-shot stills, chronological. Renders as its own
+// minimalist photo grid (see renderDigital) instead of the plain file grid.
+const DIGITAL_PHOTOS = [
+  img("digital-01.jpg", "2025-01-06T17:12:00", "assets/photos/digital/digital-01.jpg"),
+  img("digital-02.jpg", "2025-01-06T17:12:00", "assets/photos/digital/digital-02.jpg"),
+  img("digital-03.jpg", "2025-03-14T14:11:00", "assets/photos/digital/digital-03.jpg"),
+  img("digital-04.jpg", "2025-03-14T14:12:00", "assets/photos/digital/digital-04.jpg"),
+  img("digital-05.jpg", "2025-03-14T14:14:00", "assets/photos/digital/digital-05.jpg"),
+  img("digital-06.jpg", "2025-03-25T13:11:00", "assets/photos/digital/digital-06.jpg"),
+  img("digital-07.jpg", "2025-04-05T15:48:00", "assets/photos/digital/digital-07.jpg"),
+  img("digital-08.jpg", "2025-04-19T11:29:00", "assets/photos/digital/digital-08.jpg"),
+  img("digital-09.jpg", "2025-04-25T19:12:00", "assets/photos/digital/digital-09.jpg"),
+  img("digital-10.jpg", "2025-04-25T19:12:00", "assets/photos/digital/digital-10.jpg"),
+  img("digital-11.jpg", "2025-04-25T19:13:00", "assets/photos/digital/digital-11.jpg"),
+  img("digital-12.jpg", "2025-04-25T19:13:00", "assets/photos/digital/digital-12.jpg"),
+  img("digital-13.jpg", "2025-04-25T19:13:00", "assets/photos/digital/digital-13.jpg"),
+  img("digital-14.jpg", "2025-06-02T15:14:00", "assets/photos/digital/digital-14.jpg"),
+  img("digital-15.jpg", "2025-06-02T15:14:00", "assets/photos/digital/digital-15.jpg"),
+  img("digital-16.jpg", "2025-06-02T15:49:00", "assets/photos/digital/digital-16.jpg"),
+  img("digital-17.jpg", "2025-06-02T15:50:00", "assets/photos/digital/digital-17.jpg"),
+  img("digital-18.jpg", "2025-06-02T15:50:00", "assets/photos/digital/digital-18.jpg"),
+  img("digital-19.jpg", "2025-06-02T15:50:00", "assets/photos/digital/digital-19.jpg"),
+  img("digital-20.jpg", "2025-06-02T15:50:00", "assets/photos/digital/digital-20.jpg"),
+  img("digital-21.jpg", "2025-06-02T15:54:00", "assets/photos/digital/digital-21.jpg"),
+  img("digital-22.jpg", "2025-06-02T15:54:00", "assets/photos/digital/digital-22.jpg"),
+  img("digital-23.jpg", "2025-08-27T14:46:00", "assets/photos/digital/digital-23.jpg"),
+  img("digital-24.jpg", "2025-08-27T14:46:00", "assets/photos/digital/digital-24.jpg"),
+  img("digital-25.jpg", "2025-08-27T14:46:00", "assets/photos/digital/digital-25.jpg"),
+  img("digital-26.jpg", "2025-08-27T14:46:00", "assets/photos/digital/digital-26.jpg"),
+  img("digital-27.jpg", "2025-08-27T14:46:00", "assets/photos/digital/digital-27.jpg"),
+  img("digital-28.jpg", "2025-08-27T14:54:00", "assets/photos/digital/digital-28.jpg"),
+  img("digital-29.jpg", "2025-08-27T14:56:00", "assets/photos/digital/digital-29.jpg"),
+  img("digital-30.jpg", "2025-09-06T16:37:00", "assets/photos/digital/digital-30.jpg"),
+  img("digital-31.jpg", "2025-09-06T16:37:00", "assets/photos/digital/digital-31.jpg"),
+  img("digital-32.jpg", "2025-09-06T16:37:00", "assets/photos/digital/digital-32.jpg"),
+  img("digital-33.jpg", "2025-09-12T09:40:00", "assets/photos/digital/digital-33.jpg"),
+  img("digital-34.jpg", "2025-09-12T09:42:00", "assets/photos/digital/digital-34.jpg"),
+  img("digital-35.jpg", "2025-09-12T09:48:00", "assets/photos/digital/digital-35.jpg"),
+  img("digital-36.jpg", "2025-09-12T09:48:00", "assets/photos/digital/digital-36.jpg"),
+  img("digital-37.jpg", "2025-10-10T16:59:00", "assets/photos/digital/digital-37.jpg"),
+  img("digital-38.jpg", "2025-10-30T10:26:00", "assets/photos/digital/digital-38.jpg"),
+  img("digital-39.jpg", "2025-10-31T16:24:00", "assets/photos/digital/digital-39.jpg"),
+  img("digital-40.jpg", "2025-10-31T16:24:00", "assets/photos/digital/digital-40.jpg"),
+  img("digital-41.jpg", "2025-11-14T13:25:00", "assets/photos/digital/digital-41.jpg"),
+  img("digital-42.jpg", "2025-11-15T15:11:00", "assets/photos/digital/digital-42.jpg"),
+  img("digital-43.jpg", "2025-11-15T15:11:00", "assets/photos/digital/digital-43.jpg"),
+  img("digital-44.jpg", "2025-11-15T15:11:00", "assets/photos/digital/digital-44.jpg"),
+  img("digital-45.jpg", "2025-11-28T09:33:00", "assets/photos/digital/digital-45.jpg"),
+  img("digital-46.jpg", "2025-11-28T11:27:00", "assets/photos/digital/digital-46.jpg"),
+  img("digital-47.jpg", "2025-11-28T11:27:00", "assets/photos/digital/digital-47.jpg"),
+  img("digital-48.jpg", "2025-11-28T11:35:00", "assets/photos/digital/digital-48.jpg"),
+  img("digital-49.jpg", "2025-11-28T11:35:00", "assets/photos/digital/digital-49.jpg"),
+  img("digital-50.jpg", "2025-11-28T11:37:00", "assets/photos/digital/digital-50.jpg"),
+  img("digital-51.jpg", "2025-11-28T12:16:00", "assets/photos/digital/digital-51.jpg"),
+  img("digital-52.jpg", "2025-11-28T12:16:00", "assets/photos/digital/digital-52.jpg"),
+  img("digital-53.jpg", "2025-12-21T01:30:00", "assets/photos/digital/digital-53.jpg"),
+  img("digital-54.jpg", "2025-12-21T01:37:00", "assets/photos/digital/digital-54.jpg"),
+  img("digital-55.jpg", "2025-12-21T01:37:00", "assets/photos/digital/digital-55.jpg"),
+  img("digital-56.jpg", "2025-12-21T01:37:00", "assets/photos/digital/digital-56.jpg"),
+  img("digital-57.jpg", "2025-12-21T01:47:00", "assets/photos/digital/digital-57.jpg"),
+  img("digital-58.jpg", "2025-12-21T01:47:00", "assets/photos/digital/digital-58.jpg"),
+  img("digital-59.jpg", "2025-12-21T01:47:00", "assets/photos/digital/digital-59.jpg"),
+  img("digital-60.jpg", "2026-01-13T16:39:00", "assets/photos/digital/digital-60.jpg"),
+  img("digital-61.jpg", "2026-01-31T00:26:00", "assets/photos/digital/digital-61.jpg"),
+  img("digital-62.jpg", "2026-02-08T20:19:00", "assets/photos/digital/digital-62.jpg"),
+  img("digital-63.jpg", "2026-02-15T16:48:00", "assets/photos/digital/digital-63.jpg"),
+  img("digital-64.jpg", "2026-03-14T10:23:00", "assets/photos/digital/digital-64.jpg"),
+  img("digital-65.jpg", "2026-03-16T20:01:00", "assets/photos/digital/digital-65.jpg"),
+  img("digital-66.jpg", "2026-04-12T18:57:00", "assets/photos/digital/digital-66.jpg"),
+  img("digital-67.jpg", "2026-05-07T17:52:00", "assets/photos/digital/digital-67.jpg"),
+  img("digital-68.jpg", "2026-05-09T13:48:00", "assets/photos/digital/digital-68.jpg"),
+  img("digital-69.jpg", "2026-05-09T13:48:00", "assets/photos/digital/digital-69.jpg"),
+  img("digital-70.jpg", "2026-05-15T15:57:00", "assets/photos/digital/digital-70.jpg"),
+  img("digital-71.jpg", "2026-06-06T18:18:00", "assets/photos/digital/digital-71.jpg"),
+  img("digital-72.jpg", "2026-06-08T20:08:00", "assets/photos/digital/digital-72.jpg"),
+  img("digital-73.jpg", "2026-06-08T20:08:00", "assets/photos/digital/digital-73.jpg"),
+  img("digital-74.jpg", "2026-07-04T13:29:00", "assets/photos/digital/digital-74.jpg"),
+  img("digital-75.jpg", "2026-07-05T17:54:00", "assets/photos/digital/digital-75.jpg"),
+  img("digital-76.jpg", "2026-07-05T20:19:00", "assets/photos/digital/digital-76.jpg"),
+  img("digital-77.jpg", "2026-07-05T20:19:00", "assets/photos/digital/digital-77.jpg"),
+];
+
 // content that lives inside named folders, merged onto whatever the tree loads.
 // This is the "you add material, I place it" hook — extend it per folder.
 function folderContent() {
   return {
     FILM: [{ ...mov("Filmmaker's Reel.mov", "2026-07-15T20:35", REEL.url), external: true }],
+    Digital: DIGITAL_PHOTOS,
   };
 }
 
@@ -212,7 +297,7 @@ const els = {
   win: $("window"), sideNav: $("side-nav"), title: $("tb-title"),
   back: $("tb-back"), fwd: $("tb-fwd"), content: $("content"),
   iconView: $("icon-view"), listView: $("list-view"), deskView: $("desk-view"),
-  columnsView: $("columns-view"), galleryView: $("gallery-view"),
+  columnsView: $("columns-view"), galleryView: $("gallery-view"), digitalView: $("digital-view"),
   pathbar: $("pathbar"), status: $("status-text"), rubber: $("rubber-band"),
   menuLayer: $("menu-layer"), overlayLayer: $("overlay-layer"),
   sidebar: $("sidebar"), desktop: $("desktop"),
@@ -255,10 +340,12 @@ function recentUpdates(limit = 5) {
       walk(child, depth + 1);
     });
   })(ROOT, 0);
-  // the reel sits on the desktop and inside FILM; the feed should still name it once
+  // the reel sits on the desktop and inside FILM; the feed should still name it once.
+  // photos are a bulk archive with their own home (Digital) — they'd otherwise
+  // flood this list on their own, so they sit out of the spotlight.
   const seen = new Set();
   return found
-    .filter(n => n.at)
+    .filter(n => n.at && !n.isPhoto)
     .sort((a, b) => new Date(b.at) - new Date(a.at))
     .filter(n => { const k = n.href || n.id; return !seen.has(k) && seen.add(k); })
     .slice(0, limit);
@@ -306,7 +393,7 @@ function goForward() { if (future.length) { history.push(cwd); cwd = future.pop(
 function goUp() { if (cwd.parent) navigate(cwd.parent); }
 
 /* ================= rendering ================= */
-const ICON_BOX = { "i-folder-mac": "0 0 128 128", "i-doc-mac": "0 0 116 128", "i-pdf-mac": "0 0 116 128", "i-mov-mac": "0 0 116 128", "i-webloc": "0 0 120 150" };
+const ICON_BOX = { "i-folder-mac": "0 0 128 128", "i-doc-mac": "0 0 116 128", "i-pdf-mac": "0 0 116 128", "i-mov-mac": "0 0 116 128", "i-jpg-mac": "0 0 116 128", "i-webloc": "0 0 120 150" };
 function iconSvg(node, cls = "file-icon") {
   return `<svg class="${cls}" viewBox="${ICON_BOX[node.icon] || "0 0 120 150"}"><use href="#${node.icon}"/></svg>`;
 }
@@ -317,17 +404,22 @@ function render() {
   els.back.disabled = !history.length;
   els.fwd.disabled = !future.length;
 
-  // the Desktop has its own arrangement; every other folder uses the plain grid
+  // the Desktop has its own arrangement; Digital is a plain photo wall;
+  // every other folder uses the plain grid
   const onDesk = view === "icon" && cwd === ROOT;
+  const onDigital = view === "icon" && cwd.name === "Digital" && list.some(n => n.isPhoto);
   stopPortrait();
   els.deskView.hidden = !onDesk;
-  els.iconView.hidden = view !== "icon" || onDesk;
+  els.digitalView.hidden = !onDigital;
+  els.iconView.hidden = view !== "icon" || onDesk || onDigital;
   els.listView.hidden = view !== "list";
   els.columnsView.hidden = view !== "columns";
   els.galleryView.hidden = view !== "gallery";
 
   if (onDesk) {
     renderDesk(list);
+  } else if (onDigital) {
+    renderDigital(list);
   } else if (view === "icon") {
     els.iconView.innerHTML = list.map((n, i) => `
       <div class="icon-item ${selection.has(n) ? "selected" : ""}" data-i="${i}">
@@ -443,6 +535,18 @@ function renderDesk(list) {
   tickCityClocks();
   loadWeather();
 }
+
+/* ---- digital: a quiet contact-sheet wall, one tap opens the full frame ---- */
+function renderDigital(list) {
+  els.digitalView.innerHTML = `
+    <div class="dg-grid">
+      ${list.map((n, i) => `
+        <button class="dg-item ${selection.has(n) ? "selected" : ""}" data-i="${i}" aria-label="${n.name}">
+          <img src="${n.href}" loading="lazy" decoding="async" alt="">
+        </button>`).join("")}
+    </div>`;
+}
+
 /* ================= guest book: one public canvas =================
    A single shared board. Everyone draws, types and drops photos onto the
    same canvas; every mark is one row in Supabase, replayed in order, so
@@ -854,7 +958,7 @@ function updateStatus() {
 }
 
 /* ================= selection ================= */
-const ITEM_SEL = { icon: ".icon-item, .desk-item", list: ".lv-row", columns: ".col-row[data-i]", gallery: ".gal-thumb" };
+const ITEM_SEL = { icon: ".icon-item, .desk-item, .dg-item", list: ".lv-row", columns: ".col-row[data-i]", gallery: ".gal-thumb" };
 function elementsForItems() {
   return [...els.content.querySelectorAll(ITEM_SEL[view])]
     .filter(el => el.dataset.i !== undefined && +el.dataset.i >= 0);
@@ -891,6 +995,7 @@ function handleItemMousedown(e) {
 function openNode(node) {
   if (!node) return;
   if (node.children) navigate(node);
+  else if (node.isPhoto) quickLook(node);
   else if (node.external) window.open(node.href, "_blank", "noopener");
   else if (node.href) window.open(node.href, "_blank", "noopener");
 }
@@ -977,9 +1082,12 @@ els.content.addEventListener("keydown", e => {
   const list = items();
   const idxOf = n => list.indexOf(n);
   const selIdx = [...selection].map(idxOf).sort((a, b) => a - b);
-  const cols = view === "icon"
-    ? Math.max(1, Math.floor(els.iconView.clientWidth / (parseInt(getComputedStyle(document.documentElement).getPropertyValue("--icon-size")) + 50)))
-    : 1;
+  const onDigitalNow = view === "icon" && !els.digitalView.hidden;
+  const cols = onDigitalNow
+    ? Math.max(1, Math.round(els.digitalView.clientWidth / (els.digitalView.querySelector(".dg-item")?.getBoundingClientRect().width || 160)))
+    : view === "icon"
+      ? Math.max(1, Math.floor(els.iconView.clientWidth / (parseInt(getComputedStyle(document.documentElement).getPropertyValue("--icon-size")) + 50)))
+      : 1;
 
   if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "a") { e.preventDefault(); list.forEach(n => selection.add(n)); applySelectionClasses(); return; }
   if ((e.metaKey || e.ctrlKey) && e.key === "1") { e.preventDefault(); setView("icon"); return; }
@@ -1265,6 +1373,7 @@ function materialize(box, anchorRect) {
   springTo(box, { x: 0, y: 0, scale: 1, opacity: 1 }, { response: 0.38 });
 }
 function quickLook(node) {
+  if (node.isPhoto) { photoViewer(node); return; }
   closeOverlays();
   const box = document.createElement("div");
   box.className = "qlook";
@@ -1280,6 +1389,43 @@ function quickLook(node) {
   materialize(box, anchorRectFor(node));
   box.querySelector(".ql-close").addEventListener("click", closeOverlays);
   const esc = ev => { if (ev.key === "Escape" || ev.key === " " || ev.code === "Space") { ev.preventDefault(); closeOverlays(); window.removeEventListener("keydown", esc); } };
+  window.addEventListener("keydown", esc);
+}
+
+/* ---- photo viewer: full frame, no chrome, arrow-key through the roll ---- */
+function photoViewer(node) {
+  closeOverlays();
+  const roll = (node.parent ? node.parent.children : [node]).filter(n => n.isPhoto);
+  let i = Math.max(0, roll.indexOf(node));
+  const box = document.createElement("div");
+  box.className = "qlook qlook-photo";
+  els.overlayLayer.appendChild(box);
+
+  function paint(anchor) {
+    const n = roll[i];
+    box.innerHTML = `
+      <button class="ql-close" aria-label="Close"></button>
+      ${roll.length > 1 ? `
+        <button class="ql-nav ql-prev" aria-label="Previous"></button>
+        <button class="ql-nav ql-next" aria-label="Next"></button>
+        <div class="ql-count">${i + 1} / ${roll.length}</div>` : ""}
+      <div class="ql-body"><img class="ql-img" src="${n.href}" alt=""></div>`;
+    box.querySelector(".ql-close").addEventListener("click", closeOverlays);
+    if (roll.length > 1) {
+      box.querySelector(".ql-prev").addEventListener("click", () => step(-1));
+      box.querySelector(".ql-next").addEventListener("click", () => step(1));
+    }
+    selectOnly(n, items().indexOf(n));
+    if (anchor !== undefined) materialize(box, anchor);
+  }
+  function step(d) { i = (i + d + roll.length) % roll.length; paint(); }
+
+  paint(anchorRectFor(node));
+  const esc = ev => {
+    if (ev.key === "Escape" || ev.code === "Space") { ev.preventDefault(); closeOverlays(); window.removeEventListener("keydown", esc); }
+    else if (roll.length > 1 && ev.key === "ArrowLeft") { ev.preventDefault(); step(-1); }
+    else if (roll.length > 1 && ev.key === "ArrowRight") { ev.preventDefault(); step(1); }
+  };
   window.addEventListener("keydown", esc);
 }
 
