@@ -119,7 +119,7 @@ const DIGITAL_PHOTOS = [
 function folderContent() {
   return {
     FILM: [{ ...mov("Filmmaker's Reel.mov", "2026-07-15T20:35", REEL.url), external: true }],
-    Digital: DIGITAL_PHOTOS,
+    "Dazz Cam": [...DIGITAL_PHOTOS].reverse(), // newest shot first
   };
 }
 
@@ -130,7 +130,7 @@ function defaultFolders() {
     folder("FILM", "2026-07-16T11:40", [folder("Short Films"), folder("Cinematography"), folder("Festival & Sales"), folder("Poster Design")]),
     folder("WRITINGS", "2026-07-17T23:10", [folder("Self Talk"), folder("Poems")]),
     folder("READINGS", "2026-07-05T19:30", [folder("Reading Notes"), folder("Papers")]),
-    folder("FLAT THINGS", "2026-06-25T15:00", [folder("Digital"), folder("Celluloid"), folder("Randomness"), folder("Mappings")]),
+    folder("FLAT THINGS", "2026-06-25T15:00", [folder("Dazz Cam"), folder("Celluloid"), folder("Randomness"), folder("Mappings")]),
   ];
 }
 
@@ -152,11 +152,15 @@ function foldersFromRows(rows) {
 let ROOT;
 const INDEX = new Map();                 // id -> node, rebuilt on every tree change
 function setTree(folderTops) {
-  // drop known content into folders by name (survives Supabase folder loads)
+  // drop known content into folders by name (survives Supabase folder loads).
+  // the Supabase folder is still named "Digital" until it's renamed there
+  // too — catch that here so every render site downstream just sees the
+  // new name, with nothing to keep in sync by hand.
   const content = folderContent();
   (function place(list) {
     list.forEach(n => {
       if (n.children) {
+        if (n.name === "Digital") n.name = "Dazz Cam";
         if (content[n.name]) n.children.push(...content[n.name].map(c => ({ ...c })));
         place(n.children);
       }
@@ -407,7 +411,7 @@ function render() {
   // the Desktop has its own arrangement; Digital is a photo wall with no
   // other view — it never falls back to the plain grid/list/columns/gallery.
   const onDesk = view === "icon" && cwd === ROOT;
-  const onDigital = cwd.name === "Digital" && list.some(n => n.isPhoto);
+  const onDigital = cwd.name === "Dazz Cam" && list.some(n => n.isPhoto);
   stopPortrait();
   els.deskView.hidden = !onDesk;
   els.digitalView.hidden = !onDigital;
@@ -571,6 +575,10 @@ function renderDigital(list) {
   const targetH = containerW < 640 ? 130 : 230;
   const rows = layoutDigitalRows(list, containerW, targetH, gap);
   els.digitalView.innerHTML = `
+    <div class="dg-caption">
+      <div class="dg-caption-title">Dazz Cam Photography</div>
+      <div class="dg-caption-sub">Shot on iPhone. Film Emulation Type: FXN/FXN2</div>
+    </div>
     <div class="dg-rows" style="gap:${gap}px">
       ${rows.map(row => `
         <div class="dg-row" style="height:${Math.round(row.h)}px;gap:${gap}px">
@@ -1011,7 +1019,7 @@ const ITEM_SEL = { icon: ".icon-item, .desk-item", list: ".lv-row", columns: ".c
 // Digital is its own mode regardless of what `view` is set to (it has no
 // icon/list/columns/gallery fallback) — this is the single source of truth
 // for "what's actually on screen right now" that selection/clicks key off.
-function curView() { return (cwd.name === "Digital" && !els.digitalView.hidden) ? "digital" : view; }
+function curView() { return (cwd.name === "Dazz Cam" && !els.digitalView.hidden) ? "digital" : view; }
 function elementsForItems() {
   return [...els.content.querySelectorAll(ITEM_SEL[curView()])]
     .filter(el => el.dataset.i !== undefined && +el.dataset.i >= 0);
@@ -1205,7 +1213,7 @@ function startRename(node) {
 const VIEW_ICON = { icon: "t-grid", list: "t-list", columns: "t-columns", gallery: "t-gallery" };
 function setView(v) {
   if (!VIEW_ICON[v]) return;
-  if (cwd.name === "Digital") return; // one view here — nothing to switch to
+  if (cwd.name === "Dazz Cam") return; // one view here — nothing to switch to
   view = v;
   $("tb-view-icon").innerHTML = `<use href="#${VIEW_ICON[v]}"/>`;
   render();

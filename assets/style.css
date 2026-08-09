@@ -309,6 +309,13 @@ body.has-fullscreen .dock-wrap { display: none; }
    edges; only the last, partial row sits unstretched. One view only: no
    labels, no kind tags, no icon/list/columns fallback. */
 .digital-view { min-height: 100%; padding: 3px; background: #0b0b0c; }
+/* gallery-wall placard: room to breathe before the wall of prints starts */
+.dg-caption { padding: 34px 22px 26px; }
+.dg-caption-title {
+  font-size: 13px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase;
+  color: rgba(255,255,255,.92);
+}
+.dg-caption-sub { margin-top: 5px; font-size: 12px; letter-spacing: .02em; color: rgba(255,255,255,.48); }
 .dg-rows { display: flex; flex-direction: column; }
 .dg-row { display: flex; }
 .dg-item {
@@ -324,6 +331,7 @@ body.has-fullscreen .dock-wrap { display: none; }
 .dg-item.selected img { filter: brightness(.94); }
 @media (max-width: 740px) {
   .digital-view { padding: 2px; }
+  .dg-caption { padding: 22px 14px 18px; }
 }
 
 /* list view */
