@@ -118,7 +118,7 @@ const DIGITAL_PHOTOS = [
 // This is the "you add material, I place it" hook — extend it per folder.
 function folderContent() {
   return {
-    FILM: [{ ...mov("Filmmaker's Reel.mov", "2026-07-15T20:35", REEL.url), external: true }],
+    FILMS: [{ ...mov("Filmmaker's Reel.mov", "2026-07-15T20:35", REEL.url), external: true }],
     "Dazz Cam": [...DIGITAL_PHOTOS].reverse(), // newest shot first
   };
 }
@@ -126,11 +126,10 @@ function folderContent() {
 // built-in default folder set — matches the Supabase seed, used before setup / offline
 function defaultFolders() {
   return [
-    folder("AI", "2026-07-14T16:20", [folder("AVA Studio"), folder("Test Footage")]),
-    folder("FILM", "2026-07-16T11:40", [folder("Short Films"), folder("Cinematography")]),
+    folder("FILMS", "2026-07-16T11:40", [folder("Short Films"), folder("Cinematography")]),
+    folder("PHOTOGRAPHY", "2026-06-25T15:00", [folder("Dazz Cam"), folder("Celluloid"), folder("Randomness")]),
     folder("WRITINGS", "2026-07-17T23:10", [folder("Self Talk"), folder("Poems")]),
-    folder("READINGS", "2026-07-05T19:30", [folder("Reading Notes"), folder("Papers")]),
-    folder("FLAT THINGS", "2026-06-25T15:00", [folder("Dazz Cam"), folder("Celluloid"), folder("Randomness")]),
+    folder("WORK EXPERIENCE", "2026-08-29T09:00", []),
   ];
 }
 
@@ -166,7 +165,7 @@ function setTree(folderTops) {
       }
     });
   })(folderTops);
-  ROOT = folder("Desktop", "2026-07-18T09:00", [...folderTops, ...DESK_FILES()], "desktop");
+  ROOT = folder("Home", "2026-07-18T09:00", [...folderTops, ...DESK_FILES()], "desktop");
   INDEX.clear();
   (function link(node, parent) {
     node.parent = parent; INDEX.set(node.id, node);
@@ -360,8 +359,7 @@ function buildSidebar() {
   const sec = (label) => `<div class="side-sec">${label}</div>`;
   const item = (node, icon = "s-folder") =>
     `<button class="side-item" data-fid="${node.id}"><svg viewBox="0 0 20 20"><use href="#${icon}"/></svg><span>${node.name}</span></button>`;
-  let h = sec("Favorites") +
-    `<button class="side-item" data-fid="desktop"><svg viewBox="0 0 20 20"><use href="#s-desktop"/></svg><span>Desktop</span></button>`;
+  let h = `<button class="side-item" data-fid="desktop"><svg viewBox="0 0 20 20"><use href="#s-desktop"/></svg><span>Home</span></button>`;
   ROOT.children.filter(n => n.children).forEach(top => {
     h += sec(top.name);
     top.children.filter(sub => sub.children).forEach(sub => h += item(sub));  // folders only
@@ -521,7 +519,7 @@ function renderDesk(list) {
           <li class="dr-row" data-path="${pathOf(n).map(p => p.name).join("/")}">
             ${iconSvg(n, "")}
             <span class="dr-name">${n.name.replace(/\.[^.]+$/, "").replace(/_/g, " ")}</span>
-            <span class="dr-where">${n.parent && n.parent !== ROOT ? n.parent.name : "Desktop"}</span>
+            <span class="dr-where">${n.parent && n.parent !== ROOT ? n.parent.name : "Home"}</span>
             <span class="dr-when">${since(n.at)}</span>
           </li>`).join("")}
       </ul>
@@ -1278,10 +1276,10 @@ const MENUS_RETIRED = {
   go: () => mi("Back", "back", "⌘[", { disabled: !history.length }) +
     mi("Forward", "fwd", "⌘]", { disabled: !future.length }) +
     mi("Enclosing Folder", "up", "⌘↑", { disabled: !cwd.parent }) + sep +
-    mi("&nbsp;Desktop", "goto", "⇧⌘D", { arg: "Desktop" }) +
-    mi("&nbsp;AI", "goto", "", { arg: "AI" }) + mi("&nbsp;FILM", "goto", "", { arg: "FILM" }) +
-    mi("&nbsp;WRITINGS", "goto", "", { arg: "WRITINGS" }) + mi("&nbsp;READINGS", "goto", "", { arg: "READINGS" }) +
-    mi("&nbsp;FLAT THINGS", "goto", "", { arg: "FLAT THINGS" }),
+    mi("&nbsp;Home", "goto", "⇧⌘D", { arg: "Home" }) +
+    mi("&nbsp;FILMS", "goto", "", { arg: "FILMS" }) + mi("&nbsp;PHOTOGRAPHY", "goto", "", { arg: "PHOTOGRAPHY" }) +
+    mi("&nbsp;WRITINGS", "goto", "", { arg: "WRITINGS" }) +
+    mi("&nbsp;WORK EXPERIENCE", "goto", "", { arg: "WORK EXPERIENCE" }),
   window: () => mi("Minimize", "minimize", "⌘M") + mi("Zoom", "zoom") + sep + mi("Haolang Li", "reopen", "", { check: true }),
   help: () => mi("About this site", "about") + sep + mi("macOS Help", null, "", { disabled: true }),
 };
@@ -1320,8 +1318,7 @@ function applyTheme(t) {
   document.documentElement.dataset.theme = t;
   $("mb-theme").title = t === "dark" ? "Switch to light appearance" : "Switch to dark appearance";
 }
-applyTheme(localStorage.getItem(THEME_KEY)
-  || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark"));
+applyTheme(localStorage.getItem(THEME_KEY) || "dark");
 $("mb-theme").addEventListener("click", () => {
   const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
   applyTheme(next);

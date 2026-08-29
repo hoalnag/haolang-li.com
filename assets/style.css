@@ -147,9 +147,9 @@ svg { display: block; }
 /* ================= window ================= */
 .window {
   position: absolute;
-  left: max(20px, calc(50% - 620px)); top: 3.5%;
-  width: min(1240px, calc(100% - 40px));
-  height: min(780px, 88%);
+  left: 14px; top: 14px;
+  width: calc(100% - 28px);
+  height: calc(100% - 28px);
   border-radius: 11px;
   box-shadow:
     0 0 0 .5px rgba(0, 0, 0, .65),
