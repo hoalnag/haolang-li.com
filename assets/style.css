@@ -225,6 +225,16 @@ body.has-fullscreen .dock-wrap { display: none; }
   border: .5px solid rgba(0,0,0,.3); flex: 0 0 auto;
 }
 
+/* the four sections: bigger, bolder blocks — the sidebar's main event */
+.side-sections { display: flex; flex-direction: column; gap: 2px; margin: 10px 0 6px; }
+.side-item.side-section {
+  min-height: 40px; height: auto; padding: 9px 10px; gap: 11px;
+  font-size: 12.5px; font-weight: 700; letter-spacing: .01em; line-height: 1.25;
+  border-radius: 8px;
+  white-space: normal;                 /* "WORK EXPERIENCE" wraps rather than truncates */
+}
+.side-item.side-section svg { width: 19px; height: 19px; flex: 0 0 auto; }
+
 /* ---- main column ---- */
 .main { flex: 1; display: flex; flex-direction: column; min-width: 0; background: var(--win-bg); }
 

@@ -32,8 +32,9 @@ const DESK_FILES = () => [
   { ...mov("Filmmaker's Reel.mov", "2026-07-15T20:35", REEL.url), external: true },
 ];
 
-// Digital folder — Dazz-shot stills, chronological. Renders as its own
-// minimalist photo grid (see renderDigital) instead of the plain file grid.
+// Dazz-shot stills, chronological — the content of the PHOTOGRAPHY section.
+// Renders as its own minimalist photo grid (see renderDigital) instead of
+// the plain file grid.
 const DIGITAL_PHOTOS = [
   img("digital-01.jpg", "2025-01-06T17:12:00", "assets/photos/digital/digital-01.jpg", 1.3333),
   img("digital-02.jpg", "2025-01-06T17:12:00", "assets/photos/digital/digital-02.jpg", 1.3333),
@@ -116,20 +117,23 @@ const DIGITAL_PHOTOS = [
 
 // content that lives inside named folders, merged onto whatever the tree loads.
 // This is the "you add material, I place it" hook — extend it per folder.
+// No subfolders anymore — each of the four sections is flat, its content
+// dropped straight onto it.
 function folderContent() {
   return {
     FILMS: [{ ...mov("Filmmaker's Reel.mov", "2026-07-15T20:35", REEL.url), external: true }],
-    "Dazz Cam": [...DIGITAL_PHOTOS].reverse(), // newest shot first
+    PHOTOGRAPHY: [...DIGITAL_PHOTOS].reverse(), // newest shot first
   };
 }
 
-// built-in default folder set — matches the Supabase seed, used before setup / offline
+// built-in default folder set — matches the Supabase seed, used before setup / offline.
+// Exactly four top-level sections, in this order, each its own page (see routing below).
 function defaultFolders() {
   return [
-    folder("FILMS", "2026-07-16T11:40", [folder("Short Films"), folder("Cinematography")]),
-    folder("PHOTOGRAPHY", "2026-06-25T15:00", [folder("Dazz Cam"), folder("Celluloid"), folder("Randomness")]),
-    folder("WRITINGS", "2026-07-17T23:10", [folder("Self Talk"), folder("Poems")]),
+    folder("FILMS", "2026-07-16T11:40", []),
     folder("WORK EXPERIENCE", "2026-08-29T09:00", []),
+    folder("WRITINGS", "2026-07-17T23:10", []),
+    folder("PHOTOGRAPHY", "2026-06-25T15:00", []),
   ];
 }
 
@@ -151,15 +155,12 @@ function foldersFromRows(rows) {
 let ROOT;
 const INDEX = new Map();                 // id -> node, rebuilt on every tree change
 function setTree(folderTops) {
-  // drop known content into folders by name (survives Supabase folder loads).
-  // the Supabase folder is still named "Digital" until it's renamed there
-  // too — catch that here so every render site downstream just sees the
-  // new name, with nothing to keep in sync by hand.
+  // drop known content into folders by name (survives Supabase folder loads),
+  // with nothing to keep in sync by hand.
   const content = folderContent();
   (function place(list) {
     list.forEach(n => {
       if (n.children) {
-        if (n.name === "Digital") n.name = "Dazz Cam";
         if (content[n.name]) n.children.push(...content[n.name].map(c => ({ ...c })));
         place(n.children);
       }
@@ -191,8 +192,50 @@ const LINKS = [
 
 const TAG_COLORS = ["#FF9F0A", "#FF453A", "#0A84FF", "#FFD60A", "#BF5AF2", "#FF9F0A", "#FF453A"];
 
+/* ================= routing: each section is a real, shareable URL =========
+   GitHub Pages has no server-side routing, so a direct hit on e.g.
+   /photography is caught by 404.html, which stashes the intended path and
+   bounces to "/"; initialNodeFromLocation() reads it back on boot. From
+   then on, entering a section pushes a real browser history entry — via
+   window.history, since `history` below is the app's own (unrelated) stack
+   and shadows that name inside this file. */
+const SLUG_TO_SECTION = { films: "FILMS", "work-experience": "WORK EXPERIENCE", writings: "WRITINGS", photography: "PHOTOGRAPHY" };
+const SECTION_TO_SLUG = Object.fromEntries(Object.entries(SLUG_TO_SECTION).map(([slug, name]) => [name, slug]));
+function pathForNode(node) {
+  const slug = node && SECTION_TO_SLUG[node.name];
+  return slug ? `/${slug}` : "/";
+}
+function nodeForPath(path) {
+  const slug = (path || "/").replace(/^\/+|\/+$/g, "").toLowerCase();
+  const name = SLUG_TO_SECTION[slug];
+  return (name && ROOT.children.find(n => n.name === name)) || ROOT;
+}
+function syncUrl(push) {
+  const path = pathForNode(cwd);
+  if (path === location.pathname) return;
+  window.history[push ? "pushState" : "replaceState"](null, "", path);
+}
+function initialNodeFromLocation() {
+  let path = location.pathname;
+  try {
+    const saved = sessionStorage.getItem("hl-redirect-path");
+    if (saved != null) {
+      sessionStorage.removeItem("hl-redirect-path");
+      path = saved;
+      window.history.replaceState(null, "", path || "/");
+    }
+  } catch {}
+  return nodeForPath(path);
+}
+// browser back/forward: resync cwd from the URL without touching history again
+window.addEventListener("popstate", () => {
+  const node = nodeForPath(location.pathname);
+  if (node === cwd) return;
+  cwd = node; selection.clear(); anchorIndex = -1; render();
+});
+
 /* ================= state ================= */
-let cwd = ROOT;                 // current folder
+let cwd = initialNodeFromLocation();  // current folder — from the URL, when it names a section
 let history = [], future = [];  // navigation stacks
 let view = "icon";              // 'icon' | 'list'
 let selection = new Set();      // of nodes
@@ -343,8 +386,8 @@ function recentUpdates(limit = 5) {
       walk(child, depth + 1);
     });
   })(ROOT, 0);
-  // the reel sits on the desktop and inside FILM; the feed should still name it once.
-  // photos are a bulk archive with their own home (Digital) — they'd otherwise
+  // the reel sits on the desktop and inside FILMS; the feed should still name it once.
+  // photos are a bulk archive with their own home (PHOTOGRAPHY) — they'd otherwise
   // flood this list on their own, so they sit out of the spotlight.
   const seen = new Set();
   return found
@@ -354,16 +397,19 @@ function recentUpdates(limit = 5) {
     .slice(0, limit);
 }
 
-/* ================= sidebar (built from the live tree, keyed by id) ========= */
+/* ================= sidebar (built from the live tree, keyed by id) =========
+   Four flat sections, no subfolders — each one is its own big block, the
+   way a macOS sidebar favorites you into an app section. */
+const SECTION_ICON = { FILMS: "s-films", "WORK EXPERIENCE": "s-briefcase", WRITINGS: "s-writings", PHOTOGRAPHY: "s-camera" };
 function buildSidebar() {
   const sec = (label) => `<div class="side-sec">${label}</div>`;
-  const item = (node, icon = "s-folder") =>
-    `<button class="side-item" data-fid="${node.id}"><svg viewBox="0 0 20 20"><use href="#${icon}"/></svg><span>${node.name}</span></button>`;
+  const section = (node) =>
+    `<button class="side-item side-section" data-fid="${node.id}">
+       <svg viewBox="0 0 20 20"><use href="#${SECTION_ICON[node.name] || "s-folder"}"/></svg>
+       <span>${node.name}</span>
+     </button>`;
   let h = `<button class="side-item" data-fid="desktop"><svg viewBox="0 0 20 20"><use href="#s-desktop"/></svg><span>Home</span></button>`;
-  ROOT.children.filter(n => n.children).forEach(top => {
-    h += sec(top.name);
-    top.children.filter(sub => sub.children).forEach(sub => h += item(sub));  // folders only
-  });
+  h += `<div class="side-sections">${ROOT.children.filter(n => n.children).map(section).join("")}</div>`;
   h += sec("Links");
   LINKS.forEach(l => {
     h += `<button class="side-item side-link" data-app="${l.id}"><svg viewBox="0 0 20 20"><use href="#${l.icon}"/></svg><span>${l.name}</span></button>`;
@@ -389,9 +435,10 @@ function navigate(node, { record = true } = {}) {
   cwd = node;
   selection.clear(); anchorIndex = -1;
   render();
+  syncUrl(true);
 }
-function goBack() { if (history.length) { future.push(cwd); cwd = history.pop(); selection.clear(); render(); } }
-function goForward() { if (future.length) { history.push(cwd); cwd = future.pop(); selection.clear(); render(); } }
+function goBack() { if (history.length) { future.push(cwd); cwd = history.pop(); selection.clear(); render(); syncUrl(false); } }
+function goForward() { if (future.length) { history.push(cwd); cwd = future.pop(); selection.clear(); render(); syncUrl(false); } }
 function goUp() { if (cwd.parent) navigate(cwd.parent); }
 
 /* ================= rendering ================= */
@@ -406,10 +453,10 @@ function render() {
   els.back.disabled = !history.length;
   els.fwd.disabled = !future.length;
 
-  // the Desktop has its own arrangement; Digital is a photo wall with no
+  // Home has its own arrangement; PHOTOGRAPHY is a photo wall with no
   // other view — it never falls back to the plain grid/list/columns/gallery.
   const onDesk = view === "icon" && cwd === ROOT;
-  const onDigital = cwd.name === "Dazz Cam" && list.some(n => n.isPhoto);
+  const onDigital = cwd.name === "PHOTOGRAPHY" && list.some(n => n.isPhoto);
   stopPortrait();
   els.deskView.hidden = !onDesk;
   els.digitalView.hidden = !onDigital;
@@ -1022,7 +1069,7 @@ const ITEM_SEL = { icon: ".icon-item, .desk-item", list: ".lv-row", columns: ".c
 // Digital is its own mode regardless of what `view` is set to (it has no
 // icon/list/columns/gallery fallback) — this is the single source of truth
 // for "what's actually on screen right now" that selection/clicks key off.
-function curView() { return (cwd.name === "Dazz Cam" && !els.digitalView.hidden) ? "digital" : view; }
+function curView() { return (cwd.name === "PHOTOGRAPHY" && !els.digitalView.hidden) ? "digital" : view; }
 function elementsForItems() {
   return [...els.content.querySelectorAll(ITEM_SEL[curView()])]
     .filter(el => el.dataset.i !== undefined && +el.dataset.i >= 0);
@@ -1208,7 +1255,7 @@ function startRename(node) {
 const VIEW_ICON = { icon: "t-grid", list: "t-list", columns: "t-columns", gallery: "t-gallery" };
 function setView(v) {
   if (!VIEW_ICON[v]) return;
-  if (cwd.name === "Dazz Cam") return; // one view here — nothing to switch to
+  if (cwd.name === "PHOTOGRAPHY") return; // one view here — nothing to switch to
   view = v;
   $("tb-view-icon").innerHTML = `<use href="#${VIEW_ICON[v]}"/>`;
   render();
@@ -1277,9 +1324,8 @@ const MENUS_RETIRED = {
     mi("Forward", "fwd", "⌘]", { disabled: !future.length }) +
     mi("Enclosing Folder", "up", "⌘↑", { disabled: !cwd.parent }) + sep +
     mi("&nbsp;Home", "goto", "⇧⌘D", { arg: "Home" }) +
-    mi("&nbsp;FILMS", "goto", "", { arg: "FILMS" }) + mi("&nbsp;PHOTOGRAPHY", "goto", "", { arg: "PHOTOGRAPHY" }) +
-    mi("&nbsp;WRITINGS", "goto", "", { arg: "WRITINGS" }) +
-    mi("&nbsp;WORK EXPERIENCE", "goto", "", { arg: "WORK EXPERIENCE" }),
+    mi("&nbsp;FILMS", "goto", "", { arg: "FILMS" }) + mi("&nbsp;WORK EXPERIENCE", "goto", "", { arg: "WORK EXPERIENCE" }) +
+    mi("&nbsp;WRITINGS", "goto", "", { arg: "WRITINGS" }) + mi("&nbsp;PHOTOGRAPHY", "goto", "", { arg: "PHOTOGRAPHY" }),
   window: () => mi("Minimize", "minimize", "⌘M") + mi("Zoom", "zoom") + sep + mi("Haolang Li", "reopen", "", { check: true }),
   help: () => mi("About this site", "about") + sep + mi("macOS Help", null, "", { disabled: true }),
 };
