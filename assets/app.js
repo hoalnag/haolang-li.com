@@ -28,7 +28,7 @@ const REEL = { id: "1203912931", url: "https://vimeo.com/1203912931" };
 // the desktop files stay fixed (the request is about folders)
 const DESK_FILES = () => [
   pdf("Self_Intro.pdf", "2026-07-10T14:05", "assets/files/Self_Intro.pdf"),
-  pdf("CV-2026-7.pdf", "2026-07-18T09:00", "assets/files/CV-2026-7.pdf"),
+  pdf("CV.pdf", "2026-08-29T14:00", "assets/files/CV.pdf"),
   { ...mov("Filmmaker's Reel.mov", "2026-07-15T20:35", REEL.url), external: true },
 ];
 
@@ -127,10 +127,10 @@ function folderContent() {
 function defaultFolders() {
   return [
     folder("AI", "2026-07-14T16:20", [folder("AVA Studio"), folder("Test Footage")]),
-    folder("FILM", "2026-07-16T11:40", [folder("Short Films"), folder("Cinematography"), folder("Festival & Sales"), folder("Poster Design")]),
+    folder("FILM", "2026-07-16T11:40", [folder("Short Films"), folder("Cinematography")]),
     folder("WRITINGS", "2026-07-17T23:10", [folder("Self Talk"), folder("Poems")]),
     folder("READINGS", "2026-07-05T19:30", [folder("Reading Notes"), folder("Papers")]),
-    folder("FLAT THINGS", "2026-06-25T15:00", [folder("Dazz Cam"), folder("Celluloid"), folder("Randomness"), folder("Mappings")]),
+    folder("FLAT THINGS", "2026-06-25T15:00", [folder("Dazz Cam"), folder("Celluloid"), folder("Randomness")]),
   ];
 }
 
@@ -867,6 +867,8 @@ function setDeskMode(mode) {
     openWindow();
   }
 }
+// the trigger button is `hidden` in index.html while Guest Book is disabled;
+// this listener stays wired up (harmlessly inert) so re-enabling is a one-line change
 $("mb-mode").addEventListener("mousedown", e => {
   e.stopPropagation();
   const r = e.currentTarget.getBoundingClientRect();
@@ -1001,8 +1003,11 @@ function renderGallery(list) {
     </div>` : `<div class="gal-stage"><div class="gal-meta">Empty folder</div></div>`;
 
   els.galleryView.querySelectorAll(".gal-thumb").forEach(t => {
-    t.addEventListener("click", () => { selectOnly(list[+t.dataset.i], +t.dataset.i); renderGallery(list); });
-    t.addEventListener("dblclick", () => openNode(list[+t.dataset.i]));
+    t.addEventListener("click", () => {
+      const node = list[+t.dataset.i];
+      if (node.children) { navigate(node); return; }   // a folder opens straight away
+      selectOnly(node, +t.dataset.i); renderGallery(list);
+    });
   });
   const on = els.galleryView.querySelector(".gal-thumb.selected");
   on && on.scrollIntoView({ block: "nearest", inline: "nearest" });
@@ -1078,21 +1083,13 @@ els.content.addEventListener("mousedown", e => {
   if (!hit) startRubberBand(e);
   els.content.focus();
 });
-els.content.addEventListener("dblclick", e => {
-  if (curView() === "columns" || curView() === "gallery") return;
-  const el = e.target.closest(ITEM_SEL[curView()]);
-  if (el && el.dataset.i !== undefined) openNode(items()[+el.dataset.i]);
-});
-/* Touch has no double-click: a second tap is the browser's zoom gesture, not ours.
-   So a tap opens, the way every phone file browser behaves, while a mouse click
-   still only selects. Reading pointerType per event (rather than asking the media
-   query once) gets hybrid machines right — trackpad selects, touchscreen opens. */
+/* One click opens — the way every phone file browser (and this site's touch
+   handling) already behaved; mouse and touch now agree. A modified click
+   (⌘/Ctrl/Shift) stays selection-only, since that's how multi-select works. */
 els.content.addEventListener("click", e => {
-  const tap = e.pointerType === "touch" || e.pointerType === "pen"
-    || (e.pointerType === undefined && !FINE_POINTER.matches);
-  if (!tap) return;
   if (curView() === "columns" || curView() === "gallery") return;
   if (e.target.tagName === "INPUT") return;          // don't hijack an inline rename
+  if (e.metaKey || e.ctrlKey || e.shiftKey) return;   // modified click: selection only
   const el = e.target.closest(ITEM_SEL[curView()]);
   if (el && el.dataset.i !== undefined) openNode(items()[+el.dataset.i]);
 });
