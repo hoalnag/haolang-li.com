@@ -17,7 +17,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="assets/logo.png">
 <link rel="apple-touch-icon" href="assets/logo.png">
-<link rel="stylesheet" href="assets/style.css?v=32">
+<link rel="stylesheet" href="assets/style.css?v=33">
 </head>
 <body>
 
@@ -182,11 +182,15 @@
     <!-- ============ Finder window ============ -->
     <section class="window" id="window" role="application" aria-label="Finder">
       <div class="win-body">
-        <aside class="sidebar" id="sidebar">
+        <aside class="sidebar collapsed" id="sidebar">
           <div class="traffic" id="traffic">
             <button class="tl tl-close" id="tl-close" aria-label="Close"><svg viewBox="0 0 12 12"><path d="M3.2 3.2l5.6 5.6M8.8 3.2 3.2 8.8" stroke="rgba(77,0,0,.85)" stroke-width="1.3" stroke-linecap="round"/></svg></button>
             <button class="tl tl-min" id="tl-min" aria-label="Minimize"><svg viewBox="0 0 12 12"><path d="M2.8 6h6.4" stroke="rgba(90,50,0,.85)" stroke-width="1.5" stroke-linecap="round"/></svg></button>
             <button class="tl tl-zoom" id="tl-zoom" aria-label="Zoom"><svg viewBox="0 0 12 12"><path d="M3.3 6.7v2h2M8.7 5.3v-2h-2" stroke="rgba(0,70,0,.9)" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.4 8.6 5.9 6.1M8.6 3.4 6.1 5.9" stroke="rgba(0,70,0,.9)" stroke-width="1.3" stroke-linecap="round"/></svg></button>
+          </div>
+          <div class="side-search">
+            <svg viewBox="0 0 20 20"><use href="#t-search"/></svg>
+            <input type="text" id="side-search-input" placeholder="Search" autocomplete="off" spellcheck="false">
           </div>
           <nav class="side-scroll" id="side-nav"><!-- built by JS --></nav>
           <div class="side-foot">
@@ -208,7 +212,7 @@
               <button class="tb-btn" id="tb-back" title="Back" disabled><svg viewBox="0 0 20 20"><use href="#t-back"/></svg></button>
               <button class="tb-btn" id="tb-fwd" title="Forward" disabled><svg viewBox="0 0 20 20"><use href="#t-fwd"/></svg></button>
             </div>
-            <h1 class="tb-title" id="tb-title">Home</h1>
+            <div class="tb-title" id="tb-title"></div>
             <div class="tb-spacer"></div>
             <div class="tb-actions">
               <button class="tb-btn tb-view" id="tb-viewbtn" title="View options">
@@ -231,8 +235,6 @@
             <div class="rubber-band" id="rubber-band" hidden></div>
           </div>
 
-          <div class="pathbar" id="pathbar"></div>
-
           <div class="statusbar">
             <span class="status-text" id="status-text">0 items</span>
             <input type="range" class="size-slider" id="size-slider" min="52" max="120" value="72" title="Icon size">
@@ -243,61 +245,21 @@
     </section>
   </div>
 
-  <!-- ============ dock: external presence as apps ============
-       Monochrome set — one plate, one mark weight, brand silhouettes only. -->
-  <div class="dock-wrap"><div class="dock" id="dock">
-    <button class="dock-item" data-app="vimeo" aria-label="Vimeo">
-      <svg viewBox="0 0 64 64">
-        <rect class="plate" x="2" y="2" width="60" height="60" rx="15"/>
-        <g class="glyph"><path class="mark-f" d="M23.9765 6.4168c-.105 2.338-1.739 5.5429-4.894 9.6088-3.2679 4.247-6.0258 6.3699-8.2898 6.3699-1.409 0-2.578-1.294-3.553-3.881l-1.9179-7.1138c-.719-2.585-1.488-3.878-2.312-3.878-.179 0-.806.378-1.8809 1.132l-1.129-1.457a315.06 315.06 0 003.501-3.1279c1.579-1.365 2.765-2.084 3.5539-2.156 1.864-.18 3.011 1.095 3.443 3.8199.465 2.941.789 4.771.971 5.483.539 2.45 1.131 3.674 1.776 3.674.502 0 1.256-.796 2.265-2.385 1.004-1.589 1.54-2.797 1.612-3.628.144-1.371-.395-2.061-1.614-2.061-.574 0-1.167.121-1.777.391 1.186-3.868 3.434-5.757 6.762-5.637 2.473.06 3.628 1.664 3.493 4.797z"/></g>
-      </svg>
+  <!-- ============ contact sheet: end-credits style, reached from the sidebar ============ -->
+  <div class="contact-layer" id="contact-layer" hidden>
+    <button class="contact-close" id="contact-close" aria-label="Close">
+      <svg viewBox="0 0 20 20"><path d="M4.5 4.5l11 11M15.5 4.5l-11 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
     </button>
-    <button class="dock-item" data-app="instagram" aria-label="Instagram">
-      <svg viewBox="0 0 64 64">
-        <rect class="plate" x="2" y="2" width="60" height="60" rx="15"/>
-        <g class="glyph">
-          <rect class="mark-s" x="1.7" y="1.7" width="20.6" height="20.6" rx="6"/>
-          <circle class="mark-s" cx="12" cy="12" r="5"/>
-          <circle class="mark-f" cx="18.1" cy="5.9" r="1.5"/>
-        </g>
-      </svg>
-    </button>
-    <button class="dock-item" data-app="spotify" aria-label="Spotify">
-      <svg viewBox="0 0 64 64">
-        <rect class="plate" x="2" y="2" width="60" height="60" rx="15"/>
-        <g class="glyph"><path class="mark-f" d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></g>
-      </svg>
-    </button>
-    <button class="dock-item" data-app="x" aria-label="X">
-      <svg viewBox="0 0 64 64">
-        <rect class="plate" x="2" y="2" width="60" height="60" rx="15"/>
-        <g class="glyph"><path class="mark-f" d="M13.4 6h4.3l6.1 8.2L30.7 6h4l-8.7 11.4L35.4 30h-4.3l-6.7-9L17 30h-4l9.3-12.2L13.4 6Zm3.1 2.2 12.9 17.4h1.9L18.4 8.2h-1.9Z"/></g>
-      </svg>
-    </button>
-    <button class="dock-item" data-app="email" aria-label="Email">
-      <svg viewBox="0 0 64 64">
-        <rect class="plate" x="2" y="2" width="60" height="60" rx="15"/>
-        <g class="glyph">
-          <rect class="mark-s" x="1.6" y="1.6" width="24.8" height="18.8" rx="3.4"/>
-          <path class="mark-s" d="M3.4 4 14 12.2 24.6 4"/>
-        </g>
-      </svg>
-    </button>
-    <button class="dock-item" data-app="arena" aria-label="Are.na">
-      <svg viewBox="0 0 64 64">
-        <rect class="plate" x="2" y="2" width="60" height="60" rx="15"/>
-        <!-- six-pointed asterisk — Are.na's mark -->
-        <g class="glyph"><path class="mark-s" d="M12 1.6v20.8M3 6.8l18 10.4M21 6.8 3 17.2"/></g>
-      </svg>
-    </button>
-  </div></div>
-
-  <!-- dock tooltip -->
-  <div class="dock-tip" id="dock-tip" hidden></div>
+    <div class="contact-sheet">
+      <div class="cs-row"><div class="cs-label">School Email</div><div class="cs-value">hl5250@nyu.edu</div></div>
+      <div class="cs-row"><div class="cs-label">WeChat</div><div class="cs-value">haolarrr</div></div>
+      <div class="cs-row"><div class="cs-label">Phone</div><div class="cs-value">+1 646 301 6815</div></div>
+    </div>
+  </div>
 
   <!-- context menu / quick look / get info render here -->
   <div id="overlay-layer"></div>
 
-  <script src="assets/app.js?v=32"></script>
+  <script src="assets/app.js?v=33"></script>
 </body>
 </html>

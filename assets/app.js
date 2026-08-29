@@ -176,18 +176,12 @@ function setTree(folderTops) {
 setTree(defaultFolders());               // render immediately; Supabase refines it at boot
 
 const LINKS = [
-  { id: "vimeo", name: "Vimeo", icon: "s-vimeo", href: "https://vimeo.com/haolangli",
-    desc: "Films and video work — shorts, cinematography, AI experiments." },
-  { id: "instagram", name: "Instagram", icon: "s-ig", href: "https://instagram.com/YOUR_IG",
-    desc: "Stills, behind-the-scenes, and everything in between." },
-  { id: "spotify", name: "Spotify", icon: "s-spotify", href: "https://open.spotify.com/user/mws60vypvaj8xc6ldz50t98ky?si=12b56e912e50412c",
-    desc: "What I listen to while cutting." },
-  { id: "x", name: "X", icon: "s-x", href: "https://x.com/YIPIhaolang",
-    desc: "Notes, links, and thinking out loud." },
-  { id: "email", name: "Email", icon: "s-mail", href: "mailto:hl5250@nyu.edu", mail: true,
-    desc: "For collaborations, screenings, and everything serious." },
-  { id: "arena", name: "Are.na", icon: "s-arena", href: "https://www.are.na/haolang-li/channels",
-    desc: "Research boards — references, moods, maps." },
+  { id: "vimeo", name: "Vimeo", icon: "s-vimeo", href: "https://vimeo.com/haolangli" },
+  { id: "instagram", name: "Instagram", icon: "s-ig", href: "https://instagram.com/YOUR_IG" },
+  { id: "spotify", name: "Spotify", icon: "s-spotify", href: "https://open.spotify.com/user/mws60vypvaj8xc6ldz50t98ky?si=12b56e912e50412c" },
+  { id: "x", name: "X", icon: "s-x", href: "https://x.com/YIPIhaolang" },
+  { id: "contact", name: "Contact Sheet", icon: "s-mail", contact: true },
+  { id: "arena", name: "Are.na", icon: "s-arena", href: "https://www.are.na/haolang-li/channels" },
 ];
 
 const TAG_COLORS = ["#FF9F0A", "#FF453A", "#0A84FF", "#FFD60A", "#BF5AF2", "#FF9F0A", "#FF453A"];
@@ -227,8 +221,30 @@ function initialNodeFromLocation() {
   } catch {}
   return nodeForPath(path);
 }
-// browser back/forward: resync cwd from the URL without touching history again
+const currentSlug = () => location.pathname.replace(/^\/+|\/+$/g, "").toLowerCase();
+
+/* ---- contact sheet: a full page of its own, not part of the folder tree ---- */
+function showContactSheet() {
+  hideWindow("min");
+  els.contactLayer.hidden = false;
+  document.body.classList.add("contact-on");
+}
+function hideContactSheetUI() {
+  if (els.contactLayer.hidden) return;
+  els.contactLayer.hidden = true;
+  document.body.classList.remove("contact-on");
+  openWindow();
+}
+function openContactSheet() {          // user clicked into it: push a real entry
+  if (!els.contactLayer.hidden) return;
+  showContactSheet();
+  window.history.pushState(null, "", "/contact");
+}
+function closeContactSheet() { window.history.back(); }
+// browser back/forward: resync cwd (or the contact sheet) from the URL, without touching history again
 window.addEventListener("popstate", () => {
+  if (currentSlug() === "contact") { showContactSheet(); return; }
+  hideContactSheetUI();
   const node = nodeForPath(location.pathname);
   if (node === cwd) return;
   cwd = node; selection.clear(); anchorIndex = -1; render();
@@ -248,7 +264,6 @@ const $ = id => document.getElementById(id);
    Apple-style fluid motion (see: Designing Fluid Interfaces, WWDC18).
    Springs are interruptible and velocity-aware; re-targeting carries velocity. */
 const REDUCED = matchMedia("(prefers-reduced-motion: reduce)");
-const FINE_POINTER = matchMedia("(pointer: fine)");
 
 const springStates = new WeakMap(); // el -> { props: {x:{val,vel,target}...}, raf, onDone }
 function springApply(el, p) {
@@ -344,9 +359,9 @@ const els = {
   back: $("tb-back"), fwd: $("tb-fwd"), content: $("content"),
   iconView: $("icon-view"), listView: $("list-view"), deskView: $("desk-view"),
   columnsView: $("columns-view"), galleryView: $("gallery-view"), digitalView: $("digital-view"),
-  pathbar: $("pathbar"), status: $("status-text"), rubber: $("rubber-band"),
+  status: $("status-text"), rubber: $("rubber-band"),
   menuLayer: $("menu-layer"), overlayLayer: $("overlay-layer"),
-  sidebar: $("sidebar"), desktop: $("desktop"),
+  sidebar: $("sidebar"), desktop: $("desktop"), contactLayer: $("contact-layer"),
 };
 
 const findByName = (name) => {
@@ -398,35 +413,66 @@ function recentUpdates(limit = 5) {
 }
 
 /* ================= sidebar (built from the live tree, keyed by id) =========
-   Four flat sections, no subfolders — each one is its own big block, the
-   way a macOS sidebar favorites you into an app section. */
-const SECTION_ICON = { FILMS: "s-films", "WORK EXPERIENCE": "s-briefcase", WRITINGS: "s-writings", PHOTOGRAPHY: "s-camera" };
+   Home plus the four sections, flat, no icons — quiet text, room to breathe.
+   Links stays a small collapsible group below them. */
+let linksOpen = true;
 function buildSidebar() {
-  const sec = (label) => `<div class="side-sec">${label}</div>`;
-  const section = (node) =>
-    `<button class="side-item side-section" data-fid="${node.id}">
-       <svg viewBox="0 0 20 20"><use href="#${SECTION_ICON[node.name] || "s-folder"}"/></svg>
-       <span>${node.name}</span>
-     </button>`;
-  let h = `<button class="side-item" data-fid="desktop"><svg viewBox="0 0 20 20"><use href="#s-desktop"/></svg><span>Home</span></button>`;
-  h += `<div class="side-sections">${ROOT.children.filter(n => n.children).map(section).join("")}</div>`;
-  h += sec("Links");
+  const section = (node, label = node.name) =>
+    `<button class="side-item side-section" data-fid="${node.id}"><span>${label}</span></button>`;
+  let h = `<div class="side-sections">`
+    + section(ROOT, "Home")
+    + ROOT.children.filter(n => n.children).map(n => section(n)).join("")
+    + `</div>`;
+  h += `<button class="side-sec side-sec-toggle ${linksOpen ? "open" : ""}" data-toggle="links">
+      <span>Links</span><svg class="side-sec-chev" viewBox="0 0 20 20"><use href="#t-chev-d"/></svg>
+    </button>`;
+  h += `<div class="side-links-list" id="side-links-list" ${linksOpen ? "" : "hidden"}>`;
   LINKS.forEach(l => {
-    h += `<button class="side-item side-link" data-app="${l.id}"><svg viewBox="0 0 20 20"><use href="#${l.icon}"/></svg><span>${l.name}</span></button>`;
+    h += `<button class="side-item side-link" data-app="${l.id}" ${l.contact ? 'data-contact="1"' : ""}>
+        <svg viewBox="0 0 20 20"><use href="#${l.icon}"/></svg><span>${l.name}</span>
+      </button>`;
   });
+  h += `</div>`;
   els.sideNav.innerHTML = h;
   els.sideNav.onclick = e => {
+    const toggle = e.target.closest("[data-toggle]");
+    if (toggle) {
+      linksOpen = !linksOpen;
+      toggle.classList.toggle("open", linksOpen);
+      $("side-links-list").hidden = !linksOpen;
+      return;
+    }
     const btn = e.target.closest(".side-item");
     if (!btn) return;
-    if (btn.dataset.app) { openApp(btn.dataset.app); return; }
+    if (btn.dataset.contact) { openContactSheet(); return; }
+    if (btn.dataset.app) {
+      const app = LINKS.find(l => l.id === btn.dataset.app);
+      if (app) window.open(app.href, "_blank", "noopener");
+      return;
+    }
     const node = INDEX.get(btn.dataset.fid);
     if (node) navigate(node);
   };
+  applySearchFilter($("side-search-input")?.value || "");
 }
 function syncSidebar() {
   els.sideNav.querySelectorAll(".side-item").forEach(b =>
     b.classList.toggle("active", b.dataset.fid === cwd.id));
 }
+
+/* ---- sidebar search: a live substring filter over sections + links ---- */
+function applySearchFilter(q) {
+  const query = q.trim().toLowerCase();
+  els.sideNav.querySelectorAll(".side-section, .side-link").forEach(btn => {
+    btn.hidden = Boolean(query) && !btn.textContent.trim().toLowerCase().includes(query);
+  });
+}
+$("side-search-input")?.addEventListener("input", e => applySearchFilter(e.target.value));
+$("side-search-input")?.addEventListener("keydown", e => {
+  if (e.key !== "Enter") return;
+  const hit = els.sideNav.querySelector(".side-section:not([hidden]), .side-link:not([hidden])");
+  hit?.click();
+});
 
 /* ================= navigation ================= */
 function navigate(node, { record = true } = {}) {
@@ -448,7 +494,13 @@ function iconSvg(node, cls = "file-icon") {
 }
 function render() {
   const list = items();
-  els.title.textContent = cwd.name;
+  // the folder path, flattened into the toolbar itself — haolangli › FILMS › …
+  els.title.innerHTML = pathOf(cwd).map((n, i) => `
+    ${i ? '<span class="crumb-sep">›</span>' : ""}
+    <button class="crumb-item" data-depth="${i}">${n === ROOT ? "haolangli" : n.name}</button>`).join("");
+  els.title.querySelectorAll(".crumb-item").forEach(el => {
+    el.addEventListener("click", () => navigate(pathOf(cwd)[+el.dataset.depth]));
+  });
   document.title = cwd === ROOT ? "Haolang Li" : `${cwd.name} — Haolang Li`;
   els.back.disabled = !history.length;
   els.fwd.disabled = !future.length;
@@ -498,17 +550,6 @@ function render() {
     const sortBtn = $("lv-sort");
     if (sortBtn) sortBtn.onclick = () => { sortAsc = !sortAsc; render(); };
   }
-
-  // path bar
-  els.pathbar.innerHTML = pathOf(cwd).map((n, i, arr) => `
-    ${i ? '<span class="pb-sep">›</span>' : ""}
-    <span class="pb-item" data-depth="${i}">
-      <svg viewBox="0 0 128 128"><use href="#i-folder-mac"/></svg>${n.name}
-    </span>`).join("");
-  els.pathbar.querySelectorAll(".pb-item").forEach(el => {
-    el.addEventListener("dblclick", () => navigate(pathOf(cwd)[+el.dataset.depth]));
-    el.addEventListener("click", () => navigate(pathOf(cwd)[+el.dataset.depth]));
-  });
 
   updateStatus();
   syncSidebar();
@@ -1613,72 +1654,13 @@ function showAbout() {
   makeDraggable(box, box.querySelector(".gi-bar"));
 }
 
-/* ================= in-OS browser: external links stay inside the Mac ================= */
-function openApp(id) {
-  const app = LINKS.find(l => l.id === id);
-  if (!app) return;
-  const dockIcon = document.querySelector(`.dock-item[data-app="${id}"]`);
-  if (dockIcon) { dockIcon.classList.add("bounce"); setTimeout(() => dockIcon.classList.remove("bounce"), 1100); }
-  // email goes straight to the mail app; the OS lets you pick which one
-  if (app.mail) { location.href = app.href; return; }
-  closeOverlays();
-  const host = app.href.startsWith("mailto:") ? app.href.replace("mailto:", "") : app.href.replace(/^https?:\/\//, "").replace(/\/$/, "");
-  const win = document.createElement("div");
-  win.className = "appwin";
-  win.innerHTML = `
-    <div class="aw-bar">
-      <button class="aw-close" aria-label="Close"></button>
-      <div class="aw-url"><svg viewBox="0 0 20 20"><path d="M6.5 9V6.8a3.5 3.5 0 0 1 7 0V9M5.5 9h9A1.5 1.5 0 0 1 16 10.5v5A1.5 1.5 0 0 1 14.5 17h-9A1.5 1.5 0 0 1 4 15.5v-5A1.5 1.5 0 0 1 5.5 9Z" fill="none" stroke="currentColor" stroke-width="1.5"/></svg>${host}</div>
-    </div>
-    <div class="aw-body">
-      <div class="aw-app">${dockIcon ? dockIcon.querySelector("svg").outerHTML : ""}</div>
-      <div class="aw-name">${app.name}</div>
-      <div class="aw-desc">${app.desc}</div>
-      <div class="aw-actions">
-        <button class="aw-btn primary">${app.id === "email" ? "Write to me" : "Visit " + app.name} ↗</button>
-        <button class="aw-btn quiet">Stay here</button>
-      </div>
-    </div>`;
-  els.overlayLayer.appendChild(win);
-
-  // the window materializes out of its dock icon and dismisses back into it (§7 spatial consistency)
-  const rect = win.getBoundingClientRect();
-  win.style.left = rect.left + "px"; win.style.top = rect.top + "px";
-  const anchor = dockIcon ? dockIcon.getBoundingClientRect() : { left: innerWidth / 2, top: innerHeight, width: 0, height: 0 };
-  const fromX = () => ({
-    dx: anchor.left + anchor.width / 2 - (parseFloat(win.style.left) + rect.width / 2),
-    dy: anchor.top + anchor.height / 2 - (parseFloat(win.style.top) + rect.height / 2),
-  });
-  const d0 = fromX();
-  setPresentation(win, { x: d0.dx, y: d0.dy, scale: 0.08, opacity: 0 });
-  springTo(win, { x: 0, y: 0, scale: 1, opacity: 1 }, { response: 0.4 });
-
-  const dismissToDock = () => {
-    const d = fromX();
-    springTo(win, { x: d.dx, y: d.dy, scale: 0.08, opacity: 0 }, { response: 0.34, onDone: () => win.remove() });
-  };
-  const flickAway = ({ vx, vy }) => {   // thrown: momentum carries it off-screen
-    springTo(win, { x: project(vx) / 3, y: innerHeight, opacity: 0 },
-      { response: 0.5, velocity: { x: vx, y: vy }, onDone: () => win.remove() });
-  };
-  win.querySelector(".aw-close").addEventListener("click", dismissToDock);
-  win.querySelector(".aw-btn.quiet").addEventListener("click", dismissToDock);
-  win.querySelector(".aw-btn.primary").addEventListener("click", () => {
-    if (app.href.startsWith("mailto:")) location.href = app.href;
-    else window.open(app.href, "_blank", "noopener");
-  });
-  makeDraggable(win, win.querySelector(".aw-bar"), { onFlickDown: flickAway });
-}
-document.querySelectorAll(".dock-item[data-app]").forEach(btn =>
-  btn.addEventListener("click", () => openApp(btn.dataset.app)));
-
 /* ================= window management: traffic lights ================= */
 let winHidden = false;
 function hideWindow(kind) {
   if (winHidden) return;
   winHidden = true;
   const r = els.win.getBoundingClientRect();
-  // minimize sinks toward the dock; close poofs in place — exit hints at where it went (§8)
+  // minimize sinks toward the bottom edge; close poofs in place — exit hints at where it went
   const dy = kind === "min" ? innerHeight - r.top - r.height / 2 : 70;
   springTo(els.win, { y: dy, scale: 0.08, opacity: 0 },
     { response: 0.42, onDone: () => els.win.classList.add("win-gone") });
@@ -1779,86 +1761,6 @@ $("resize-handle").addEventListener("mousedown", e => {
   window.addEventListener("mousemove", onMove); window.addEventListener("mouseup", onUp);
 });
 
-/* ================= dock magnification =================
-   Tracks the pointer 1:1 (direct manipulation); springs back on leave. */
-/* Centre every dock glyph on its plate and give the set one optical size,
-   whatever coordinate space each mark was drawn in. */
-function fitGlyphs() {
-  const TARGET = 26, PLATE_STROKE = 2.7;   // both in the 64-unit plate space
-  let measured = true;
-  document.querySelectorAll(".dock-item .glyph").forEach(g => {
-    const b = g.getBBox();
-    if (!b.width && !b.height) { measured = false; return; }  // laid out yet?
-    const stroked = g.querySelector(".mark-s");
-    // getBBox ignores stroke, so add it back before measuring the visual box
-    const s = TARGET / (Math.max(b.width, b.height) + (stroked ? PLATE_STROKE : 0));
-    const cx = b.x + b.width / 2, cy = b.y + b.height / 2;
-    g.setAttribute("transform", `translate(32 32) scale(${s.toFixed(5)}) translate(${-cx} ${-cy})`);
-    if (stroked) g.setAttribute("stroke-width", (PLATE_STROKE / s).toFixed(3));
-  });
-  return measured;
-}
-// getBBox reads zeros before first layout, so measure once a frame exists
-requestAnimationFrame(() => {
-  if (!fitGlyphs()) window.addEventListener("load", fitGlyphs, { once: true });
-});
-
-(function dockMagnify() {
-  const dock = $("dock");
-  const tip = $("dock-tip");
-  if (!dock) return;
-  const apps = [...dock.querySelectorAll(".dock-item")];
-  const AMP = 0.55, SIGMA = 78;   // growth and how far the swell reaches
-
-  const showTip = (it) => {
-    const r = it.getBoundingClientRect();
-    tip.textContent = it.getAttribute("aria-label");
-    tip.hidden = false;
-    tip.style.left = r.left + r.width / 2 + "px";
-    tip.style.top = r.top - 10 + "px";
-  };
-  const hideTip = () => { tip.hidden = true; };
-
-  if (!FINE_POINTER.matches) {   // touch: no magnification, but names on tap-hold
-    apps.forEach(it => {
-      it.addEventListener("pointerdown", () => showTip(it));
-      it.addEventListener("pointerup", hideTip);
-      it.addEventListener("pointercancel", hideTip);
-    });
-    return;
-  }
-
-  let hovered = null;
-  dock.addEventListener("pointermove", e => {
-    if (REDUCED.matches) return;
-    const dr = dock.getBoundingClientRect();
-    // 1. how much each icon swells
-    const scales = apps.map(it => {
-      const home = dr.left + it.offsetLeft + it.offsetWidth / 2;
-      const d = e.clientX - home;
-      return 1 + AMP * Math.exp(-(d * d) / (2 * SIGMA * SIGMA));
-    });
-    // 2. push neighbours outward by the width the swell adds, so nothing crowds
-    const extras = scales.map((s, i) => (s - 1) * apps[i].offsetWidth);
-    const total = extras.reduce((a, b) => a + b, 0);
-    let run = 0;
-    apps.forEach((it, i) => {
-      const shift = run + extras[i] / 2 - total / 2;
-      run += extras[i];
-      setPresentation(it, { x: shift, y: -(scales[i] - 1) * 26, scale: scales[i] });
-    });
-    // 3. the name rides above whichever icon is biggest
-    const top = scales.indexOf(Math.max(...scales));
-    if (scales[top] > 1.12) {
-      if (apps[top] !== hovered) { hovered = apps[top]; }
-      showTip(apps[top]);
-    } else { hovered = null; hideTip(); }
-  });
-  dock.addEventListener("pointerleave", () => {
-    hovered = null; hideTip();
-    apps.forEach(it => springTo(it, { x: 0, y: 0, scale: 1 }, { response: 0.34 }));
-  });
-})();
 
 /* ================= icon throw =================
    Grab an icon past the 10px hysteresis and throw it; it springs home
@@ -1913,13 +1815,11 @@ $("size-slider").addEventListener("input", e => {
   document.documentElement.style.setProperty("--icon-size", e.target.value + "px");
 });
 
-/* collapse the sidebar on narrow screens, restore it when there is room */
+/* the sidebar starts collapsed (see index.html) and only the toggle button
+   opens it — on any screen width, never auto-restored on resize. On narrow
+   screens it then sits on top of the content (see CSS), so it has to get
+   out of the way once it has been used — the scrim is the way back out. */
 const narrowMQ = matchMedia("(max-width: 740px)");
-const syncNarrow = () => els.sidebar.classList.toggle("collapsed", narrowMQ.matches);
-narrowMQ.addEventListener("change", syncNarrow);
-syncNarrow();
-/* on narrow screens the sidebar sits on top of the content, so it has to get out
-   of the way once it has been used — and the scrim is the way back out. */
 const closeSidebarIfNarrow = () => { if (narrowMQ.matches) els.sidebar.classList.add("collapsed"); };
 $("side-scrim").addEventListener("click", closeSidebarIfNarrow);
 els.sideNav.addEventListener("click", e => { if (e.target.closest(".side-item")) closeSidebarIfNarrow(); });
@@ -2191,5 +2091,11 @@ buildSidebar();
 render();
 els.content.focus();
 reloadFolders();          // pull the live folder tree; refines the default set
+if (currentSlug() === "contact") showContactSheet();   // landed here directly, or via the 404 redirect
+
+$("contact-close").addEventListener("click", closeContactSheet);
+window.addEventListener("keydown", e => {
+  if (e.key === "Escape" && !els.contactLayer.hidden) closeContactSheet();
+});
 
 })();
