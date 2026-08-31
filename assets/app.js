@@ -420,7 +420,7 @@ function buildSidebar() {
   const section = (node, label = node.name) =>
     `<button class="side-item side-section" data-fid="${node.id}"><span>${label}</span></button>`;
   let h = `<div class="side-sections">`
-    + section(ROOT, "Home")
+    + section(ROOT, "HOME")
     + ROOT.children.filter(n => n.children).map(n => section(n)).join("")
     + `</div>`;
   h += `<button class="side-sec side-sec-toggle ${linksOpen ? "open" : ""}" data-toggle="links">
@@ -453,26 +453,11 @@ function buildSidebar() {
     const node = INDEX.get(btn.dataset.fid);
     if (node) navigate(node);
   };
-  applySearchFilter($("side-search-input")?.value || "");
 }
 function syncSidebar() {
   els.sideNav.querySelectorAll(".side-item").forEach(b =>
     b.classList.toggle("active", b.dataset.fid === cwd.id));
 }
-
-/* ---- sidebar search: a live substring filter over sections + links ---- */
-function applySearchFilter(q) {
-  const query = q.trim().toLowerCase();
-  els.sideNav.querySelectorAll(".side-section, .side-link").forEach(btn => {
-    btn.hidden = Boolean(query) && !btn.textContent.trim().toLowerCase().includes(query);
-  });
-}
-$("side-search-input")?.addEventListener("input", e => applySearchFilter(e.target.value));
-$("side-search-input")?.addEventListener("keydown", e => {
-  if (e.key !== "Enter") return;
-  const hit = els.sideNav.querySelector(".side-section:not([hidden]), .side-link:not([hidden])");
-  hit?.click();
-});
 
 /* ================= navigation ================= */
 function navigate(node, { record = true } = {}) {
@@ -516,7 +501,6 @@ function render() {
   els.listView.hidden = onDigital || view !== "list";
   els.columnsView.hidden = onDigital || view !== "columns";
   els.galleryView.hidden = onDigital || view !== "gallery";
-  $("tb-viewbtn").hidden = onDigital;
 
   if (onDesk) {
     renderDesk(list);
@@ -1292,13 +1276,14 @@ function startRename(node) {
   input.addEventListener("mousedown", ev => ev.stopPropagation());
 }
 
-/* ================= view switching ================= */
+/* ================= view switching =================
+   No UI button for this anymore (⌘1–⌘4 still work) — see VIEW_ICON's old
+   home in git history if a picker comes back. */
 const VIEW_ICON = { icon: "t-grid", list: "t-list", columns: "t-columns", gallery: "t-gallery" };
 function setView(v) {
   if (!VIEW_ICON[v]) return;
   if (cwd.name === "PHOTOGRAPHY") return; // one view here — nothing to switch to
   view = v;
-  $("tb-view-icon").innerHTML = `<use href="#${VIEW_ICON[v]}"/>`;
   render();
 }
 
@@ -1412,28 +1397,10 @@ $("mb-theme").addEventListener("click", () => {
   try { localStorage.setItem(THEME_KEY, next); } catch {}
 });
 
-/* toolbar dropdowns */
-$("tb-viewbtn").addEventListener("mousedown", e => {
-  e.stopPropagation();
-  const r = e.currentTarget.getBoundingClientRect();
-  showMenu(
-    mi("as Icons", "view-icon", "⌘1", { check: view === "icon" }) +
-    mi("as List", "view-list", "⌘2", { check: view === "list" }) +
-    mi("as Columns", "view-columns", "⌘3", { check: view === "columns" }) +
-    mi("as Gallery", "view-gallery", "⌘4", { check: view === "gallery" }), r.left, r.bottom + 6);
-});
-$("tb-group").addEventListener("mousedown", e => {
-  e.stopPropagation();
-  const r = e.currentTarget.getBoundingClientRect();
-  showMenu(mi("None", null, "", { check: true }) + mi("Name", null, "", { disabled: true }) +
-    mi("Kind", null, "", { disabled: true }) + mi("Date", null, "", { disabled: true }), r.left, r.bottom + 6);
-});
-$("tb-share").addEventListener("click", () => {
-  if (navigator.share) navigator.share({ title: "Haolang Li", url: location.href }).catch(() => {});
-});
 $("tb-back").addEventListener("click", goBack);
 $("tb-fwd").addEventListener("click", goForward);
 $("tb-sidebar").addEventListener("click", () => els.sidebar.classList.toggle("collapsed"));
+$("side-collapse").addEventListener("click", () => els.sidebar.classList.add("collapsed"));
 
 /* ================= context menu ================= */
 els.content.addEventListener("contextmenu", e => {
@@ -1810,15 +1777,10 @@ function tickClock() {
 tickClock(); setInterval(tickClock, 15000);
 TIGHT_BAR.addEventListener("change", tickClock);
 
-/* icon size slider */
-$("size-slider").addEventListener("input", e => {
-  document.documentElement.style.setProperty("--icon-size", e.target.value + "px");
-});
-
-/* the sidebar starts collapsed (see index.html) and only the toggle button
-   opens it — on any screen width, never auto-restored on resize. On narrow
-   screens it then sits on top of the content (see CSS), so it has to get
-   out of the way once it has been used — the scrim is the way back out. */
+/* the sidebar starts open. Its own collapse button (top of the sidebar) and
+   the toolbar's toggle both fold it away; on narrow screens it then sits on
+   top of the content (see CSS), so it has to get out of the way once it has
+   been used — the scrim is the way back out. */
 const narrowMQ = matchMedia("(max-width: 740px)");
 const closeSidebarIfNarrow = () => { if (narrowMQ.matches) els.sidebar.classList.add("collapsed"); };
 $("side-scrim").addEventListener("click", closeSidebarIfNarrow);

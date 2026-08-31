@@ -17,7 +17,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="assets/logo.png">
 <link rel="apple-touch-icon" href="assets/logo.png">
-<link rel="stylesheet" href="assets/style.css?v=33">
+<link rel="stylesheet" href="assets/style.css?v=34">
 </head>
 <body>
 
@@ -116,6 +116,8 @@
       <symbol id="t-chev-ud" viewBox="0 0 20 20"><path d="m6.5 8 3.5-3.5L13.5 8M6.5 12l3.5 3.5L13.5 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
       <symbol id="t-chev-d" viewBox="0 0 20 20"><path d="m6 8 4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></symbol>
       <symbol id="t-sidebar" viewBox="0 0 20 20"><rect x="2.5" y="3.5" width="15" height="13" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.5"/><path d="M8 3.5v13" stroke="currentColor" stroke-width="1.5"/><path d="M4.5 6.5h1.6M4.5 9h1.6M4.5 11.5h1.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></symbol>
+      <!-- collapse: the sidebar's own edge, with an arrow pointing the way it folds -->
+      <symbol id="t-collapse" viewBox="0 0 20 20"><path d="M7.5 3.5v13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M5.2 7l-3 3 3 3" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></symbol>
       <!-- menu bar status icons -->
       <symbol id="m-apple" viewBox="0 0 17 17"><path d="M8.7 4.6c.6 0 1.9-.5 2.7-1.5.7-.9.9-2 .9-2.6-.9 0-2 .5-2.7 1.3-.6.7-1 1.8-.9 2.8Zm3.7 8.6c.7-1 .9-1.5 1.5-2.6-2.8-1.1-3.3-5-.5-6.4-.8-1-2-1.6-3.1-1.6-.8 0-1.4.2-1.9.4-.4.2-.8.3-1.2.3-.5 0-.9-.2-1.4-.3-.5-.2-1-.4-1.7-.4-1.2 0-2.5.8-3.3 2-1.1 1.8-.9 5.2 1 8 .6 1 1.5 2.1 2.6 2.1.5 0 .8-.2 1.2-.3.4-.2.9-.4 1.6-.4s1.2.2 1.6.4c.4.2.7.3 1.2.3 1.1 0 2-1.2 2.4-1.5Z" fill="currentColor" transform="translate(1.5 1.2) scale(0.95)"/></symbol>
       <symbol id="m-wifi" viewBox="0 0 18 18"><path d="M2 6.8a10.5 10.5 0 0 1 14 0M4.4 9.5a7 7 0 0 1 9.2 0M6.8 12.2a3.5 3.5 0 0 1 4.4 0" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="9" cy="14.6" r="1.15" fill="currentColor"/></symbol>
@@ -182,15 +184,14 @@
     <!-- ============ Finder window ============ -->
     <section class="window" id="window" role="application" aria-label="Finder">
       <div class="win-body">
-        <aside class="sidebar collapsed" id="sidebar">
+        <aside class="sidebar" id="sidebar">
           <div class="traffic" id="traffic">
             <button class="tl tl-close" id="tl-close" aria-label="Close"><svg viewBox="0 0 12 12"><path d="M3.2 3.2l5.6 5.6M8.8 3.2 3.2 8.8" stroke="rgba(77,0,0,.85)" stroke-width="1.3" stroke-linecap="round"/></svg></button>
             <button class="tl tl-min" id="tl-min" aria-label="Minimize"><svg viewBox="0 0 12 12"><path d="M2.8 6h6.4" stroke="rgba(90,50,0,.85)" stroke-width="1.5" stroke-linecap="round"/></svg></button>
             <button class="tl tl-zoom" id="tl-zoom" aria-label="Zoom"><svg viewBox="0 0 12 12"><path d="M3.3 6.7v2h2M8.7 5.3v-2h-2" stroke="rgba(0,70,0,.9)" stroke-width="1.3" fill="none" stroke-linecap="round" stroke-linejoin="round"/><path d="M3.4 8.6 5.9 6.1M8.6 3.4 6.1 5.9" stroke="rgba(0,70,0,.9)" stroke-width="1.3" stroke-linecap="round"/></svg></button>
-          </div>
-          <div class="side-search">
-            <svg viewBox="0 0 20 20"><use href="#t-search"/></svg>
-            <input type="text" id="side-search-input" placeholder="Search" autocomplete="off" spellcheck="false">
+            <button class="side-collapse" id="side-collapse" title="Collapse sidebar" aria-label="Collapse sidebar">
+              <svg viewBox="0 0 20 20"><use href="#t-collapse"/></svg>
+            </button>
           </div>
           <nav class="side-scroll" id="side-nav"><!-- built by JS --></nav>
           <div class="side-foot">
@@ -214,14 +215,8 @@
             </div>
             <div class="tb-title" id="tb-title"></div>
             <div class="tb-spacer"></div>
-            <div class="tb-actions">
-              <button class="tb-btn tb-view" id="tb-viewbtn" title="View options">
-                <svg viewBox="0 0 20 20" id="tb-view-icon"><use href="#t-grid"/></svg><svg class="tb-chev" viewBox="0 0 20 20"><use href="#t-chev-ud"/></svg>
-              </button>
-              <button class="tb-btn" id="tb-group" title="Group by">
-                <svg viewBox="0 0 20 20"><use href="#t-group"/></svg><svg class="tb-chev" viewBox="0 0 20 20"><use href="#t-chev-d"/></svg>
-              </button>
-              <button class="tb-btn" id="tb-share" title="Share"><svg viewBox="0 0 20 20"><use href="#t-share"/></svg></button>
+            <div class="tb-search" id="tb-search">
+              <input type="text" id="tb-search-input" placeholder="Search" autocomplete="off" spellcheck="false" title="Search this site (coming soon)">
             </div>
           </div>
 
@@ -237,7 +232,6 @@
 
           <div class="statusbar">
             <span class="status-text" id="status-text">0 items</span>
-            <input type="range" class="size-slider" id="size-slider" min="52" max="120" value="72" title="Icon size">
           </div>
         </div>
       </div>
@@ -260,6 +254,6 @@
   <!-- context menu / quick look / get info render here -->
   <div id="overlay-layer"></div>
 
-  <script src="assets/app.js?v=33"></script>
+  <script src="assets/app.js?v=34"></script>
 </body>
 </html>

@@ -173,7 +173,7 @@ svg { display: block; }
   transition: margin-left .22s ease;
 }
 .sidebar.collapsed { margin-left: -190px; }
-.traffic { display: flex; gap: 8px; padding: 19px 0 14px 20px; flex: 0 0 auto; cursor: default; }
+.traffic { display: flex; align-items: center; gap: 8px; padding: 19px 14px 14px 20px; flex: 0 0 auto; cursor: default; }
 .tl {
   width: 12px; height: 12px; border-radius: 50%; padding: 0;
   display: flex; align-items: center; justify-content: center;
@@ -185,20 +185,15 @@ svg { display: block; }
 .tl-min   { background: #FEBC2E; box-shadow: inset 0 0 0 .5px rgba(0,0,0,.15); }
 .tl-zoom  { background: #28C840; box-shadow: inset 0 0 0 .5px rgba(0,0,0,.15); }
 
-.side-search {
-  flex: 0 0 auto; display: flex; align-items: center; gap: 7px;
-  margin: 2px 10px 8px; padding: 0 8px; height: 30px;
-  background: rgba(255, 255, 255, .06);
-  border-radius: 7px;
-  color: var(--sidebar-fg);
+/* the sidebar's own collapse control — lives on the sidebar, not the toolbar */
+.side-collapse {
+  margin-left: auto; width: 22px; height: 22px; border-radius: 5px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--sidebar-sec);
 }
-.side-search svg { width: 14px; height: 14px; flex: 0 0 auto; opacity: .6; }
-.side-search input {
-  flex: 1; min-width: 0; height: 100%; background: none; border: none;
-  font-size: 12.5px; color: var(--sidebar-fg);
-}
-.side-search input::placeholder { color: var(--sidebar-sec, #8a8a90); }
-[data-theme="light"] .side-search { background: rgba(0, 0, 0, .05); }
+.side-collapse svg { width: 15px; height: 15px; }
+.side-collapse:hover { color: var(--sidebar-fg); background: rgba(255, 255, 255, .07); }
+[data-theme="light"] .side-collapse:hover { background: rgba(0, 0, 0, .06); }
 
 .side-scroll { flex: 1; overflow-y: auto; padding: 0 10px 14px; }
 
@@ -237,23 +232,24 @@ svg { display: block; }
   border: .5px solid rgba(0,0,0,.3); flex: 0 0 auto;
 }
 
-/* the five sections (Home included): no icons, room to breathe — quiet and editorial */
-.side-sections { display: flex; flex-direction: column; gap: 22px; margin: 14px 0 24px; }
+/* the five sections (Home included): no icons, plenty of air — quiet and editorial,
+   but legible enough to read as the sidebar's main event */
+.side-sections { display: flex; flex-direction: column; gap: 32px; margin: 18px 0 28px; }
 .side-item.side-section {
   height: auto; padding: 0 2px; background: none; border-radius: 3px;
-  font-size: 13px; font-weight: 500; letter-spacing: .05em; line-height: 1.3;
-  color: var(--sidebar-fg); opacity: .68;
+  font-size: 14px; font-weight: 500; letter-spacing: .05em; line-height: 1.3;
+  color: var(--sidebar-fg); opacity: .8;
   white-space: normal;                 /* "WORK EXPERIENCE" wraps rather than truncates */
 }
-.side-item.side-section:hover { background: none; opacity: .9; }
+.side-item.side-section:hover { background: none; opacity: .95; }
 .side-item.side-section.active { background: none; opacity: 1; font-weight: 700; }
 
-/* Links: a collapsible group, disclosure-style */
+/* Links: a collapsible group, disclosure-style — the chevron alone carries the
+   state, nothing lights up around it on hover or click */
 .side-sec-toggle {
   display: flex; align-items: center; justify-content: space-between; gap: 4px;
-  width: 100%; border-radius: 6px;
+  width: 100%; border-radius: 6px; background: none;
 }
-.side-sec-toggle:hover { background: rgba(255, 255, 255, .06); }
 .side-sec-chev { width: 11px; height: 11px; opacity: .6; transition: transform .18s ease; }
 .side-sec-toggle.open .side-sec-chev { transform: rotate(180deg); }
 .side-links-list { display: flex; flex-direction: column; }
@@ -276,7 +272,6 @@ svg { display: block; }
 .tb-btn:active:not(:disabled) { background: rgba(255, 255, 255, .12); }
 .tb-btn:disabled { color: #5A5A5E; }
 .tb-btn svg { width: 17px; height: 17px; }
-.tb-btn .tb-chev { width: 11px; height: 11px; margin-left: 1px; }
 .tb-nav { display: flex; gap: 6px; margin-right: 10px; }
 .tb-nav .tb-btn svg { width: 19px; height: 19px; }
 /* the folder path, flattened into the toolbar — quiet by design, not a headline */
@@ -291,7 +286,15 @@ svg { display: block; }
 .crumb-item:last-child { color: var(--title-fg); font-weight: 500; }
 .crumb-sep { margin: 0 5px; color: #5F5F64; }
 .tb-spacer { flex: 1; }
-.tb-actions { display: flex; gap: 6px; }
+/* plain, flat — not the rounded/tinted "Spotlight" look; a hairline is enough */
+.tb-search { flex: 0 0 auto; }
+.tb-search input {
+  width: 150px; height: 26px; padding: 0 2px 3px;
+  background: none; border: 0; border-bottom: 1px solid var(--hairline);
+  font-size: 12.5px; color: var(--toolbar-fg);
+}
+.tb-search input::placeholder { color: var(--text-dim); }
+.tb-search input:focus { border-bottom-color: var(--text-dim); }
 .tb-sidebar-toggle { display: flex; margin-right: 4px; }
 
 /* ---- content ---- */
@@ -933,26 +936,12 @@ body.admin-on .icon-item .fadmin { display: flex; }
 /* ---- status bar ---- */
 .statusbar {
   height: 27px; flex: 0 0 auto;
-  display: grid; grid-template-columns: 1fr auto; align-items: center;
+  display: flex; align-items: center; justify-content: center;
   border-top: 1px solid var(--hairline);
   padding: 0 12px;
   position: relative;
 }
-.status-text {
-  grid-column: 1 / -1; grid-row: 1;
-  text-align: center; font-size: 11px; color: var(--text-dim);
-}
-.size-slider {
-  grid-column: 2; grid-row: 1;
-  width: 74px; -webkit-appearance: none; appearance: none;
-  height: 3px; border-radius: 2px; background: rgba(255,255,255,.25);
-  outline: none;
-}
-.size-slider::-webkit-slider-thumb {
-  -webkit-appearance: none; appearance: none;
-  width: 13px; height: 13px; border-radius: 50%;
-  background: #CFCFD4; box-shadow: 0 .5px 2px rgba(0,0,0,.5);
-}
+.status-text { font-size: 11px; color: var(--text-dim); }
 
 /* ---- resize handle ---- */
 .resize-handle { position: absolute; right: 0; bottom: 0; width: 16px; height: 16px; cursor: nwse-resize; }
@@ -1091,8 +1080,6 @@ body.admin-on .icon-item .fadmin { display: flex; }
 }
 [data-theme="light"] .rubber-band { background: rgba(90, 90, 95, .13); border-color: rgba(0, 0, 0, .3); }
 [data-theme="light"] .content::-webkit-scrollbar-thumb { background: rgba(0,0,0,.28); border: 4px solid transparent; background-clip: padding-box; }
-[data-theme="light"] .size-slider { background: rgba(0,0,0,.2); }
-[data-theme="light"] .size-slider::-webkit-slider-thumb { background: #fff; }
 [data-theme="light"] .tb-btn:hover:not(:disabled) { background: rgba(0, 0, 0, .06); }
 [data-theme="light"] .side-item:not(.active):hover { background: rgba(0, 0, 0, .05); }
 [data-theme="light"] .crumb-item:hover { background: rgba(0,0,0,.06); }
@@ -1128,12 +1115,10 @@ body.admin-on .icon-item .fadmin { display: flex; }
   .mb-name { padding: 0 6px; letter-spacing: .1em; }
   .mb-clock { padding: 0 4px 0 4px; }
 
-  /* the toolbar runs out of room too — "Group by" is inert here, so it goes first
-     and the folder name gets the width back */
+  /* the toolbar runs out of room too — the search field is the first to go */
   .toolbar { padding: 0 8px 0 6px; }
   .tb-nav { margin-right: 4px; }
-  .tb-group { display: none; }
-  .tb-actions { gap: 2px; }
+  .tb-search { display: none; }
 }
 
 /* ================= small screens ================= */
@@ -1152,10 +1137,6 @@ body.admin-on .icon-item .fadmin { display: flex; }
   }
   .win-body:has(.sidebar:not(.collapsed)) .side-scrim { opacity: 1; pointer-events: auto; }
 
-  /* the icon-size slider is a mouse affordance; there is nothing to drag it with */
-  .size-slider { display: none; }
-  .statusbar { grid-template-columns: 1fr; }
-  .status-text { text-align: center; }
 
   /* 12px traffic lights are far under the 44px touch target — pad the hit area out */
   .traffic { gap: 18px; padding: 20px 0 16px 22px; }
