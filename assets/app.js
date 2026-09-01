@@ -122,11 +122,29 @@ const DIGITAL_PHOTOS = [
 // chips at the top of the page match against.
 const FILM_ROLES = ["Director", "Producer", "DP"];
 const ROLE_LABEL = { Director: "Director", Producer: "Producer", DP: "Director of Photography" };
+// `director` names who directed it when it wasn't Haolang; `stills` is a set
+// of frame grabs — a project with 3+ of them gets the stills-first DP
+// treatment on the FILMS list (list: 3 stills + credits, no poster; detail:
+// poster + description up top, up to 6 stills below) instead of the plain
+// poster row/page every other project uses.
 const film = (title, at, o) =>
   ({ id: "film-" + (++_fid), name: title, kind: "Film", icon: "i-folder-mac", at, size: "--", children: [],
-     poster: o.poster, meta: o.meta, description: o.description,
-     festivals: o.festivals || [], roles: o.roles || [] });
+     poster: o.poster, meta: o.meta, director: o.director, description: o.description,
+     festivals: o.festivals || [], roles: o.roles || [], stills: o.stills || [] });
 const FILM_PROJECTS = [
+  film("CURED BY DEATH 拆病", "2024-06-01T00:00", {
+    poster: "assets/photos/placeholder.jpg",   // TODO: swap for a real poster
+    meta: "2024 · 8 min",
+    director: "Murray Zhao",
+    description: "A street boy, a deaf boy, and a wise mother, all born and raised by the city of Beijing, are searching for their way.",
+    festivals: ["Festival du Nouveau Cinéma 2025"],
+    roles: ["Producer", "DP"],
+    // TODO: 5 more real stills to go — the rest are placeholders for now
+    stills: [
+      "assets/photos/films/cured-by-death/still-1.jpg",
+      ...Array(5).fill("assets/photos/placeholder.jpg"),
+    ],
+  }),
   film("Undertow", "2025-05-02T00:00", {
     poster: "assets/photos/placeholder.jpg",
     meta: "Short Film · 14 min · Color · 2025",
@@ -848,10 +866,46 @@ function armDigitalResize() {
    section). Each row is a project; the DIRECTOR/PRODUCER/DP chips filter by
    the role Haolang held on it — mutually exclusive, exactly one active at a
    time, never a mixed "everything" view. Clicking a row opens its own
-   detail page (renderFilmDetail below) — the breadcrumb reads FILMS › <title>. */
+   detail page (renderFilmDetail below) — the breadcrumb reads FILMS › <title>.
+
+   Under the DP filter specifically, a project with 3+ stills shows as a
+   stills row (3 frames, no poster) instead of the usual poster row —
+   cinematography is the thing to show off there. Projects without stills
+   yet still fall back to the poster row so nothing looks broken. */
 let filmRoleFilter = FILM_ROLES[0];
+const filmCredits = (p) => `
+  ${p.director ? `<div class="film-credit">Director: ${p.director}</div>` : ""}
+  <div class="film-credit">Haolang Li: ${p.roles.map(r => ROLE_LABEL[r] || r).join(", ")}</div>
+  ${p.festivals.length ? `<div class="film-credit">Festival: ${p.festivals.join(", ")}</div>` : ""}`;
+function filmPosterRow(p, list) {
+  return `
+    <button class="film-row" data-i="${list.indexOf(p)}">
+      <div class="film-poster"><img src="${p.poster}" alt="" loading="lazy"></div>
+      <div class="film-info">
+        <div class="film-title">${p.name}</div>
+        <div class="film-meta">${p.meta}</div>
+        <p class="film-desc">${p.description}</p>
+        ${p.festivals.length ? `
+          <ul class="film-festivals">${p.festivals.map(f => `<li>${f}</li>`).join("")}</ul>` : ""}
+      </div>
+    </button>`;
+}
+function filmStillsRow(p, list) {
+  return `
+    <button class="film-row film-row-stills" data-i="${list.indexOf(p)}">
+      <div class="film-stills">
+        ${p.stills.slice(0, 3).map(s => `<div class="film-still"><img src="${s}" alt="" loading="lazy"></div>`).join("")}
+      </div>
+      <div class="film-stills-credits">
+        <div class="film-title">${p.name}</div>
+        <div class="film-meta">${p.meta}</div>
+        ${filmCredits(p)}
+      </div>
+    </button>`;
+}
 function renderFilms(list) {
   const shown = list.filter(p => p.roles.includes(filmRoleFilter));
+  const dpMode = filmRoleFilter === "DP";
   els.filmsView.innerHTML = `
     <div class="film-filters">
       ${FILM_ROLES.map((r, i) => `
@@ -859,17 +913,9 @@ function renderFilms(list) {
         <button class="film-chip ${filmRoleFilter === r ? "on" : ""}" data-role="${r}">${ROLE_LABEL[r]}</button>`).join("")}
     </div>
     <div class="film-list">
-      ${shown.length ? shown.map(p => `
-        <button class="film-row" data-i="${list.indexOf(p)}">
-          <div class="film-poster"><img src="${p.poster}" alt="" loading="lazy"></div>
-          <div class="film-info">
-            <div class="film-title">${p.name}</div>
-            <div class="film-meta">${p.meta}</div>
-            <p class="film-desc">${p.description}</p>
-            ${p.festivals.length ? `
-              <ul class="film-festivals">${p.festivals.map(f => `<li>${f}</li>`).join("")}</ul>` : ""}
-          </div>
-        </button>`).join("") : `<div class="film-empty">No projects for this filter yet.</div>`}
+      ${shown.length ? shown.map(p =>
+        dpMode && p.stills.length >= 3 ? filmStillsRow(p, list) : filmPosterRow(p, list)
+      ).join("") : `<div class="film-empty">No projects for this filter yet.</div>`}
     </div>`;
   els.filmsView.querySelectorAll(".film-chip").forEach(chip => {
     chip.addEventListener("click", () => {
@@ -883,19 +929,25 @@ function renderFilms(list) {
   });
 }
 function renderFilmDetail(node) {
+  const stillsMode = node.stills.length >= 3;
   els.filmDetailView.innerHTML = `
     <div class="fd-wrap">
       <div class="fd-poster"><img src="${node.poster}" alt=""></div>
       <div class="fd-info">
         <h1 class="fd-title">${node.name}</h1>
         <div class="fd-meta">${node.meta}</div>
-        ${node.roles.length ? `<div class="fd-roles">${node.roles.map(r => `<span class="fd-role">${ROLE_LABEL[r] || r}</span>`).join("")}</div>` : ""}
+        ${stillsMode ? `<div class="fd-credits">${filmCredits(node)}</div>` : `
+          ${node.roles.length ? `<div class="fd-roles">${node.roles.map(r => `<span class="fd-role">${ROLE_LABEL[r] || r}</span>`).join("")}</div>` : ""}`}
         <p class="fd-desc">${node.description}</p>
-        ${node.festivals.length ? `
+        ${!stillsMode && node.festivals.length ? `
           <div class="fd-fest-head">Festivals</div>
           <ul class="fd-festivals">${node.festivals.map(f => `<li>${f}</li>`).join("")}</ul>` : ""}
       </div>
-    </div>`;
+    </div>
+    ${stillsMode ? `
+      <div class="fd-stills">
+        ${node.stills.slice(0, 6).map(s => `<div class="fd-still"><img src="${s}" alt="" loading="lazy"></div>`).join("")}
+      </div>` : ""}`;
 }
 
 /* ================= guest book: one public canvas =================

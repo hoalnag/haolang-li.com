@@ -2,6 +2,12 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
+<!-- Every asset path in the site (posters, photos, PDFs...) is written relative
+     ("assets/…"), which only resolves correctly against the root. Now that
+     routing pushes real nested URLs (/films/film-projects/…), the browser
+     would otherwise resolve those relative to the current path instead —
+     this pins resolution to the root regardless of how deep the URL is. -->
+<base href="/">
 <!-- viewport-fit=cover so the notch/home-indicator insets reach env(safe-area-inset-*) -->
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Haolang Li</title>
@@ -17,7 +23,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="assets/logo.png">
 <link rel="apple-touch-icon" href="assets/logo.png">
-<link rel="stylesheet" href="assets/style.css?v=38">
+<link rel="stylesheet" href="assets/style.css?v=39">
 </head>
 <body>
 
@@ -256,6 +262,6 @@
   <!-- context menu / quick look / get info render here -->
   <div id="overlay-layer"></div>
 
-  <script src="assets/app.js?v=38"></script>
+  <script src="assets/app.js?v=39"></script>
 </body>
 </html>
