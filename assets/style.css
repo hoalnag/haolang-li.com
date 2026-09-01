@@ -460,7 +460,7 @@ svg { display: block; }
 .film-row:hover { background: rgba(255, 255, 255, .025); }
 [data-theme="light"] .film-row:hover { background: rgba(0, 0, 0, .02); }
 .film-poster {
-  flex: 0 0 auto; width: 312px;
+  flex: 0 0 auto; width: 280px;
   background: var(--icon-hilite, rgba(255,255,255,.06));
 }
 .film-poster img { width: 100%; height: auto; display: block; }
@@ -468,7 +468,7 @@ svg { display: block; }
 .film-title { font-size: 17px; font-weight: 700; letter-spacing: -.005em; color: var(--text); }
 .film-meta { margin-top: 4px; font-size: 11.5px; letter-spacing: .04em; color: var(--text-dim); }
 .film-role-inline { color: var(--text); font-weight: 700; }
-.film-desc { margin-top: 12px; max-width: 62ch; font-size: 14px; line-height: 1.6; color: var(--text); }
+.film-desc { margin-top: 12px; max-width: 76ch; font-size: 14px; line-height: 1.6; color: var(--text); }
 .film-festivals {
   margin-top: 14px; padding: 0; list-style: none;
   display: flex; flex-direction: column; gap: 3px;

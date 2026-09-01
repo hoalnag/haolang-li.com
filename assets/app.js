@@ -137,23 +137,31 @@ const FILM_PROJECTS = [
     type: "Documentary Short",
     meta: "2024 · 18 min",
     description: "This documentary work is about real-estate, displacements, cultural groups, cocoons, and shame. By documenting the recent struggles against certain “non-profits” in Manhattan’s Chinatown, I aim to provide nuanced perspectives on the role of Chinese students in a controversy they passively drawn into. I interviewed scattered individuals representing clustered communities and agency enterprises to infiltrate the societal changes in need to be announced and addressed. This film represents my limited yet precise scope of cultural investigation on people I know. The title “Shame on You” is a slogan shouted by protesters. I hope it may be heard not only by the oppressor, but also pondered by every single one of us.",
-    // TODO: 6 stills pending export -- see poster's own "Publication" folder,
-    // which has nothing else in it yet (unlike CURED BY DEATH / FOOD LOVER).
+    // festival wording matches the laurels on the poster itself (more
+    // specific than the submission tracker's generic "Award Winner"/"Selected")
     festivals: [
       "Berlin Indie Awards — Semi-Finalist",
-      "Brooklyn International Short Festival — Award Winner",
+      "Brooklyn International Short Festival — Best Documentary",
       "New York International Film Awards™ - NYIFA — Finalist",
-      "New York Lift-Off Film Festival — Selected",
-      "New York City Independent Film Festival — Selected",
+      "New York Lift-Off Film Festival — Official Selection",
+      "New York City Independent Film Festival — Official Selection",
       "Oniros Film Awards® - New York — Finalist",
     ],
     roles: ["Director", "DP"],
+    stills: [
+      "assets/photos/films/shame-on-you/still-1.jpg",
+      "assets/photos/films/shame-on-you/still-2.jpg",
+      "assets/photos/films/shame-on-you/still-3.jpg",
+      "assets/photos/films/shame-on-you/still-4.jpg",
+      "assets/photos/films/shame-on-you/still-5.jpg",
+      "assets/photos/films/shame-on-you/still-6.jpg",
+    ],
   }),
   film("FOOD LOVER عاشق الطعام", "2024-11-10T00:00", {
     poster: "assets/photos/films/food-lover/poster.jpg",
     type: "Documentary Short",
     meta: "2024 · 18 min",
-    director: "Tiger Lee",
+    director: "Haolang Li, Tiger Lee",
     description: "Employing the cinéma vérité approach, the film observes the professional and personal life of Hesham, an Egyptian-American food cart owner, tracing how his culinary practice becomes a site for negotiating culture, religion, and migration.",
     festivals: ["Berlin Lift-Off Film Festival", "Tisch School of the Arts WinterFest"],
     roles: ["Director", "DP"],
@@ -940,7 +948,7 @@ function filmPosterRow(p, list) {
       <div class="film-poster"><img src="${p.poster}" alt="" loading="lazy"></div>
       <div class="film-info">
         <div class="film-title">${p.name}</div>
-        <div class="film-meta">${filmMetaBase(p)}</div>
+        <div class="film-meta">${filmMetaLine(p)}</div>
         <p class="film-desc">${p.description}</p>
         ${p.festivals.length ? `
           <ul class="film-festivals">${p.festivals.map(f => `<li>${f}</li>`).join("")}</ul>` : ""}
