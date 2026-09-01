@@ -121,6 +121,7 @@ const DIGITAL_PHOTOS = [
 // roles are always a subset of FILM_ROLES below — that's what the filter
 // chips at the top of the page match against.
 const FILM_ROLES = ["Director", "Producer", "DP"];
+const ROLE_LABEL = { Director: "Director", Producer: "Producer", DP: "Director of Photography" };
 const film = (title, at, o) =>
   ({ id: "film-" + (++_fid), name: title, kind: "Film", icon: "i-folder-mac", at, size: "--", children: [],
      poster: o.poster, meta: o.meta, description: o.description,
@@ -162,16 +163,23 @@ const FILM_PROJECTS = [
 // dropped straight onto it.
 function folderContent() {
   return {
-    FILMS: [...FILM_PROJECTS],
+    "Film Projects": [...FILM_PROJECTS],
     PHOTOGRAPHY: [...DIGITAL_PHOTOS].reverse(), // newest shot first
   };
 }
 
 // built-in default folder set — matches the Supabase seed, used before setup / offline.
-// Exactly four top-level sections, in this order, each its own page (see routing below).
+// Four top-level sections, in this order, each its own page (see routing below).
+// FILMS is the one exception with sub-pages of its own — Film Projects is
+// what its sidebar row opens by default; Reviews/Equipment are placeholders
+// for whenever there's real content to put there.
 function defaultFolders() {
   return [
-    folder("FILMS", "2026-07-16T11:40", []),
+    folder("FILMS", "2026-07-16T11:40", [
+      folder("Film Projects", "2026-07-16T11:40", []),
+      folder("Reviews", "2026-07-16T11:40", []),
+      folder("Equipment", "2026-07-16T11:40", []),
+    ]),
     folder("WORK EXPERIENCE", "2026-08-29T09:00", []),
     folder("WRITINGS", "2026-07-17T23:10", []),
     folder("PHOTOGRAPHY", "2026-06-25T15:00", []),
@@ -438,16 +446,17 @@ function since(at) {
   if (days < 31) return `${days}d`;
   return `${Math.round(days / 30)}mo`;
 }
-/* Recently Updated builds itself from the tree: newest `at` first. Top-level
-   folders are skipped — they already sit as blocks right above the list. */
+/* Recently Updated builds itself from the tree: newest `at` first. Organizing
+   folders (sections, and FILMS' own Film Projects/Reviews/Equipment) never
+   show up themselves — only the real content living inside them does. */
 function recentUpdates(limit = 5) {
   const found = [];
-  (function walk(node, depth) {
+  (function walk(node) {
     (node.children || []).forEach(child => {
-      if (!(depth === 0 && child.children)) found.push(child);
-      walk(child, depth + 1);
+      if (child.kind !== "Folder") found.push(child);
+      walk(child);
     });
-  })(ROOT, 0);
+  })(ROOT);
   // the reel sits on the desktop and inside FILMS; the feed should still name it once.
   // photos are a bulk archive with their own home (PHOTOGRAPHY) — they'd otherwise
   // flood this list on their own, so they sit out of the spotlight.
@@ -461,15 +470,35 @@ function recentUpdates(limit = 5) {
 
 /* ================= sidebar (built from the live tree, keyed by id) =========
    Home plus the four sections, flat, no icons — quiet text, room to breathe.
-   Links stays a small collapsible group below them. */
+   FILMS is the one with sub-pages, so it gets its own expand/collapse (its
+   row still opens straight into Film Projects — the arrow only expands the
+   list, it doesn't navigate). Links stays a small collapsible group below. */
 let linksOpen = true;
+let filmsOpen = true;
 function buildSidebar() {
   const section = (node, label = node.name) =>
     `<button class="side-item side-section" data-fid="${node.id}"><span>${label}</span></button>`;
-  let h = `<div class="side-sections">`
-    + section(ROOT, "HOME")
-    + ROOT.children.filter(n => n.children).map(n => section(n)).join("")
-    + `</div>`;
+
+  const filmsNode = ROOT.children.find(n => n.name === "FILMS");
+  const filmProjects = filmsNode?.children.find(n => n.name === "Film Projects");
+
+  let h = `<div class="side-sections">` + section(ROOT, "HOME");
+  ROOT.children.filter(n => n.children).forEach(n => {
+    if (n !== filmsNode) { h += section(n); return; }
+    h += `
+      <div class="side-group">
+        <div class="side-group-row">
+          <button class="side-item side-section" data-fid="${filmProjects.id}"><span>FILMS</span></button>
+          <button class="side-expand ${filmsOpen ? "open" : ""}" data-expand="films" aria-label="Toggle FILMS list">
+            <svg class="side-sec-chev" viewBox="0 0 20 20"><use href="#t-chev-d"/></svg>
+          </button>
+        </div>
+        <div class="side-subitems" id="side-films-sub" ${filmsOpen ? "" : "hidden"}>
+          ${filmsNode.children.map(sub => `<button class="side-item side-subitem" data-fid="${sub.id}"><span>${sub.name}</span></button>`).join("")}
+        </div>
+      </div>`;
+  });
+  h += `</div>`;
   h += `<button class="side-sec side-sec-toggle ${linksOpen ? "open" : ""}" data-toggle="links">
       <span>Links</span><svg class="side-sec-chev" viewBox="0 0 20 20"><use href="#t-chev-d"/></svg>
     </button>`;
@@ -482,6 +511,13 @@ function buildSidebar() {
   h += `</div>`;
   els.sideNav.innerHTML = h;
   els.sideNav.onclick = e => {
+    const expand = e.target.closest("[data-expand]");
+    if (expand) {
+      filmsOpen = !filmsOpen;
+      expand.classList.toggle("open", filmsOpen);
+      $("side-films-sub").hidden = !filmsOpen;
+      return;
+    }
     const toggle = e.target.closest("[data-toggle]");
     if (toggle) {
       linksOpen = !linksOpen;
@@ -506,6 +542,70 @@ function syncSidebar() {
     b.classList.toggle("active", b.dataset.fid === cwd.id));
 }
 
+/* ================= site search: the toolbar box, top-right =================
+   A flat index over the folder tree — sections, and whatever real content
+   sits inside them (film projects today; anything else once it exists).
+   Raw photos are skipped: there are 77 of them and "digital-43.jpg" isn't
+   a meaningful search target. */
+function searchIndex() {
+  const idx = [{ label: "HOME", sub: "", node: ROOT }];
+  (function walk(node, depth) {
+    (node.children || []).forEach(child => {
+      if (child.isPhoto) return;
+      const sub = depth === 0 ? (child.children ? "Section" : "Home") : node.name;
+      idx.push({ label: child.name, sub, node: child });
+      if (child.children) walk(child, depth + 1);
+    });
+  })(ROOT, 0);
+  return idx;
+}
+function searchMatch(entry, q) {
+  const n = entry.node;
+  if (entry.label.toLowerCase().includes(q)) return true;
+  if (n.description && n.description.toLowerCase().includes(q)) return true;
+  if (n.festivals && n.festivals.join(" ").toLowerCase().includes(q)) return true;
+  return false;
+}
+let searchResults = [], searchHi = -1;
+function renderSearchResults() {
+  const box = $("tb-search-results");
+  if (!searchResults.length) { box.innerHTML = `<div class="tsr-empty">No matches</div>`; box.hidden = false; return; }
+  box.innerHTML = searchResults.map((it, i) => `
+    <button class="tsr-item ${i === searchHi ? "hi" : ""}" data-i="${i}">
+      <span class="tsr-name">${it.label}</span>
+      ${it.sub ? `<span class="tsr-sub">${it.sub}</span>` : ""}
+    </button>`).join("");
+  box.hidden = false;
+  box.querySelectorAll(".tsr-item").forEach(btn =>
+    btn.addEventListener("click", () => selectSearchResult(searchResults[+btn.dataset.i])));
+}
+function closeSearchResults() { $("tb-search-results").hidden = true; searchHi = -1; }
+function selectSearchResult(entry) {
+  openNode(entry.node);
+  $("tb-search-input").value = "";
+  closeSearchResults();
+  $("tb-search-input").blur();
+}
+$("tb-search-input").addEventListener("input", e => {
+  const q = e.target.value.trim().toLowerCase();
+  searchHi = -1;
+  if (!q) { closeSearchResults(); searchResults = []; return; }
+  searchResults = searchIndex().filter(entry => searchMatch(entry, q)).slice(0, 8);
+  renderSearchResults();
+});
+$("tb-search-input").addEventListener("keydown", e => {
+  if (e.key === "Escape") { closeSearchResults(); e.target.blur(); return; }
+  if ($("tb-search-results").hidden) return;
+  if (e.key === "ArrowDown") { e.preventDefault(); searchHi = Math.min(searchHi + 1, searchResults.length - 1); renderSearchResults(); return; }
+  if (e.key === "ArrowUp") { e.preventDefault(); searchHi = Math.max(searchHi - 1, 0); renderSearchResults(); return; }
+  if (e.key === "Enter") {
+    e.preventDefault();
+    const pick = searchResults[searchHi >= 0 ? searchHi : 0];
+    if (pick) selectSearchResult(pick);
+  }
+});
+document.addEventListener("click", e => { if (!e.target.closest("#tb-search")) closeSearchResults(); });
+
 /* ================= navigation ================= */
 function navigate(node, { record = true } = {}) {
   if (node === cwd) return;
@@ -526,12 +626,16 @@ function iconSvg(node, cls = "file-icon") {
 }
 function render() {
   const list = items();
-  // the folder path, flattened into the toolbar itself — HOME › FILMS › …
-  els.title.innerHTML = pathOf(cwd).map((n, i) => `
+  // the folder path, flattened into the toolbar itself. HOME is a section
+  // like any other, not an ancestor of them — so the trail never starts
+  // with HOME unless HOME is actually where you are: FILMS › Film Projects,
+  // not HOME › FILMS › Film Projects.
+  const crumbPath = cwd === ROOT ? [ROOT] : pathOf(cwd).slice(1);
+  els.title.innerHTML = crumbPath.map((n, i) => `
     ${i ? '<span class="crumb-sep">›</span>' : ""}
     <button class="crumb-item" data-depth="${i}">${n === ROOT ? "HOME" : n.name}</button>`).join("");
   els.title.querySelectorAll(".crumb-item").forEach(el => {
-    el.addEventListener("click", () => navigate(pathOf(cwd)[+el.dataset.depth]));
+    el.addEventListener("click", () => navigate(crumbPath[+el.dataset.depth]));
   });
   document.title = cwd === ROOT ? "Haolang Li" : `${cwd.name} — Haolang Li`;
   els.back.disabled = !history.length;
@@ -542,8 +646,8 @@ function render() {
   // back to the plain grid/list/columns/gallery.
   const onDesk = view === "icon" && cwd === ROOT;
   const onDigital = cwd.name === "PHOTOGRAPHY" && list.some(n => n.isPhoto);
-  const onFilms = cwd.name === "FILMS";
-  const onFilmDetail = Boolean(cwd.parent && cwd.parent.name === "FILMS");
+  const onFilms = cwd.name === "Film Projects";
+  const onFilmDetail = Boolean(cwd.parent && cwd.parent.name === "Film Projects");
   const custom = onDigital || onFilms || onFilmDetail;
   stopPortrait();
   els.deskView.hidden = !onDesk;
@@ -741,8 +845,9 @@ function renderFilms(list) {
   const shown = filmRoleFilter.size ? list.filter(p => p.roles.some(r => filmRoleFilter.has(r))) : list;
   els.filmsView.innerHTML = `
     <div class="film-filters">
-      ${FILM_ROLES.map(r => `
-        <button class="film-chip ${filmRoleFilter.has(r) ? "on" : ""}" data-role="${r}">${r}</button>`).join("")}
+      ${FILM_ROLES.map((r, i) => `
+        ${i ? '<span class="film-filter-sep">/</span>' : ""}
+        <button class="film-chip ${filmRoleFilter.has(r) ? "on" : ""}" data-role="${r}">${ROLE_LABEL[r]}</button>`).join("")}
     </div>
     <div class="film-list">
       ${shown.length ? shown.map(p => `
@@ -775,7 +880,7 @@ function renderFilmDetail(node) {
       <div class="fd-info">
         <h1 class="fd-title">${node.name}</h1>
         <div class="fd-meta">${node.meta}</div>
-        ${node.roles.length ? `<div class="fd-roles">${node.roles.map(r => `<span class="fd-role">${r}</span>`).join("")}</div>` : ""}
+        ${node.roles.length ? `<div class="fd-roles">${node.roles.map(r => `<span class="fd-role">${ROLE_LABEL[r] || r}</span>`).join("")}</div>` : ""}
         <p class="fd-desc">${node.description}</p>
         ${node.festivals.length ? `
           <div class="fd-fest-head">Festivals</div>
@@ -1206,8 +1311,8 @@ const ITEM_SEL = { icon: ".icon-item, .desk-item", list: ".lv-row", columns: ".c
 // for "what's actually on screen right now" that selection/clicks key off.
 function curView() {
   if (cwd.name === "PHOTOGRAPHY" && !els.digitalView.hidden) return "digital";
-  if (cwd.name === "FILMS" && !els.filmsView.hidden) return "films";
-  if (cwd.parent && cwd.parent.name === "FILMS" && !els.filmDetailView.hidden) return "film-detail";
+  if (cwd.name === "Film Projects" && !els.filmsView.hidden) return "films";
+  if (cwd.parent && cwd.parent.name === "Film Projects" && !els.filmDetailView.hidden) return "film-detail";
   return view;
 }
 function elementsForItems() {

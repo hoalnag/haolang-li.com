@@ -244,6 +244,25 @@ svg { display: block; }
 .side-item.side-section:hover { background: none; opacity: .95; }
 .side-item.side-section.active { background: none; opacity: 1; font-weight: 700; }
 
+/* FILMS: the one section with sub-pages. Its own row still opens straight
+   into Film Projects — the small arrow only expands/collapses the list
+   below, same quiet chevron-only state change as Links. */
+.side-group-row { display: flex; align-items: center; gap: 6px; }
+.side-group-row .side-item.side-section { flex: 1; min-width: 0; }
+.side-expand {
+  flex: 0 0 auto; width: 20px; height: 20px; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--sidebar-sec);
+}
+.side-subitems { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; padding-left: 2px; }
+.side-item.side-subitem {
+  height: auto; padding: 0 2px; background: none;
+  font-size: 12.5px; font-weight: 500; letter-spacing: .03em;
+  color: var(--sidebar-fg); opacity: .6;
+}
+.side-item.side-subitem:hover { background: none; opacity: .85; }
+.side-item.side-subitem.active { background: none; opacity: 1; font-weight: 700; }
+
 /* Links: a collapsible group, disclosure-style — the chevron alone carries the
    state, nothing lights up around it on hover or click */
 .side-sec-toggle {
@@ -287,14 +306,31 @@ svg { display: block; }
 .crumb-sep { margin: 0 5px; color: #5F5F64; }
 .tb-spacer { flex: 1; }
 /* plain, flat — not the rounded/tinted "Spotlight" look; a hairline is enough */
-.tb-search { flex: 0 0 auto; }
+.tb-search { position: relative; flex: 0 0 auto; }
 .tb-search input {
-  width: 150px; height: 26px; padding: 0 2px 3px;
+  width: 170px; height: 26px; padding: 0 2px 3px;
   background: none; border: 0; border-bottom: 1px solid var(--hairline);
   font-size: 12.5px; color: var(--toolbar-fg);
 }
 .tb-search input::placeholder { color: var(--text-dim); }
 .tb-search input:focus { border-bottom-color: var(--text-dim); }
+.tb-search-results {
+  position: absolute; top: calc(100% + 6px); right: 0; z-index: 300;
+  width: 260px; max-height: 320px; overflow-y: auto;
+  background: var(--menu-bg);
+  backdrop-filter: blur(30px) saturate(1.8);
+  -webkit-backdrop-filter: blur(30px) saturate(1.8);
+  border: .5px solid rgba(255, 255, 255, .14);
+  border-radius: 9px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, .4);
+  padding: 6px;
+}
+.tsr-item { display: flex; flex-direction: column; gap: 1px; width: 100%; padding: 7px 9px; border-radius: 6px; text-align: left; }
+.tsr-item:hover, .tsr-item.hi { background: var(--accent-menu); }
+.tsr-item:hover .tsr-sub, .tsr-item.hi .tsr-sub { color: rgba(255,255,255,.75); }
+.tsr-name { font-size: 12.5px; color: var(--menu-fg); }
+.tsr-sub { font-size: 10.5px; letter-spacing: .04em; text-transform: uppercase; color: var(--menu-dim); }
+.tsr-empty { padding: 10px 9px; font-size: 12px; color: var(--menu-dim); }
 
 /* ---- content ---- */
 .content {
@@ -380,15 +416,16 @@ svg { display: block; }
    The DIRECTOR/PRODUCER/DP chips filter which rows show. No icon/list/
    columns/gallery fallback, same as digital and desk. */
 .films-view { min-height: 100%; padding: 28px 32px 40px; }
-.film-filters { display: flex; gap: 8px; margin-bottom: 28px; }
+/* plain text, no pills — an active filter gets a thin underline, nothing else */
+.film-filters { display: flex; align-items: center; gap: 16px; margin-bottom: 34px; }
 .film-chip {
-  height: 28px; padding: 0 14px;
-  border: 1px solid var(--hairline); border-radius: 20px;
-  font-size: 11.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
+  padding: 0 0 5px; background: none;
+  font-size: 11.5px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
   color: var(--text-dim);
 }
-.film-chip:hover { color: var(--text); border-color: var(--text-dim); }
-.film-chip.on { background: var(--text); color: var(--win-bg); border-color: var(--text); }
+.film-chip:hover { color: var(--text); }
+.film-chip.on { color: var(--text); box-shadow: inset 0 -2px 0 var(--text); }
+.film-filter-sep { color: var(--hairline); font-size: 11px; }
 .film-list { display: flex; flex-direction: column; }
 .film-row {
   display: flex; align-items: flex-start; gap: 26px;
@@ -401,7 +438,7 @@ svg { display: block; }
 [data-theme="light"] .film-row:hover { background: rgba(0, 0, 0, .02); }
 .film-poster {
   flex: 0 0 auto; width: 130px; aspect-ratio: 2 / 3; overflow: hidden;
-  border-radius: 4px; background: var(--icon-hilite, rgba(255,255,255,.06));
+  background: var(--icon-hilite, rgba(255,255,255,.06));
 }
 .film-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .film-info { flex: 1; min-width: 0; padding-top: 2px; }
@@ -419,7 +456,7 @@ svg { display: block; }
 /* ---- one project, full page ---- */
 .film-detail-view { min-height: 100%; padding: 40px 32px 56px; }
 .fd-wrap { display: flex; gap: 40px; max-width: 920px; }
-.fd-poster { flex: 0 0 auto; width: 260px; aspect-ratio: 2 / 3; overflow: hidden; border-radius: 6px; box-shadow: 0 18px 40px rgba(0,0,0,.35); }
+.fd-poster { flex: 0 0 auto; width: 260px; aspect-ratio: 2 / 3; overflow: hidden; box-shadow: 0 18px 40px rgba(0,0,0,.35); }
 .fd-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .fd-info { flex: 1; min-width: 0; padding-top: 4px; }
 .fd-title { font-size: 27px; font-weight: 700; letter-spacing: -.01em; color: var(--text); }
