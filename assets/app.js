@@ -129,11 +129,29 @@ const ROLE_LABEL = { Director: "Director", Producer: "Producer", DP: "Director o
 // poster row/page every other project uses.
 const film = (title, at, o) =>
   ({ id: "film-" + (++_fid), name: title, kind: "Film", icon: "i-folder-mac", at, size: "--", children: [],
-     poster: o.poster, meta: o.meta, director: o.director, description: o.description,
+     poster: o.poster, meta: o.meta, type: o.type, director: o.director, description: o.description,
      festivals: o.festivals || [], roles: o.roles || [], stills: o.stills || [] });
 const FILM_PROJECTS = [
+  film("FOOD LOVER عاشق الطعام", "2024-11-10T00:00", {
+    poster: "assets/photos/films/food-lover/poster.jpg",
+    type: "Documentary Short",
+    meta: "2024 · 18 min",
+    director: "Tiger Lee",
+    description: "Employing the cinéma vérité approach, the film observes the professional and personal life of Hesham, an Egyptian-American food cart owner, tracing how his culinary practice becomes a site for negotiating culture, religion, and migration.",
+    festivals: ["Berlin Lift-Off Film Festival", "Tisch School of the Arts WinterFest"],
+    roles: ["Director", "DP"],
+    stills: [
+      "assets/photos/films/food-lover/still-1.jpg",
+      "assets/photos/films/food-lover/still-2.jpg",
+      "assets/photos/films/food-lover/still-3.jpg",
+      "assets/photos/films/food-lover/still-4.jpg",
+      "assets/photos/films/food-lover/still-5.jpg",
+      "assets/photos/films/food-lover/still-6.jpg",
+    ],
+  }),
   film("CURED BY DEATH 拆病", "2024-06-01T00:00", {
     poster: "assets/photos/placeholder.jpg",   // TODO: swap for a real poster
+    type: "Narrative Short",
     meta: "2024 · 8 min",
     director: "Murray Zhao",
     description: "A street boy, a deaf boy, and a wise mother, all born and raised by the city of Beijing, are searching for their way.",
@@ -150,28 +168,32 @@ const FILM_PROJECTS = [
   }),
   film("Undertow", "2025-05-02T00:00", {
     poster: "assets/photos/placeholder.jpg",
-    meta: "Short Film · 14 min · Color · 2025",
+    type: "Narrative Short",
+    meta: "2025 · 14 min",
     description: "A dockworker's quiet routine breaks when a stranger asks him to keep something he shouldn't.",
     festivals: ["Sundance Film Festival — Official Selection", "Tribeca Festival"],
     roles: ["Director", "DP"],
   }),
   film("Static", "2024-11-14T00:00", {
     poster: "assets/photos/placeholder.jpg",
-    meta: "Short Film · 9 min · Color · 2024",
+    type: "Narrative Short",
+    meta: "2024 · 9 min",
     description: "Two roommates communicate only through the television between them.",
     festivals: ["SXSW"],
     roles: ["Director"],
   }),
   film("Glasshouse", "2024-06-20T00:00", {
     poster: "assets/photos/placeholder.jpg",
-    meta: "Feature · 92 min · Color · 2024",
+    type: "Narrative Feature",
+    meta: "2024 · 92 min",
     description: "A family rebuilds a greenhouse after a storm, and everything they'd buried along with it.",
     festivals: ["Cannes — Official Selection", "Berlinale"],
     roles: ["Producer"],
   }),
   film("Night Shift", "2023-09-08T00:00", {
     poster: "assets/photos/placeholder.jpg",
-    meta: "Short Film · 11 min · B&W · 2023",
+    type: "Narrative Short",
+    meta: "2023 · 11 min",
     description: "An overnight security guard starts hearing the building breathe.",
     festivals: [],
     roles: ["DP"],
@@ -876,10 +898,13 @@ function armDigitalResize() {
    cinematography is the thing to show off there. Projects without stills
    yet still fall back to the poster row so nothing looks broken. */
 let filmRoleFilter = FILM_ROLES[0];
-// the role Haolang held rides right on the meta line, bold — it's the
-// headline fact for the DP-style template; director credit and festivals
-// (no "Festival:" label, just the name) sit underneath.
-const filmMetaLine = (p) => `${p.meta}${p.roles.length ? ` · <strong class="film-role-inline">${p.roles.map(r => ROLE_LABEL[r] || r).join(", ")}</strong>` : ""}`;
+// `type` (Narrative Short, Documentary Short, ...) leads every meta line,
+// ahead of the year/runtime — every project carries one. The role Haolang
+// held rides at the end, bold — it's the headline fact for the DP-style
+// template; director credit and festivals (no "Festival:" label, just the
+// name) sit underneath.
+const filmMetaBase = (p) => p.type ? `${p.type} · ${p.meta}` : p.meta;
+const filmMetaLine = (p) => `${filmMetaBase(p)}${p.roles.length ? ` · <strong class="film-role-inline">${p.roles.map(r => ROLE_LABEL[r] || r).join(", ")}</strong>` : ""}`;
 const filmCredits = (p) => `
   ${p.director ? `<div class="film-credit">Director: ${p.director}</div>` : ""}
   ${p.festivals.map(f => `<div class="film-credit">${f}</div>`).join("")}`;
@@ -889,7 +914,7 @@ function filmPosterRow(p, list) {
       <div class="film-poster"><img src="${p.poster}" alt="" loading="lazy"></div>
       <div class="film-info">
         <div class="film-title">${p.name}</div>
-        <div class="film-meta">${p.meta}</div>
+        <div class="film-meta">${filmMetaBase(p)}</div>
         <p class="film-desc">${p.description}</p>
         ${p.festivals.length ? `
           <ul class="film-festivals">${p.festivals.map(f => `<li>${f}</li>`).join("")}</ul>` : ""}
@@ -943,7 +968,7 @@ function renderFilmDetail(node) {
         <div class="fd-poster"><img src="${node.poster}" alt=""></div>
         <div class="fd-info">
           <h1 class="fd-title">${node.name}</h1>
-          <div class="fd-meta">${stillsMode ? filmMetaLine(node) : node.meta}</div>
+          <div class="fd-meta">${stillsMode ? filmMetaLine(node) : filmMetaBase(node)}</div>
           ${stillsMode ? `
             ${node.director ? `<div class="fd-credit-line">Director: ${node.director}</div>` : ""}
             <p class="fd-desc">${node.description}</p>
