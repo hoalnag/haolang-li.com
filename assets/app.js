@@ -944,12 +944,17 @@ function renderFilmDetail(node) {
         <div class="fd-info">
           <h1 class="fd-title">${node.name}</h1>
           <div class="fd-meta">${stillsMode ? filmMetaLine(node) : node.meta}</div>
-          ${stillsMode ? `<div class="fd-credits">${filmCredits(node)}</div>` : `
-            ${node.roles.length ? `<div class="fd-roles">${node.roles.map(r => `<span class="fd-role">${ROLE_LABEL[r] || r}</span>`).join("")}</div>` : ""}`}
-          <p class="fd-desc">${node.description}</p>
-          ${!stillsMode && node.festivals.length ? `
-            <div class="fd-fest-head">Festivals</div>
-            <ul class="fd-festivals">${node.festivals.map(f => `<li>${f}</li>`).join("")}</ul>` : ""}
+          ${stillsMode ? `
+            ${node.director ? `<div class="fd-credit-line">Director: ${node.director}</div>` : ""}
+            <p class="fd-desc">${node.description}</p>
+            ${node.festivals.length ? `<div class="fd-credit-line">${node.festivals.join(", ")}</div>` : ""}
+          ` : `
+            ${node.roles.length ? `<div class="fd-roles">${node.roles.map(r => `<span class="fd-role">${ROLE_LABEL[r] || r}</span>`).join("")}</div>` : ""}
+            <p class="fd-desc">${node.description}</p>
+            ${node.festivals.length ? `
+              <div class="fd-fest-head">Festivals</div>
+              <ul class="fd-festivals">${node.festivals.map(f => `<li>${f}</li>`).join("")}</ul>` : ""}
+          `}
         </div>
       </div>
       ${stillsMode ? `

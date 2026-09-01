@@ -490,14 +490,14 @@ svg { display: block; }
   font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
   color: var(--text-dim);
 }
-.fd-desc { margin-top: 22px; max-width: 58ch; font-size: 15px; line-height: 1.7; color: var(--text); }
+.fd-desc { margin-top: 16px; max-width: 58ch; font-size: 15.5px; line-height: 1.7; color: var(--text); }
 .fd-fest-head { margin-top: 28px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--text-dim); }
 .fd-festivals { margin: 10px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text); }
 .fd-festivals li::before { content: "— "; opacity: .5; }
-/* stills-first detail (credits replace the role pills; up to 6 frames,
-   large and flush against each other, sit below the poster+description) */
-.fd-credits { display: flex; flex-direction: column; gap: 3px; margin-top: 14px; }
-.fd-credits .film-credit { font-size: 12.5px; }
+/* stills-first detail: Director › Description › Festival, in that order,
+   all legible — this and .fd-desc above are the two things that were too
+   faint before */
+.fd-credit-line { margin-top: 16px; font-size: 14px; letter-spacing: .01em; color: var(--text); }
 .fd-stills { margin-top: 48px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
 .fd-still { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--icon-hilite, rgba(255,255,255,.06)); cursor: pointer; }
 .fd-still img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s cubic-bezier(.2,.8,.2,1), filter .2s; }
