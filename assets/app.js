@@ -132,6 +132,23 @@ const film = (title, at, o) =>
      poster: o.poster, meta: o.meta, type: o.type, director: o.director, description: o.description,
      festivals: o.festivals || [], roles: o.roles || [], stills: o.stills || [] });
 const FILM_PROJECTS = [
+  film("INANNA", "2025-04-09T00:00", {
+    poster: "assets/photos/films/inanna/poster.jpg",
+    type: "Fashion Film",   // inferred from the Sarajevo Fashion Film Festival + poster credits -- flag if wrong
+    meta: "2025 · 3 min",
+    director: "Cecilia Qingyu Cheng",
+    // TODO: no description text given yet -- pending
+    festivals: ["Sarajevo Fashion Film Festival"],
+    roles: ["DP"],
+    stills: [
+      "assets/photos/films/inanna/still-1.jpg",
+      "assets/photos/films/inanna/still-2.jpg",
+      "assets/photos/films/inanna/still-3.jpg",
+      "assets/photos/films/inanna/still-4.jpg",
+      "assets/photos/films/inanna/still-5.jpg",
+      "assets/photos/films/inanna/still-6.jpg",
+    ],
+  }),
   film("SHAME ON YOU", "2024-12-02T00:00", {
     poster: "assets/photos/films/shame-on-you/poster.jpg",
     type: "Documentary Short",
@@ -949,7 +966,7 @@ function filmPosterRow(p, list) {
       <div class="film-info">
         <div class="film-title">${p.name}</div>
         <div class="film-meta">${filmMetaLine(p)}</div>
-        <p class="film-desc">${p.description}</p>
+        ${p.description ? `<p class="film-desc">${p.description}</p>` : ""}
         ${p.festivals.length ? `
           <ul class="film-festivals">${p.festivals.map(f => `<li>${f}</li>`).join("")}</ul>` : ""}
       </div>
@@ -1018,11 +1035,11 @@ function renderFilmDetail(node) {
           <div class="fd-meta">${stillsMode ? filmMetaLine(node) : filmMetaBase(node)}</div>
           ${stillsMode ? `
             ${node.director ? `<div class="fd-credit-line">Director: ${node.director}</div>` : ""}
-            <p class="fd-desc">${node.description}</p>
+            ${node.description ? `<p class="fd-desc">${node.description}</p>` : ""}
             ${node.festivals.length ? `<div class="fd-credit-line fd-fest-lines">${node.festivals.map(f => `<div>${f}</div>`).join("")}</div>` : ""}
           ` : `
             ${node.roles.length ? `<div class="fd-roles">${node.roles.map(r => `<span class="fd-role">${ROLE_LABEL[r] || r}</span>`).join("")}</div>` : ""}
-            <p class="fd-desc">${node.description}</p>
+            ${node.description ? `<p class="fd-desc">${node.description}</p>` : ""}
             ${node.festivals.length ? `
               <div class="fd-fest-head">Festivals</div>
               <ul class="fd-festivals">${node.festivals.map(f => `<li>${f}</li>`).join("")}</ul>` : ""}
