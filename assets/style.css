@@ -453,7 +453,8 @@ svg { display: block; }
 .film-info { flex: 1; min-width: 0; padding-top: 2px; }
 .film-title { font-size: 17px; font-weight: 700; letter-spacing: -.005em; color: var(--text); }
 .film-meta { margin-top: 4px; font-size: 11.5px; letter-spacing: .04em; color: var(--text-dim); }
-.film-desc { margin-top: 12px; max-width: 62ch; font-size: 13.5px; line-height: 1.55; color: var(--text); opacity: .82; }
+.film-role-inline { color: var(--text); font-weight: 700; }
+.film-desc { margin-top: 12px; max-width: 62ch; font-size: 14px; line-height: 1.6; color: var(--text); }
 .film-festivals {
   margin-top: 14px; padding: 0; list-style: none;
   display: flex; flex-direction: column; gap: 3px;
@@ -472,9 +473,11 @@ svg { display: block; }
 .film-stills-credits .film-title { margin-bottom: 3px; }
 .film-credit { font-size: 12px; letter-spacing: .02em; color: var(--text-dim); }
 
-/* ---- one project, full page ---- */
-.film-detail-view { min-height: 100%; padding: 40px 32px 56px; }
-.fd-wrap { display: flex; gap: 40px; max-width: 920px; }
+/* ---- one project, full page — the template every future project detail
+   page uses ---- */
+.film-detail-view { min-height: 100%; padding: 40px 32px 64px; display: flex; justify-content: center; }
+.fd-container { width: 100%; max-width: 1080px; }
+.fd-wrap { display: flex; gap: 40px; }
 .fd-poster { flex: 0 0 auto; width: 260px; aspect-ratio: 2 / 3; overflow: hidden; box-shadow: 0 18px 40px rgba(0,0,0,.35); }
 .fd-poster img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .fd-info { flex: 1; min-width: 0; padding-top: 4px; }
@@ -487,17 +490,18 @@ svg { display: block; }
   font-size: 10.5px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase;
   color: var(--text-dim);
 }
-.fd-desc { margin-top: 22px; max-width: 58ch; font-size: 14.5px; line-height: 1.65; color: var(--text); opacity: .85; }
+.fd-desc { margin-top: 22px; max-width: 58ch; font-size: 15px; line-height: 1.7; color: var(--text); }
 .fd-fest-head { margin-top: 28px; font-size: 11px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: var(--text-dim); }
 .fd-festivals { margin: 10px 0 0; padding: 0; list-style: none; display: flex; flex-direction: column; gap: 6px; font-size: 13px; color: var(--text); }
 .fd-festivals li::before { content: "— "; opacity: .5; }
-/* stills-first detail (credits replace the role pills; a 3-up grid of up
-   to 6 frames sits below the poster+description block) */
+/* stills-first detail (credits replace the role pills; up to 6 frames,
+   large and flush against each other, sit below the poster+description) */
 .fd-credits { display: flex; flex-direction: column; gap: 3px; margin-top: 14px; }
 .fd-credits .film-credit { font-size: 12.5px; }
-.fd-stills { margin-top: 44px; max-width: 920px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
-.fd-still { aspect-ratio: 16 / 9; overflow: hidden; background: var(--icon-hilite, rgba(255,255,255,.06)); }
-.fd-still img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.fd-stills { margin-top: 48px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
+.fd-still { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--icon-hilite, rgba(255,255,255,.06)); cursor: pointer; }
+.fd-still img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s cubic-bezier(.2,.8,.2,1), filter .2s; }
+.fd-still:hover img { transform: scale(1.045); filter: brightness(1.06); }
 @media (max-width: 740px) {
   .films-view { padding: 20px 16px 32px; }
   .film-row { gap: 16px; padding: 20px 2px; }
@@ -508,6 +512,36 @@ svg { display: block; }
   .fd-wrap { flex-direction: column; gap: 22px; }
   .fd-poster { width: 180px; }
   .fd-stills { grid-template-columns: 1fr; }
+}
+
+/* ---- still lightbox: click a detail-page frame to see it full-size ---- */
+.still-lightbox {
+  position: fixed; inset: 0; z-index: 700;
+  background: rgba(6, 6, 7, .96);
+  display: flex; align-items: center; justify-content: center;
+}
+.sl-img { max-width: 88vw; max-height: 84vh; object-fit: contain; display: block; box-shadow: 0 20px 60px rgba(0,0,0,.5); }
+.sl-close, .sl-nav {
+  position: absolute; display: flex; align-items: center; justify-content: center;
+  border-radius: 50%; color: rgba(255,255,255,.75);
+  border: 1px solid rgba(255,255,255,.2);
+}
+.sl-close:hover, .sl-nav:hover { color: #fff; border-color: rgba(255,255,255,.45); background: rgba(255,255,255,.06); }
+.sl-close { top: 24px; left: 24px; width: 34px; height: 34px; }
+.sl-close svg { width: 13px; height: 13px; }
+.sl-nav { top: 50%; margin-top: -22px; width: 44px; height: 44px; }
+.sl-nav svg { width: 17px; height: 17px; }
+.sl-prev { left: 24px; }
+.sl-next { right: 24px; }
+.sl-count {
+  position: absolute; bottom: 26px; left: 50%; transform: translateX(-50%);
+  font-size: 11.5px; letter-spacing: .06em; color: rgba(255,255,255,.55);
+}
+@media (max-width: 740px) {
+  .sl-nav { width: 38px; height: 38px; }
+  .sl-prev { left: 10px; }
+  .sl-next { right: 10px; }
+  .sl-close { top: 14px; left: 14px; }
 }
 
 /* list view */

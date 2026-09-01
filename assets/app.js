@@ -439,7 +439,7 @@ const els = {
   back: $("tb-back"), fwd: $("tb-fwd"), content: $("content"),
   iconView: $("icon-view"), listView: $("list-view"), deskView: $("desk-view"),
   columnsView: $("columns-view"), galleryView: $("gallery-view"), digitalView: $("digital-view"),
-  filmsView: $("films-view"), filmDetailView: $("film-detail-view"),
+  filmsView: $("films-view"), filmDetailView: $("film-detail-view"), stillLightbox: $("still-lightbox"),
   status: $("status-text"), rubber: $("rubber-band"),
   menuLayer: $("menu-layer"), overlayLayer: $("overlay-layer"),
   sidebar: $("sidebar"), desktop: $("desktop"), contactLayer: $("contact-layer"),
@@ -876,10 +876,13 @@ function armDigitalResize() {
    cinematography is the thing to show off there. Projects without stills
    yet still fall back to the poster row so nothing looks broken. */
 let filmRoleFilter = FILM_ROLES[0];
+// the role Haolang held rides right on the meta line, bold — it's the
+// headline fact for the DP-style template; director credit and festivals
+// (no "Festival:" label, just the name) sit underneath.
+const filmMetaLine = (p) => `${p.meta}${p.roles.length ? ` · <strong class="film-role-inline">${p.roles.map(r => ROLE_LABEL[r] || r).join(", ")}</strong>` : ""}`;
 const filmCredits = (p) => `
   ${p.director ? `<div class="film-credit">Director: ${p.director}</div>` : ""}
-  <div class="film-credit">Haolang Li: ${p.roles.map(r => ROLE_LABEL[r] || r).join(", ")}</div>
-  ${p.festivals.length ? `<div class="film-credit">Festival: ${p.festivals.join(", ")}</div>` : ""}`;
+  ${p.festivals.map(f => `<div class="film-credit">${f}</div>`).join("")}`;
 function filmPosterRow(p, list) {
   return `
     <button class="film-row" data-i="${list.indexOf(p)}">
@@ -901,7 +904,7 @@ function filmStillsRow(p, list) {
       </div>
       <div class="film-stills-credits">
         <div class="film-title">${p.name}</div>
-        <div class="film-meta">${p.meta}</div>
+        <div class="film-meta">${filmMetaLine(p)}</div>
         ${filmCredits(p)}
       </div>
     </button>`;
@@ -933,24 +936,49 @@ function renderFilms(list) {
 }
 function renderFilmDetail(node) {
   const stillsMode = node.stills.length >= 3;
+  const stills = node.stills.slice(0, 6);
   els.filmDetailView.innerHTML = `
-    <div class="fd-wrap">
-      <div class="fd-poster"><img src="${node.poster}" alt=""></div>
-      <div class="fd-info">
-        <h1 class="fd-title">${node.name}</h1>
-        <div class="fd-meta">${node.meta}</div>
-        ${stillsMode ? `<div class="fd-credits">${filmCredits(node)}</div>` : `
-          ${node.roles.length ? `<div class="fd-roles">${node.roles.map(r => `<span class="fd-role">${ROLE_LABEL[r] || r}</span>`).join("")}</div>` : ""}`}
-        <p class="fd-desc">${node.description}</p>
-        ${!stillsMode && node.festivals.length ? `
-          <div class="fd-fest-head">Festivals</div>
-          <ul class="fd-festivals">${node.festivals.map(f => `<li>${f}</li>`).join("")}</ul>` : ""}
+    <div class="fd-container">
+      <div class="fd-wrap">
+        <div class="fd-poster"><img src="${node.poster}" alt=""></div>
+        <div class="fd-info">
+          <h1 class="fd-title">${node.name}</h1>
+          <div class="fd-meta">${stillsMode ? filmMetaLine(node) : node.meta}</div>
+          ${stillsMode ? `<div class="fd-credits">${filmCredits(node)}</div>` : `
+            ${node.roles.length ? `<div class="fd-roles">${node.roles.map(r => `<span class="fd-role">${ROLE_LABEL[r] || r}</span>`).join("")}</div>` : ""}`}
+          <p class="fd-desc">${node.description}</p>
+          ${!stillsMode && node.festivals.length ? `
+            <div class="fd-fest-head">Festivals</div>
+            <ul class="fd-festivals">${node.festivals.map(f => `<li>${f}</li>`).join("")}</ul>` : ""}
+        </div>
       </div>
-    </div>
-    ${stillsMode ? `
-      <div class="fd-stills">
-        ${node.stills.slice(0, 6).map(s => `<div class="fd-still"><img src="${s}" alt="" loading="lazy"></div>`).join("")}
-      </div>` : ""}`;
+      ${stillsMode ? `
+        <div class="fd-stills">
+          ${stills.map((s, i) => `<button class="fd-still" data-i="${i}"><img src="${s}" alt="" loading="lazy"></button>`).join("")}
+        </div>` : ""}
+    </div>`;
+  if (stillsMode) {
+    els.filmDetailView.querySelectorAll(".fd-still").forEach(btn => {
+      btn.addEventListener("click", () => openStillLightbox(stills, +btn.dataset.i));
+    });
+  }
+}
+
+/* ---- still lightbox: click a frame in the detail grid to see it full-size ---- */
+let stillLightboxList = [], stillLightboxIndex = 0;
+function renderStillLightbox() {
+  $("sl-img").src = stillLightboxList[stillLightboxIndex];
+  $("sl-count").textContent = `${stillLightboxIndex + 1} / ${stillLightboxList.length}`;
+}
+function openStillLightbox(stills, index) {
+  stillLightboxList = stills; stillLightboxIndex = index;
+  renderStillLightbox();
+  els.stillLightbox.hidden = false;
+}
+function closeStillLightbox() { els.stillLightbox.hidden = true; }
+function stepStillLightbox(d) {
+  stillLightboxIndex = (stillLightboxIndex + d + stillLightboxList.length) % stillLightboxList.length;
+  renderStillLightbox();
 }
 
 /* ================= guest book: one public canvas =================
@@ -2341,6 +2369,17 @@ if (currentSlug() === "contact") showContactSheet();   // landed here directly, 
 $("contact-close").addEventListener("click", closeContactSheet);
 window.addEventListener("keydown", e => {
   if (e.key === "Escape" && !els.contactLayer.hidden) closeContactSheet();
+});
+
+$("sl-close").addEventListener("click", closeStillLightbox);
+$("sl-prev").addEventListener("click", () => stepStillLightbox(-1));
+$("sl-next").addEventListener("click", () => stepStillLightbox(1));
+els.stillLightbox.addEventListener("click", e => { if (e.target === els.stillLightbox) closeStillLightbox(); });
+window.addEventListener("keydown", e => {
+  if (els.stillLightbox.hidden) return;
+  if (e.key === "Escape") closeStillLightbox();
+  else if (e.key === "ArrowLeft") stepStillLightbox(-1);
+  else if (e.key === "ArrowRight") stepStillLightbox(1);
 });
 
 })();

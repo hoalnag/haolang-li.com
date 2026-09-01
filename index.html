@@ -23,7 +23,7 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="assets/logo.png">
 <link rel="apple-touch-icon" href="assets/logo.png">
-<link rel="stylesheet" href="assets/style.css?v=40">
+<link rel="stylesheet" href="assets/style.css?v=41">
 </head>
 <body>
 
@@ -259,9 +259,24 @@
     </div>
   </div>
 
+  <!-- ============ still lightbox: enlarge a frame from a film's detail page ============ -->
+  <div class="still-lightbox" id="still-lightbox" hidden>
+    <button class="sl-close" id="sl-close" aria-label="Close">
+      <svg viewBox="0 0 20 20"><path d="M4.5 4.5l11 11M15.5 4.5l-11 11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+    </button>
+    <button class="sl-nav sl-prev" id="sl-prev" aria-label="Previous">
+      <svg viewBox="0 0 20 20"><path d="M12.5 3.5 6 10l6.5 6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <button class="sl-nav sl-next" id="sl-next" aria-label="Next">
+      <svg viewBox="0 0 20 20"><path d="M7.5 3.5 14 10l-6.5 6.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    </button>
+    <img class="sl-img" id="sl-img" src="" alt="">
+    <div class="sl-count" id="sl-count"></div>
+  </div>
+
   <!-- context menu / quick look / get info render here -->
   <div id="overlay-layer"></div>
 
-  <script src="assets/app.js?v=40"></script>
+  <script src="assets/app.js?v=41"></script>
 </body>
 </html>
