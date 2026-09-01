@@ -244,21 +244,30 @@ svg { display: block; }
 .side-item.side-section:hover { background: none; opacity: .95; }
 .side-item.side-section.active { background: none; opacity: 1; font-weight: 700; }
 
-/* FILMS: the one section with sub-pages. Its own row still opens straight
-   into Film Projects — the small arrow only expands/collapses the list
-   below, same quiet chevron-only state change as Links. */
-.side-group-row { display: flex; align-items: center; gap: 6px; }
-.side-group-row .side-item.side-section { flex: 1; min-width: 0; }
-.side-expand {
-  flex: 0 0 auto; width: 20px; height: 20px; border-radius: 4px;
-  display: flex; align-items: center; justify-content: center;
-  color: var(--sidebar-sec);
+/* A section with sub-pages (FILMS today) is a pure disclosure row — clicking
+   it only reveals the sub-folders below, it never navigates anywhere
+   itself; you have to pick a sub-folder to actually land on a page. */
+.side-item.side-section.side-toggle { justify-content: space-between; }
+.side-item.side-section.side-toggle .side-sec-chev { flex: 0 0 auto; opacity: .6; }
+
+/* the parent→child relationship, drawn: a thin line falls from the parent's
+   row and elbows right into each sub-item, the way a file tree reads */
+.side-subitems { position: relative; display: flex; flex-direction: column; gap: 14px; margin-top: 14px; padding-left: 16px; }
+.side-subitems::before {
+  content: ""; position: absolute;
+  left: 3px; top: 2px; bottom: 9px; width: 1px;
+  background: var(--hairline);
 }
-.side-subitems { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; padding-left: 2px; }
 .side-item.side-subitem {
-  height: auto; padding: 0 2px; background: none;
+  position: relative;
+  height: auto; padding: 0 2px 0 12px; background: none;
   font-size: 12.5px; font-weight: 500; letter-spacing: .03em;
   color: var(--sidebar-fg); opacity: .6;
+}
+.side-item.side-subitem::before {
+  content: ""; position: absolute;
+  left: -13px; top: 50%; width: 9px; height: 1px;
+  background: var(--hairline);
 }
 .side-item.side-subitem:hover { background: none; opacity: .85; }
 .side-item.side-subitem.active { background: none; opacity: 1; font-weight: 700; }

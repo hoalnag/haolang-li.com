@@ -235,28 +235,33 @@ const LINKS = [
 
 const TAG_COLORS = ["#FF9F0A", "#FF453A", "#0A84FF", "#FFD60A", "#BF5AF2", "#FF9F0A", "#FF453A"];
 
-/* ================= routing: each section is a real, shareable URL =========
+/* ================= routing: every node is a real, shareable URL =========
    GitHub Pages has no server-side routing, so a direct hit on e.g.
-   /photography is caught by 404.html, which stashes the intended path and
+   /films/reviews is caught by 404.html, which stashes the intended path and
    bounces to "/"; initialNodeFromLocation() reads it back on boot. From
-   then on, entering a section pushes a real browser history entry — via
+   then on, entering a page pushes a real browser history entry — via
    window.history, since `history` below is the app's own (unrelated) stack
-   and shadows that name inside this file. */
-const SLUG_TO_SECTION = { films: "FILMS", "work-experience": "WORK EXPERIENCE", writings: "WRITINGS", photography: "PHOTOGRAPHY" };
-const SECTION_TO_SLUG = Object.fromEntries(Object.entries(SLUG_TO_SECTION).map(([slug, name]) => [name, slug]));
+   and shadows that name inside this file.
+   The path mirrors the tree exactly, one slugged segment per level —
+   /films/film-projects/static — so it stays correct as sections grow
+   sub-folders and those sub-folders grow their own content, with nothing
+   to keep in sync by hand. */
+const slugify = (s) => s.toLowerCase().trim().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 function pathForNode(node) {
   if (!node || node === ROOT) return "/";
-  // items inside a section (e.g. a film's own detail page) don't have their
-  // own slug yet — settle for the section's, rather than snapping to "/"
-  let n = node;
-  while (n.parent && n.parent !== ROOT) n = n.parent;
-  const slug = SECTION_TO_SLUG[n.name];
-  return slug ? `/${slug}` : "/";
+  const parts = [];
+  for (let n = node; n && n !== ROOT; n = n.parent) parts.unshift(slugify(n.name));
+  return "/" + parts.join("/");
 }
 function nodeForPath(path) {
-  const slug = (path || "/").replace(/^\/+|\/+$/g, "").toLowerCase();
-  const name = SLUG_TO_SECTION[slug];
-  return (name && ROOT.children.find(n => n.name === name)) || ROOT;
+  const parts = (path || "/").replace(/^\/+|\/+$/g, "").split("/").filter(Boolean);
+  let node = ROOT;
+  for (const part of parts) {
+    const next = (node.children || []).find(c => slugify(c.name) === part.toLowerCase());
+    if (!next) return ROOT;   // unknown path — same fallback as before
+    node = next;
+  }
+  return node;
 }
 function syncUrl(push) {
   const path = pathForNode(cwd);
@@ -470,33 +475,34 @@ function recentUpdates(limit = 5) {
 
 /* ================= sidebar (built from the live tree, keyed by id) =========
    Home plus the four sections, flat, no icons — quiet text, room to breathe.
-   FILMS is the one with sub-pages, so it gets its own expand/collapse (its
-   row still opens straight into Film Projects — the arrow only expands the
-   list, it doesn't navigate). Links stays a small collapsible group below. */
+   A section with sub-pages (FILMS today) is a disclosure row instead of a
+   link: clicking it only reveals its sub-folders, it never navigates by
+   itself — only a sub-folder is an actual page. Links is the same pattern,
+   already was. */
 let linksOpen = true;
-let filmsOpen = true;
+const openSections = new Set(["FILMS"]);   // section names whose sub-list starts expanded
 function buildSidebar() {
   const section = (node, label = node.name) =>
     `<button class="side-item side-section" data-fid="${node.id}"><span>${label}</span></button>`;
-
-  const filmsNode = ROOT.children.find(n => n.name === "FILMS");
-  const filmProjects = filmsNode?.children.find(n => n.name === "Film Projects");
+  const sectionGroup = (node) => {
+    const open = openSections.has(node.name);
+    return `
+      <div class="side-group">
+        <button class="side-item side-section side-toggle ${open ? "open" : ""}" data-expand="${node.name}">
+          <span>${node.name}</span>
+          <svg class="side-sec-chev" viewBox="0 0 20 20"><use href="#t-chev-d"/></svg>
+        </button>
+        <div class="side-subitems" id="side-sub-${node.id}" ${open ? "" : "hidden"}>
+          ${node.children.map(sub => `<button class="side-item side-subitem" data-fid="${sub.id}"><span>${sub.name}</span></button>`).join("")}
+        </div>
+      </div>`;
+  };
 
   let h = `<div class="side-sections">` + section(ROOT, "HOME");
   ROOT.children.filter(n => n.children).forEach(n => {
-    if (n !== filmsNode) { h += section(n); return; }
-    h += `
-      <div class="side-group">
-        <div class="side-group-row">
-          <button class="side-item side-section" data-fid="${filmProjects.id}"><span>FILMS</span></button>
-          <button class="side-expand ${filmsOpen ? "open" : ""}" data-expand="films" aria-label="Toggle FILMS list">
-            <svg class="side-sec-chev" viewBox="0 0 20 20"><use href="#t-chev-d"/></svg>
-          </button>
-        </div>
-        <div class="side-subitems" id="side-films-sub" ${filmsOpen ? "" : "hidden"}>
-          ${filmsNode.children.map(sub => `<button class="side-item side-subitem" data-fid="${sub.id}"><span>${sub.name}</span></button>`).join("")}
-        </div>
-      </div>`;
+    // "has sub-pages" means real sub-folders (kind Folder) — PHOTOGRAPHY's
+    // children are its photos, not organizing folders, so it stays a link
+    h += n.children.some(c => c.kind === "Folder") ? sectionGroup(n) : section(n);
   });
   h += `</div>`;
   h += `<button class="side-sec side-sec-toggle ${linksOpen ? "open" : ""}" data-toggle="links">
@@ -513,9 +519,11 @@ function buildSidebar() {
   els.sideNav.onclick = e => {
     const expand = e.target.closest("[data-expand]");
     if (expand) {
-      filmsOpen = !filmsOpen;
-      expand.classList.toggle("open", filmsOpen);
-      $("side-films-sub").hidden = !filmsOpen;
+      const name = expand.dataset.expand;
+      const open = openSections.has(name) ? (openSections.delete(name), false) : (openSections.add(name), true);
+      expand.classList.toggle("open", open);
+      const node = ROOT.children.find(n => n.name === name);
+      $(`side-sub-${node.id}`).hidden = !open;
       return;
     }
     const toggle = e.target.closest("[data-toggle]");
