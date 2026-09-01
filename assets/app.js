@@ -132,6 +132,23 @@ const film = (title, at, o) =>
      poster: o.poster, meta: o.meta, type: o.type, director: o.director, description: o.description,
      festivals: o.festivals || [], roles: o.roles || [], stills: o.stills || [] });
 const FILM_PROJECTS = [
+  film("Essence + Stone", "2026-06-01T00:00", {
+    // no poster for this one -- DP-only, list row stays 3-stills-and-credits,
+    // detail page's poster block just doesn't render (see renderFilmDetail).
+    type: "Jewelry Film",
+    meta: "2026 · 1 min",
+    director: "Isabella Dobrovolska",
+    description: "A fashion jewelry advertisement shot in New York for Essence + Stone.",
+    roles: ["DP"],
+    stills: [
+      "assets/photos/films/essence-and-stone/still-1.jpg",
+      "assets/photos/films/essence-and-stone/still-2.jpg",
+      "assets/photos/films/essence-and-stone/still-3.jpg",
+      "assets/photos/films/essence-and-stone/still-4.jpg",
+      "assets/photos/films/essence-and-stone/still-5.jpg",
+      "assets/photos/films/essence-and-stone/still-6.jpg",
+    ],
+  }),
   film("INANNA", "2025-04-09T00:00", {
     poster: "assets/photos/films/inanna/poster.jpg",
     type: "Fashion Film",   // inferred from the Sarajevo Fashion Film Festival + poster credits -- flag if wrong
@@ -1032,7 +1049,7 @@ function renderFilmDetail(node) {
   els.filmDetailView.innerHTML = `
     <div class="fd-container">
       <div class="fd-wrap">
-        <div class="fd-poster"><img src="${node.poster}" alt=""></div>
+        ${node.poster ? `<div class="fd-poster"><img src="${node.poster}" alt=""></div>` : ""}
         <div class="fd-info">
           <h1 class="fd-title">${node.name}</h1>
           <div class="fd-meta">${stillsMode ? filmMetaLine(node) : filmMetaBase(node)}</div>
