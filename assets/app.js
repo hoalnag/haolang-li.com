@@ -846,16 +846,17 @@ function armDigitalResize() {
 /* ================= FILMS: a vertical list, poster-left, plus a role filter =================
    FILMS is the first section with real content design (more to follow per
    section). Each row is a project; the DIRECTOR/PRODUCER/DP chips filter by
-   the role Haolang held on it. Clicking a row opens its own detail page
-   (renderFilmDetail below) — the breadcrumb reads FILMS › <title>. */
-let filmRoleFilter = new Set();
+   the role Haolang held on it — mutually exclusive, exactly one active at a
+   time, never a mixed "everything" view. Clicking a row opens its own
+   detail page (renderFilmDetail below) — the breadcrumb reads FILMS › <title>. */
+let filmRoleFilter = FILM_ROLES[0];
 function renderFilms(list) {
-  const shown = filmRoleFilter.size ? list.filter(p => p.roles.some(r => filmRoleFilter.has(r))) : list;
+  const shown = list.filter(p => p.roles.includes(filmRoleFilter));
   els.filmsView.innerHTML = `
     <div class="film-filters">
       ${FILM_ROLES.map((r, i) => `
         ${i ? '<span class="film-filter-sep">/</span>' : ""}
-        <button class="film-chip ${filmRoleFilter.has(r) ? "on" : ""}" data-role="${r}">${ROLE_LABEL[r]}</button>`).join("")}
+        <button class="film-chip ${filmRoleFilter === r ? "on" : ""}" data-role="${r}">${ROLE_LABEL[r]}</button>`).join("")}
     </div>
     <div class="film-list">
       ${shown.length ? shown.map(p => `
@@ -872,8 +873,8 @@ function renderFilms(list) {
     </div>`;
   els.filmsView.querySelectorAll(".film-chip").forEach(chip => {
     chip.addEventListener("click", () => {
-      const r = chip.dataset.role;
-      filmRoleFilter.has(r) ? filmRoleFilter.delete(r) : filmRoleFilter.add(r);
+      if (filmRoleFilter === chip.dataset.role) return;   // mutually exclusive: always exactly one
+      filmRoleFilter = chip.dataset.role;
       renderFilms(items());
     });
   });
