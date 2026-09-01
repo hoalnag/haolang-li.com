@@ -132,6 +132,23 @@ const film = (title, at, o) =>
      poster: o.poster, meta: o.meta, type: o.type, director: o.director, description: o.description,
      festivals: o.festivals || [], roles: o.roles || [], stills: o.stills || [] });
 const FILM_PROJECTS = [
+  film("SHAME ON YOU", "2024-12-02T00:00", {
+    poster: "assets/photos/films/shame-on-you/poster.jpg",
+    type: "Documentary Short",
+    meta: "2024 · 18 min",
+    description: "This documentary work is about real-estate, displacements, cultural groups, cocoons, and shame. By documenting the recent struggles against certain “non-profits” in Manhattan’s Chinatown, I aim to provide nuanced perspectives on the role of Chinese students in a controversy they passively drawn into. I interviewed scattered individuals representing clustered communities and agency enterprises to infiltrate the societal changes in need to be announced and addressed. This film represents my limited yet precise scope of cultural investigation on people I know. The title “Shame on You” is a slogan shouted by protesters. I hope it may be heard not only by the oppressor, but also pondered by every single one of us.",
+    // TODO: 6 stills pending export -- see poster's own "Publication" folder,
+    // which has nothing else in it yet (unlike CURED BY DEATH / FOOD LOVER).
+    festivals: [
+      "Berlin Indie Awards — Semi-Finalist",
+      "Brooklyn International Short Festival — Award Winner",
+      "New York International Film Awards™ - NYIFA — Finalist",
+      "New York Lift-Off Film Festival — Selected",
+      "New York City Independent Film Festival — Selected",
+      "Oniros Film Awards® - New York — Finalist",
+    ],
+    roles: ["Director", "DP"],
+  }),
   film("FOOD LOVER عاشق الطعام", "2024-11-10T00:00", {
     poster: "assets/photos/films/food-lover/poster.jpg",
     type: "Documentary Short",
