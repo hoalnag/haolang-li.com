@@ -139,10 +139,13 @@ const FILM_PROJECTS = [
     description: "A street boy, a deaf boy, and a wise mother, all born and raised by the city of Beijing, are searching for their way.",
     festivals: ["Festival du Nouveau Cinéma 2025"],
     roles: ["Producer", "DP"],
-    // TODO: 5 more real stills to go — the rest are placeholders for now
     stills: [
       "assets/photos/films/cured-by-death/still-1.jpg",
-      ...Array(5).fill("assets/photos/placeholder.jpg"),
+      "assets/photos/films/cured-by-death/still-2.jpg",
+      "assets/photos/films/cured-by-death/still-3.jpg",
+      "assets/photos/films/cured-by-death/still-4.jpg",
+      "assets/photos/films/cured-by-death/still-5.jpg",
+      "assets/photos/films/cured-by-death/still-6.jpg",
     ],
   }),
   film("Undertow", "2025-05-02T00:00", {
