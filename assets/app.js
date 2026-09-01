@@ -115,13 +115,54 @@ const DIGITAL_PHOTOS = [
   img("digital-77.jpg", "2026-07-05T20:19:00", "assets/photos/digital/digital-77.jpg", 2.3529),
 ];
 
+// FILMS — one entry per project, in this order (newest first). Placeholder
+// content: swap posters/copy for the real thing whenever it's ready, the
+// shape (roles/meta/description/festivals) is what renderFilms() expects.
+// roles are always a subset of FILM_ROLES below — that's what the filter
+// chips at the top of the page match against.
+const FILM_ROLES = ["Director", "Producer", "DP"];
+const film = (title, at, o) =>
+  ({ id: "film-" + (++_fid), name: title, kind: "Film", icon: "i-folder-mac", at, size: "--", children: [],
+     poster: o.poster, meta: o.meta, description: o.description,
+     festivals: o.festivals || [], roles: o.roles || [] });
+const FILM_PROJECTS = [
+  film("Undertow", "2025-05-02T00:00", {
+    poster: "assets/photos/placeholder.jpg",
+    meta: "Short Film · 14 min · Color · 2025",
+    description: "A dockworker's quiet routine breaks when a stranger asks him to keep something he shouldn't.",
+    festivals: ["Sundance Film Festival — Official Selection", "Tribeca Festival"],
+    roles: ["Director", "DP"],
+  }),
+  film("Static", "2024-11-14T00:00", {
+    poster: "assets/photos/placeholder.jpg",
+    meta: "Short Film · 9 min · Color · 2024",
+    description: "Two roommates communicate only through the television between them.",
+    festivals: ["SXSW"],
+    roles: ["Director"],
+  }),
+  film("Glasshouse", "2024-06-20T00:00", {
+    poster: "assets/photos/placeholder.jpg",
+    meta: "Feature · 92 min · Color · 2024",
+    description: "A family rebuilds a greenhouse after a storm, and everything they'd buried along with it.",
+    festivals: ["Cannes — Official Selection", "Berlinale"],
+    roles: ["Producer"],
+  }),
+  film("Night Shift", "2023-09-08T00:00", {
+    poster: "assets/photos/placeholder.jpg",
+    meta: "Short Film · 11 min · B&W · 2023",
+    description: "An overnight security guard starts hearing the building breathe.",
+    festivals: [],
+    roles: ["DP"],
+  }),
+];
+
 // content that lives inside named folders, merged onto whatever the tree loads.
 // This is the "you add material, I place it" hook — extend it per folder.
 // No subfolders anymore — each of the four sections is flat, its content
 // dropped straight onto it.
 function folderContent() {
   return {
-    FILMS: [{ ...mov("Filmmaker's Reel.mov", "2026-07-15T20:35", REEL.url), external: true }],
+    FILMS: [...FILM_PROJECTS],
     PHOTOGRAPHY: [...DIGITAL_PHOTOS].reverse(), // newest shot first
   };
 }
@@ -196,7 +237,12 @@ const TAG_COLORS = ["#FF9F0A", "#FF453A", "#0A84FF", "#FFD60A", "#BF5AF2", "#FF9
 const SLUG_TO_SECTION = { films: "FILMS", "work-experience": "WORK EXPERIENCE", writings: "WRITINGS", photography: "PHOTOGRAPHY" };
 const SECTION_TO_SLUG = Object.fromEntries(Object.entries(SLUG_TO_SECTION).map(([slug, name]) => [name, slug]));
 function pathForNode(node) {
-  const slug = node && SECTION_TO_SLUG[node.name];
+  if (!node || node === ROOT) return "/";
+  // items inside a section (e.g. a film's own detail page) don't have their
+  // own slug yet — settle for the section's, rather than snapping to "/"
+  let n = node;
+  while (n.parent && n.parent !== ROOT) n = n.parent;
+  const slug = SECTION_TO_SLUG[n.name];
   return slug ? `/${slug}` : "/";
 }
 function nodeForPath(path) {
@@ -359,6 +405,7 @@ const els = {
   back: $("tb-back"), fwd: $("tb-fwd"), content: $("content"),
   iconView: $("icon-view"), listView: $("list-view"), deskView: $("desk-view"),
   columnsView: $("columns-view"), galleryView: $("gallery-view"), digitalView: $("digital-view"),
+  filmsView: $("films-view"), filmDetailView: $("film-detail-view"),
   status: $("status-text"), rubber: $("rubber-band"),
   menuLayer: $("menu-layer"), overlayLayer: $("overlay-layer"),
   sidebar: $("sidebar"), desktop: $("desktop"), contactLayer: $("contact-layer"),
@@ -479,10 +526,10 @@ function iconSvg(node, cls = "file-icon") {
 }
 function render() {
   const list = items();
-  // the folder path, flattened into the toolbar itself — haolangli › FILMS › …
+  // the folder path, flattened into the toolbar itself — HOME › FILMS › …
   els.title.innerHTML = pathOf(cwd).map((n, i) => `
     ${i ? '<span class="crumb-sep">›</span>' : ""}
-    <button class="crumb-item" data-depth="${i}">${n === ROOT ? "haolangli" : n.name}</button>`).join("");
+    <button class="crumb-item" data-depth="${i}">${n === ROOT ? "HOME" : n.name}</button>`).join("");
   els.title.querySelectorAll(".crumb-item").forEach(el => {
     el.addEventListener("click", () => navigate(pathOf(cwd)[+el.dataset.depth]));
   });
@@ -490,22 +537,32 @@ function render() {
   els.back.disabled = !history.length;
   els.fwd.disabled = !future.length;
 
-  // Home has its own arrangement; PHOTOGRAPHY is a photo wall with no
-  // other view — it never falls back to the plain grid/list/columns/gallery.
+  // Home has its own arrangement; PHOTOGRAPHY is a photo wall and FILMS is a
+  // project list, each with no other view — none of these three ever fall
+  // back to the plain grid/list/columns/gallery.
   const onDesk = view === "icon" && cwd === ROOT;
   const onDigital = cwd.name === "PHOTOGRAPHY" && list.some(n => n.isPhoto);
+  const onFilms = cwd.name === "FILMS";
+  const onFilmDetail = Boolean(cwd.parent && cwd.parent.name === "FILMS");
+  const custom = onDigital || onFilms || onFilmDetail;
   stopPortrait();
   els.deskView.hidden = !onDesk;
   els.digitalView.hidden = !onDigital;
-  els.iconView.hidden = onDigital || view !== "icon" || onDesk;
-  els.listView.hidden = onDigital || view !== "list";
-  els.columnsView.hidden = onDigital || view !== "columns";
-  els.galleryView.hidden = onDigital || view !== "gallery";
+  els.filmsView.hidden = !onFilms;
+  els.filmDetailView.hidden = !onFilmDetail;
+  els.iconView.hidden = custom || view !== "icon" || onDesk;
+  els.listView.hidden = custom || view !== "list";
+  els.columnsView.hidden = custom || view !== "columns";
+  els.galleryView.hidden = custom || view !== "gallery";
 
   if (onDesk) {
     renderDesk(list);
   } else if (onDigital) {
     renderDigital(list);
+  } else if (onFilms) {
+    renderFilms(list);
+  } else if (onFilmDetail) {
+    renderFilmDetail(cwd);
   } else if (view === "icon") {
     els.iconView.innerHTML = list.map((n, i) => `
       <div class="icon-item ${selection.has(n) ? "selected" : ""}" data-i="${i}">
@@ -672,6 +729,59 @@ function armDigitalResize() {
     cancelAnimationFrame(raf);
     raf = requestAnimationFrame(() => renderDigital(items()));
   }).observe(els.digitalView);
+}
+
+/* ================= FILMS: a vertical list, poster-left, plus a role filter =================
+   FILMS is the first section with real content design (more to follow per
+   section). Each row is a project; the DIRECTOR/PRODUCER/DP chips filter by
+   the role Haolang held on it. Clicking a row opens its own detail page
+   (renderFilmDetail below) — the breadcrumb reads FILMS › <title>. */
+let filmRoleFilter = new Set();
+function renderFilms(list) {
+  const shown = filmRoleFilter.size ? list.filter(p => p.roles.some(r => filmRoleFilter.has(r))) : list;
+  els.filmsView.innerHTML = `
+    <div class="film-filters">
+      ${FILM_ROLES.map(r => `
+        <button class="film-chip ${filmRoleFilter.has(r) ? "on" : ""}" data-role="${r}">${r}</button>`).join("")}
+    </div>
+    <div class="film-list">
+      ${shown.length ? shown.map(p => `
+        <button class="film-row" data-i="${list.indexOf(p)}">
+          <div class="film-poster"><img src="${p.poster}" alt="" loading="lazy"></div>
+          <div class="film-info">
+            <div class="film-title">${p.name}</div>
+            <div class="film-meta">${p.meta}</div>
+            <p class="film-desc">${p.description}</p>
+            ${p.festivals.length ? `
+              <ul class="film-festivals">${p.festivals.map(f => `<li>${f}</li>`).join("")}</ul>` : ""}
+          </div>
+        </button>`).join("") : `<div class="film-empty">No projects for this filter yet.</div>`}
+    </div>`;
+  els.filmsView.querySelectorAll(".film-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      const r = chip.dataset.role;
+      filmRoleFilter.has(r) ? filmRoleFilter.delete(r) : filmRoleFilter.add(r);
+      renderFilms(items());
+    });
+  });
+  els.filmsView.querySelectorAll(".film-row").forEach(row => {
+    row.addEventListener("click", () => navigate(list[+row.dataset.i]));
+  });
+}
+function renderFilmDetail(node) {
+  els.filmDetailView.innerHTML = `
+    <div class="fd-wrap">
+      <div class="fd-poster"><img src="${node.poster}" alt=""></div>
+      <div class="fd-info">
+        <h1 class="fd-title">${node.name}</h1>
+        <div class="fd-meta">${node.meta}</div>
+        ${node.roles.length ? `<div class="fd-roles">${node.roles.map(r => `<span class="fd-role">${r}</span>`).join("")}</div>` : ""}
+        <p class="fd-desc">${node.description}</p>
+        ${node.festivals.length ? `
+          <div class="fd-fest-head">Festivals</div>
+          <ul class="fd-festivals">${node.festivals.map(f => `<li>${f}</li>`).join("")}</ul>` : ""}
+      </div>
+    </div>`;
 }
 
 /* ================= guest book: one public canvas =================
@@ -1094,7 +1204,12 @@ const ITEM_SEL = { icon: ".icon-item, .desk-item", list: ".lv-row", columns: ".c
 // Digital is its own mode regardless of what `view` is set to (it has no
 // icon/list/columns/gallery fallback) — this is the single source of truth
 // for "what's actually on screen right now" that selection/clicks key off.
-function curView() { return (cwd.name === "PHOTOGRAPHY" && !els.digitalView.hidden) ? "digital" : view; }
+function curView() {
+  if (cwd.name === "PHOTOGRAPHY" && !els.digitalView.hidden) return "digital";
+  if (cwd.name === "FILMS" && !els.filmsView.hidden) return "films";
+  if (cwd.parent && cwd.parent.name === "FILMS" && !els.filmDetailView.hidden) return "film-detail";
+  return view;
+}
 function elementsForItems() {
   return [...els.content.querySelectorAll(ITEM_SEL[curView()])]
     .filter(el => el.dataset.i !== undefined && +el.dataset.i >= 0);
@@ -1148,7 +1263,7 @@ els.content.addEventListener("mousedown", e => {
   }
   if (e.target.closest(".lv-head")) return;
   // columns and gallery wire their own clicks; only icon/list/digital drag-select
-  if (curView() === "columns" || curView() === "gallery") { els.content.focus(); return; }
+  if (["columns", "gallery", "films", "film-detail"].includes(curView())) { els.content.focus(); return; }
   const hit = handleItemMousedown(e);
   if (!hit) startRubberBand(e);
   els.content.focus();
@@ -1157,7 +1272,7 @@ els.content.addEventListener("mousedown", e => {
    handling) already behaved; mouse and touch now agree. A modified click
    (⌘/Ctrl/Shift) stays selection-only, since that's how multi-select works. */
 els.content.addEventListener("click", e => {
-  if (curView() === "columns" || curView() === "gallery") return;
+  if (["columns", "gallery", "films", "film-detail"].includes(curView())) return;
   if (e.target.tagName === "INPUT") return;          // don't hijack an inline rename
   if (e.metaKey || e.ctrlKey || e.shiftKey) return;   // modified click: selection only
   const el = e.target.closest(ITEM_SEL[curView()]);
@@ -1399,7 +1514,6 @@ $("mb-theme").addEventListener("click", () => {
 
 $("tb-back").addEventListener("click", goBack);
 $("tb-fwd").addEventListener("click", goForward);
-$("tb-sidebar").addEventListener("click", () => els.sidebar.classList.toggle("collapsed"));
 $("side-collapse").addEventListener("click", () => els.sidebar.classList.add("collapsed"));
 
 /* ================= context menu ================= */
