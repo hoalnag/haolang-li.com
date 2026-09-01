@@ -461,7 +461,8 @@ const els = {
   back: $("tb-back"), fwd: $("tb-fwd"), content: $("content"),
   iconView: $("icon-view"), listView: $("list-view"), deskView: $("desk-view"),
   columnsView: $("columns-view"), galleryView: $("gallery-view"), digitalView: $("digital-view"),
-  filmsView: $("films-view"), filmDetailView: $("film-detail-view"), stillLightbox: $("still-lightbox"),
+  filmsView: $("films-view"), filmsSectionView: $("films-section-view"),
+  filmDetailView: $("film-detail-view"), stillLightbox: $("still-lightbox"),
   status: $("status-text"), rubber: $("rubber-band"),
   menuLayer: $("menu-layer"), overlayLayer: $("overlay-layer"),
   sidebar: $("sidebar"), desktop: $("desktop"), contactLayer: $("contact-layer"),
@@ -693,17 +694,23 @@ function render() {
   els.fwd.disabled = !future.length;
 
   // Home has its own arrangement; PHOTOGRAPHY is a photo wall and FILMS is a
-  // project list, each with no other view — none of these three ever fall
-  // back to the plain grid/list/columns/gallery.
+  // project list, each with no other view — none of these four ever fall
+  // back to the plain grid/list/columns/gallery. A section's own page (FILMS
+  // itself, landed on via the breadcrumb) reads as a centered credits-style
+  // list of its sub-folders instead of folder-icon tiles — same "has real
+  // sub-folders" test the sidebar uses to decide whether a section gets the
+  // disclosure treatment.
   const onDesk = view === "icon" && cwd === ROOT;
   const onDigital = cwd.name === "PHOTOGRAPHY" && list.some(n => n.isPhoto);
   const onFilms = cwd.name === "Film Projects";
   const onFilmDetail = Boolean(cwd.parent && cwd.parent.name === "Film Projects");
-  const custom = onDigital || onFilms || onFilmDetail;
+  const onFilmsSection = cwd !== ROOT && cwd.parent === ROOT && (cwd.children || []).some(c => c.kind === "Folder");
+  const custom = onDigital || onFilms || onFilmDetail || onFilmsSection;
   stopPortrait();
   els.deskView.hidden = !onDesk;
   els.digitalView.hidden = !onDigital;
   els.filmsView.hidden = !onFilms;
+  els.filmsSectionView.hidden = !onFilmsSection;
   els.filmDetailView.hidden = !onFilmDetail;
   els.iconView.hidden = custom || view !== "icon" || onDesk;
   els.listView.hidden = custom || view !== "list";
@@ -716,6 +723,8 @@ function render() {
     renderDigital(list);
   } else if (onFilms) {
     renderFilms(list);
+  } else if (onFilmsSection) {
+    renderFilmsSection(cwd);
   } else if (onFilmDetail) {
     renderFilmDetail(cwd);
   } else if (view === "icon") {
@@ -933,6 +942,19 @@ function filmStillsRow(p, list) {
         ${filmCredits(p)}
       </div>
     </button>`;
+}
+
+/* ---- a section's own page (e.g. landing on FILMS via the breadcrumb):
+   its sub-folders as a centered, end-credits-style list, not folder tiles ---- */
+function renderFilmsSection(node) {
+  const subs = node.children.filter(c => c.kind === "Folder");
+  els.filmsSectionView.innerHTML = `
+    <div class="fs-credits">
+      ${subs.map(s => `<button class="fs-credit-item" data-i="${subs.indexOf(s)}">${s.name}</button>`).join("")}
+    </div>`;
+  els.filmsSectionView.querySelectorAll(".fs-credit-item").forEach(btn => {
+    btn.addEventListener("click", () => navigate(subs[+btn.dataset.i]));
+  });
 }
 function renderFilms(list) {
   const shown = list.filter(p => p.roles.includes(filmRoleFilter));
@@ -1433,6 +1455,7 @@ const ITEM_SEL = { icon: ".icon-item, .desk-item", list: ".lv-row", columns: ".c
 // for "what's actually on screen right now" that selection/clicks key off.
 function curView() {
   if (cwd.name === "PHOTOGRAPHY" && !els.digitalView.hidden) return "digital";
+  if (cwd !== ROOT && cwd.parent === ROOT && !els.filmsSectionView.hidden) return "films-section";
   if (cwd.name === "Film Projects" && !els.filmsView.hidden) return "films";
   if (cwd.parent && cwd.parent.name === "Film Projects" && !els.filmDetailView.hidden) return "film-detail";
   return view;
@@ -1490,7 +1513,7 @@ els.content.addEventListener("mousedown", e => {
   }
   if (e.target.closest(".lv-head")) return;
   // columns and gallery wire their own clicks; only icon/list/digital drag-select
-  if (["columns", "gallery", "films", "film-detail"].includes(curView())) { els.content.focus(); return; }
+  if (["columns", "gallery", "films", "films-section", "film-detail"].includes(curView())) { els.content.focus(); return; }
   const hit = handleItemMousedown(e);
   if (!hit) startRubberBand(e);
   els.content.focus();
@@ -1499,7 +1522,7 @@ els.content.addEventListener("mousedown", e => {
    handling) already behaved; mouse and touch now agree. A modified click
    (⌘/Ctrl/Shift) stays selection-only, since that's how multi-select works. */
 els.content.addEventListener("click", e => {
-  if (["columns", "gallery", "films", "film-detail"].includes(curView())) return;
+  if (["columns", "gallery", "films", "films-section", "film-detail"].includes(curView())) return;
   if (e.target.tagName === "INPUT") return;          // don't hijack an inline rename
   if (e.metaKey || e.ctrlKey || e.shiftKey) return;   // modified click: selection only
   const el = e.target.closest(ITEM_SEL[curView()]);
@@ -1742,6 +1765,7 @@ $("mb-theme").addEventListener("click", () => {
 $("tb-back").addEventListener("click", goBack);
 $("tb-fwd").addEventListener("click", goForward);
 $("side-collapse").addEventListener("click", () => els.sidebar.classList.add("collapsed"));
+$("side-expand").addEventListener("click", () => els.sidebar.classList.remove("collapsed"));
 
 /* ================= context menu ================= */
 els.content.addEventListener("contextmenu", e => {
