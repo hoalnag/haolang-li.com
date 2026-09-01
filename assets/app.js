@@ -137,16 +137,19 @@ const FILM_PROJECTS = [
     type: "Fashion Film",   // inferred from the Sarajevo Fashion Film Festival + poster credits -- flag if wrong
     meta: "2025 · 3 min",
     director: "Cecilia Qingyu Cheng",
-    // TODO: no description text given yet -- pending
+    description: "Fleeing an unseen threat, Thea stumbles into a surreal threshold filled with deceptive “self-defense” tools and haunting visions of entrapment. Stripped of her burdens but armed with a single sword, she awakens — no longer a victim, but a warrior.",
     festivals: ["Sarajevo Fashion Film Festival"],
     roles: ["DP"],
+    // first 3 are what shows in the DP-filter list row (stills-first template
+    // uses stills[0..2] there) -- still-1 stays put, still-5/6 swapped in for
+    // the old still-2/3, per request; full grid below still shows all 6.
     stills: [
       "assets/photos/films/inanna/still-1.jpg",
+      "assets/photos/films/inanna/still-5.jpg",
+      "assets/photos/films/inanna/still-6.jpg",
       "assets/photos/films/inanna/still-2.jpg",
       "assets/photos/films/inanna/still-3.jpg",
       "assets/photos/films/inanna/still-4.jpg",
-      "assets/photos/films/inanna/still-5.jpg",
-      "assets/photos/films/inanna/still-6.jpg",
     ],
   }),
   film("SHAME ON YOU", "2024-12-02T00:00", {
