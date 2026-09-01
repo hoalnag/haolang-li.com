@@ -994,7 +994,7 @@ function renderFilmDetail(node) {
           ${stillsMode ? `
             ${node.director ? `<div class="fd-credit-line">Director: ${node.director}</div>` : ""}
             <p class="fd-desc">${node.description}</p>
-            ${node.festivals.length ? `<div class="fd-credit-line">${node.festivals.join(", ")}</div>` : ""}
+            ${node.festivals.length ? `<div class="fd-credit-line fd-fest-lines">${node.festivals.map(f => `<div>${f}</div>`).join("")}</div>` : ""}
           ` : `
             ${node.roles.length ? `<div class="fd-roles">${node.roles.map(r => `<span class="fd-role">${ROLE_LABEL[r] || r}</span>`).join("")}</div>` : ""}
             <p class="fd-desc">${node.description}</p>
