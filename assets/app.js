@@ -306,10 +306,23 @@ const FILM_PROJECTS = [
       "assets/photos/films/lipstick-on-a-leopard/still-8.jpg",
     ],
   }),
+
+  /* Named, but nothing else filled in yet. Deliberately bare — a stub carries
+     the title and Haolang's role and not one word more, and having no date is
+     what parks it at the end of the list until there's something to say. */
+  film("One Way Street", null, { roles: ["Director"] }),
+  film("Sunset Hunter", null, { roles: ["Director", "DP"] }),
+  film("Rooted", null, { roles: ["Director"] }),
+  film("Rosy's Project", null, { roles: ["DP"] }),
+  film("Denali", null, { roles: ["Producer"] }),
+  film("Tiger's Project", null, { roles: ["DP"] }),
 ];
 // the FILMS list reads newest first — order comes from each project's own
 // date, so adding one is just a matter of giving it the right `at`.
-FILM_PROJECTS.sort((a, b) => new Date(b.at) - new Date(a.at));
+FILM_PROJECTS.sort((a, b) => {
+  if (!a.at !== !b.at) return a.at ? -1 : 1;    // the undated stubs go last
+  return a.at ? new Date(b.at) - new Date(a.at) : 0;
+});
 
 // content that lives inside named folders, merged onto whatever the tree loads.
 // This is the "you add material, I place it" hook — extend it per folder.
@@ -331,6 +344,7 @@ function defaultFolders() {
   return [
     folder("FILMS", "2026-07-16T11:40", [
       folder("Film Projects", "2026-07-16T11:40", []),
+      folder("Generative Projects", "2026-07-16T11:40", []),
       folder("Reviews", "2026-07-16T11:40", []),
       folder("Equipment", "2026-07-16T11:40", []),
     ]),
@@ -1023,7 +1037,7 @@ let filmRoleFilter = FILM_ROLES[0];
 // held rides at the end, bold — it's the headline fact for the DP-style
 // template; director credit and festivals (no "Festival:" label, just the
 // name) sit underneath.
-const filmMetaBase = (p) => p.type ? `${p.type} · ${p.meta}` : p.meta;
+const filmMetaBase = (p) => [p.type, p.meta].filter(Boolean).join(" · ");
 // a description can run to more than one paragraph — blank lines split it,
 // so a long director's statement doesn't collapse into one wall of text
 const filmDescHtml = (p, cls) => (p.description || "").trim()
@@ -1047,14 +1061,17 @@ function fitStills(root) {
     });
   });
 }
-const filmMetaLine = (p) => `${filmMetaBase(p)}${p.roles.length ? ` · <strong class="film-role-inline">${p.roles.map(r => ROLE_LABEL[r] || r).join(", ")}</strong>` : ""}`;
+const filmMetaLine = (p) => [
+  filmMetaBase(p),
+  p.roles.length ? `<strong class="film-role-inline">${p.roles.map(r => ROLE_LABEL[r] || r).join(", ")}</strong>` : "",
+].filter(Boolean).join(" · ");
 const filmCredits = (p) => `
   ${p.director ? `<div class="film-credit">Director: ${p.director}</div>` : ""}
   ${p.festivals.map(f => `<div class="film-credit">${f}</div>`).join("")}`;
 function filmPosterRow(p, list) {
   return `
     <button class="film-row" data-i="${list.indexOf(p)}">
-      <div class="film-poster"><img src="${p.poster}" alt="" loading="lazy"></div>
+      ${p.poster ? `<div class="film-poster"><img src="${p.poster}" alt="" loading="lazy"></div>` : ""}
       <div class="film-info">
         <div class="film-title">${p.name}</div>
         <div class="film-meta">${filmMetaLine(p)}</div>
