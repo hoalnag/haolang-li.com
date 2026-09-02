@@ -115,7 +115,8 @@ const DIGITAL_PHOTOS = [
   img("digital-77.jpg", "2026-07-05T20:19:00", "assets/photos/digital/digital-77.jpg", 2.3529),
 ];
 
-// FILMS — one entry per project, in this order (newest first). Placeholder
+// FILMS — one entry per project, sorted newest-first by `at` below, so a new
+// project only needs a correct date, not a hand-picked slot. Placeholder
 // content: swap posters/copy for the real thing whenever it's ready, the
 // shape (roles/meta/description/festivals) is what renderFilms() expects.
 // roles are always a subset of FILM_ROLES below — that's what the filter
@@ -130,7 +131,8 @@ const ROLE_LABEL = { Director: "Director", Producer: "Producer", DP: "Director o
 const film = (title, at, o) =>
   ({ id: "film-" + (++_fid), name: title, kind: "Film", icon: "i-folder-mac", at, size: "--", children: [],
      poster: o.poster, meta: o.meta, type: o.type, director: o.director, description: o.description,
-     festivals: o.festivals || [], roles: o.roles || [], stills: o.stills || [] });
+     festivals: o.festivals || [], roles: o.roles || [], stills: o.stills || [],
+     stillRatio: o.stillRatio || 16 / 9 });
 const FILM_PROJECTS = [
   film("Essence + Stone", "2026-06-01T00:00", {
     // no poster for this one -- DP-only, list row stays 3-stills-and-credits,
@@ -228,6 +230,75 @@ const FILM_PROJECTS = [
       "assets/photos/films/cured-by-death/still-6.jpg",
     ],
   }),
+  film("BURNING STAGE", "2024-10-01T00:00", {
+    // no poster for this one yet
+    type: "Documentary Short",
+    meta: "2024",
+    director: "Jingxuan Wang",
+    description: "There are countless documentaries about Sichuan opera, and no shortage of shorts on the art of face-changing — but its fire-breathing has drawn almost no attention. This film centres on that craft and on the unconventional story of one of its inheritors, reaching into a deeper world the public has never seen and bringing the audience a visual feast out of Sichuan opera.",
+    roles: ["DP"],
+    // scope performance frames, plus two ~4:3 portraits of the subject that
+    // are shown whole instead of cropped to the tile (see fitStills)
+    stillRatio: 2.41,
+    stills: [
+      "assets/photos/films/burning-stage/still-1.jpg",
+      "assets/photos/films/burning-stage/still-2.jpg",
+      "assets/photos/films/burning-stage/still-3.jpg",
+      "assets/photos/films/burning-stage/still-4.jpg",
+      "assets/photos/films/burning-stage/still-5.jpg",
+      "assets/photos/films/burning-stage/still-6.jpg",
+    ],
+  }),
+  film("Rock‘n’Roll", "2023-11-01T00:00", {
+    poster: "assets/photos/placeholder.jpg",   // TODO: swap in a real poster when there is one
+    type: "Abstract Short",
+    meta: "2023 · 3 min",
+    description: "Two students get stuck in the Weinstein elevator and fall into an awkward conversation — one of them barely speaks English, so they talk through a translation app on his phone. When “We Will Rock You” starts playing, the language barrier stops mattering. Nothing was rehearsed and most of it is improvised, so some of the awkwardness is real.",
+    festivals: ["Shoot For the Sake of Abstraction"],
+    roles: ["Director"],
+    stillRatio: 1.41,
+    stills: [
+      "assets/photos/films/rock-n-roll/still-1.jpg",
+      "assets/photos/films/rock-n-roll/still-2.jpg",
+      "assets/photos/films/rock-n-roll/still-3.jpg",
+      "assets/photos/films/rock-n-roll/still-4.jpg",
+      "assets/photos/films/rock-n-roll/still-5.jpg",
+      "assets/photos/films/rock-n-roll/still-6.jpg",
+    ],
+  }),
+  film("CAGED 星海遨游", "2023-08-01T00:00", {
+    poster: "assets/photos/films/caged/poster.jpg",
+    type: "Narrative Short",
+    meta: "2023 · 5 min",
+    description: "An escaped prisoner named Xinghai Li, after being chased by two police officers, was brought back to reality from the virtual world.\n\nThe film aims to convey the idea that the metaverse is not simply a technological improvement but potentially a risky social reformation. Each representing a group of future users in the metaverse, the characters in the film play their parts as allusions to the young generation, the elder generation, and the capitals. Similar to the core concept in the television program “Black Mirror”, “CAGED” will raise a discussion between the bright and dark sides of near-future technology and warns the viewers of the potential harm being brought by the uncontrollable technology in a striking and sarcastic manner. The protagonist Xinghai Li was freed from the spiritual world (temporarily) and experienced a short time of spiritual freedom. Nevertheless, it shall not be denied that one is never truly free if his physical body is trapped.",
+    festivals: ["NYU Tisch School of the Arts Application Film", "Shanghai International Short Week 2023"],
+    roles: ["Director"],
+    stillRatio: 2.4,
+    stills: [
+      "assets/photos/films/caged/still-1.jpg",
+      "assets/photos/films/caged/still-2.jpg",
+      "assets/photos/films/caged/still-3.jpg",
+      "assets/photos/films/caged/still-4.jpg",
+      "assets/photos/films/caged/still-5.jpg",
+      "assets/photos/films/caged/still-6.jpg",
+    ],
+  }),
+  film("LIPSTICK ON A LEOPARD 豹", "2022-06-01T00:00", {
+    poster: "assets/photos/films/lipstick-on-a-leopard/poster.jpg",
+    type: "Narrative Short",
+    meta: "2022 · 5 min",
+    description: "While questioning his masculinity upon the prejudice of his weakliness, a young boy with gender identity disorder struggled to retrieve his beastliness from past memories.",
+    festivals: ["Changing Minds Young Filmmaker Competition 2022", "CINEMQ 2022"],
+    roles: ["Director"],
+    stills: [
+      "assets/photos/films/lipstick-on-a-leopard/still-1.jpg",
+      "assets/photos/films/lipstick-on-a-leopard/still-2.jpg",
+      "assets/photos/films/lipstick-on-a-leopard/still-3.jpg",
+      "assets/photos/films/lipstick-on-a-leopard/still-4.jpg",
+      "assets/photos/films/lipstick-on-a-leopard/still-5.jpg",
+      "assets/photos/films/lipstick-on-a-leopard/still-6.jpg",
+    ],
+  }),
   film("Undertow", "2025-05-02T00:00", {
     poster: "assets/photos/placeholder.jpg",
     type: "Narrative Short",
@@ -261,6 +332,9 @@ const FILM_PROJECTS = [
     roles: ["DP"],
   }),
 ];
+// the FILMS list reads newest first — order comes from each project's own
+// date, so adding one is just a matter of giving it the right `at`.
+FILM_PROJECTS.sort((a, b) => new Date(b.at) - new Date(a.at));
 
 // content that lives inside named folders, merged onto whatever the tree loads.
 // This is the "you add material, I place it" hook — extend it per folder.
@@ -975,6 +1049,29 @@ let filmRoleFilter = FILM_ROLES[0];
 // template; director credit and festivals (no "Festival:" label, just the
 // name) sit underneath.
 const filmMetaBase = (p) => p.type ? `${p.type} · ${p.meta}` : p.meta;
+// a description can run to more than one paragraph — blank lines split it,
+// so a long director's statement doesn't collapse into one wall of text
+const filmDescHtml = (p, cls) => (p.description || "").trim()
+  ? p.description.trim().split(/\n\s*\n/).map(t => `<p class="${cls}">${t.trim()}</p>`).join("")
+  : "";
+/* Stills keep the shape they were shot in: each project declares the aspect
+   ratio its frames share (2.4:1 scope, 16:9, ...) and the tiles take it, so
+   nothing is cropped just to fit a fixed grid. An odd one out — BURNING
+   STAGE mixes scope performance frames with two ~4:3 portraits — is shown
+   whole inside its tile rather than cropped to fill it. */
+function fitStills(root) {
+  root.querySelectorAll("[data-still-ar]").forEach(box => {
+    const cell = +box.dataset.stillAr || 16 / 9;
+    box.querySelectorAll("img").forEach(img => {
+      const mark = () => {
+        if (!img.naturalWidth) return;
+        const own = img.naturalWidth / img.naturalHeight;
+        img.classList.toggle("fit-whole", Math.abs(own - cell) / cell > 0.04);
+      };
+      img.complete ? mark() : img.addEventListener("load", mark, { once: true });
+    });
+  });
+}
 const filmMetaLine = (p) => `${filmMetaBase(p)}${p.roles.length ? ` · <strong class="film-role-inline">${p.roles.map(r => ROLE_LABEL[r] || r).join(", ")}</strong>` : ""}`;
 const filmCredits = (p) => `
   ${p.director ? `<div class="film-credit">Director: ${p.director}</div>` : ""}
@@ -986,7 +1083,7 @@ function filmPosterRow(p, list) {
       <div class="film-info">
         <div class="film-title">${p.name}</div>
         <div class="film-meta">${filmMetaLine(p)}</div>
-        ${p.description ? `<p class="film-desc">${p.description}</p>` : ""}
+        ${filmDescHtml(p, "film-desc")}
         ${p.festivals.length ? `
           <ul class="film-festivals">${p.festivals.map(f => `<li>${f}</li>`).join("")}</ul>` : ""}
       </div>
@@ -995,7 +1092,7 @@ function filmPosterRow(p, list) {
 function filmStillsRow(p, list) {
   return `
     <button class="film-row film-row-stills" data-i="${list.indexOf(p)}">
-      <div class="film-stills">
+      <div class="film-stills" data-still-ar="${p.stillRatio}" style="--still-ar:${p.stillRatio}">
         ${p.stills.slice(0, 3).map(s => `<div class="film-still"><img src="${s}" alt="" loading="lazy"></div>`).join("")}
       </div>
       <div class="film-stills-credits">
@@ -1042,6 +1139,7 @@ function renderFilms(list) {
   els.filmsView.querySelectorAll(".film-row").forEach(row => {
     row.addEventListener("click", () => navigate(list[+row.dataset.i]));
   });
+  fitStills(els.filmsView);
 }
 function renderFilmDetail(node) {
   const stillsMode = node.stills.length >= 3;
@@ -1055,11 +1153,11 @@ function renderFilmDetail(node) {
           <div class="fd-meta">${stillsMode ? filmMetaLine(node) : filmMetaBase(node)}</div>
           ${stillsMode ? `
             ${node.director ? `<div class="fd-credit-line">Director: ${node.director}</div>` : ""}
-            ${node.description ? `<p class="fd-desc">${node.description}</p>` : ""}
+            ${filmDescHtml(node, "fd-desc")}
             ${node.festivals.length ? `<div class="fd-credit-line fd-fest-lines">${node.festivals.map(f => `<div>${f}</div>`).join("")}</div>` : ""}
           ` : `
             ${node.roles.length ? `<div class="fd-roles">${node.roles.map(r => `<span class="fd-role">${ROLE_LABEL[r] || r}</span>`).join("")}</div>` : ""}
-            ${node.description ? `<p class="fd-desc">${node.description}</p>` : ""}
+            ${filmDescHtml(node, "fd-desc")}
             ${node.festivals.length ? `
               <div class="fd-fest-head">Festivals</div>
               <ul class="fd-festivals">${node.festivals.map(f => `<li>${f}</li>`).join("")}</ul>` : ""}
@@ -1067,7 +1165,7 @@ function renderFilmDetail(node) {
         </div>
       </div>
       ${stillsMode ? `
-        <div class="fd-stills">
+        <div class="fd-stills" data-still-ar="${node.stillRatio}" style="--still-ar:${node.stillRatio}">
           ${stills.map((s, i) => `<button class="fd-still" data-i="${i}"><img src="${s}" alt="" loading="lazy"></button>`).join("")}
         </div>` : ""}
     </div>`;
@@ -1075,6 +1173,7 @@ function renderFilmDetail(node) {
     els.filmDetailView.querySelectorAll(".fd-still").forEach(btn => {
       btn.addEventListener("click", () => openStillLightbox(stills, +btn.dataset.i));
     });
+    fitStills(els.filmDetailView);
   }
 }
 

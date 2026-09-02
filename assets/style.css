@@ -481,7 +481,7 @@ svg { display: block; }
    three frames side by side, credits stacked underneath */
 .film-row.film-row-stills { flex-direction: column; align-items: stretch; gap: 14px; }
 .film-stills { display: flex; gap: 6px; width: 100%; }
-.film-still { flex: 1; min-width: 0; aspect-ratio: 16 / 9; overflow: hidden; background: var(--icon-hilite, rgba(255,255,255,.06)); }
+.film-still { flex: 1; min-width: 0; aspect-ratio: var(--still-ar, 1.7778); overflow: hidden; background: var(--icon-hilite, rgba(255,255,255,.06)); }
 .film-still img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .film-stills-credits { display: flex; flex-direction: column; gap: 3px; }
 .film-stills-credits .film-title { margin-bottom: 3px; }
@@ -515,9 +515,15 @@ svg { display: block; }
 /* multiple festivals: one per line, not comma-run-on */
 .fd-fest-lines { display: flex; flex-direction: column; gap: 4px; }
 .fd-stills { margin-top: 48px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; }
-.fd-still { position: relative; aspect-ratio: 16 / 9; overflow: hidden; background: var(--icon-hilite, rgba(255,255,255,.06)); cursor: pointer; }
+.fd-still { position: relative; aspect-ratio: var(--still-ar, 1.7778); overflow: hidden; background: var(--icon-hilite, rgba(255,255,255,.06)); cursor: pointer; }
 .fd-still img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform .3s cubic-bezier(.2,.8,.2,1), filter .2s; }
 .fd-still:hover img { transform: scale(1.045); filter: brightness(1.06); }
+/* a frame shot in a different ratio than the rest of its project sits whole
+   inside the tile instead of being cropped to fill it */
+.film-still img.fit-whole, .fd-still img.fit-whole { object-fit: contain; }
+/* ...and its tile drops the fill, so the leftover space reads as air rather
+   than a grey block beside the frame */
+.film-still:has(img.fit-whole), .fd-still:has(img.fit-whole) { background: none; }
 
 /* ---- a section's own page (FILMS itself, not one of its sub-pages): its
    sub-folders read as a centered, end-credits-style list instead of the
