@@ -119,7 +119,7 @@ const DIGITAL_PHOTOS = [
 // project only needs a correct date, not a hand-picked slot. roles are always
 // a subset of FILM_ROLES below — that's what the filter chips at the top of
 // the page match against.
-const FILM_ROLES = ["Director", "Producer", "DP"];
+const FILM_ROLES = ["Director", "DP", "Producer"];
 const ROLE_LABEL = { Director: "Director", Producer: "Producer", DP: "Director of Photography" };
 // `director` names who directed it when it wasn't Haolang; `stills` is a set
 // of frame grabs — a project with 3+ of them gets the stills-first DP
@@ -212,7 +212,7 @@ const FILM_PROJECTS = [
     ],
   }),
   film("CURED BY DEATH 拆病", "2024-06-01T00:00", {
-    poster: "assets/photos/placeholder.jpg",   // TODO: swap for a real poster
+    poster: "assets/photos/films/cured-by-death/poster.jpg",
     type: "Narrative Short",
     meta: "2024 · 8 min",
     director: "Murray Zhao",
