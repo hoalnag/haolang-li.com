@@ -1881,6 +1881,29 @@ const MENUS_RETIRED = {
     url.searchParams.set("r", Date.now().toString(36));
     location.replace(url);
   });
+
+  /* The same staleness catches visitors silently, and there's nobody to press
+     the button. GitHub Pages serves index.html with max-age=600, so for ten
+     minutes after a deploy a returning browser keeps the old HTML, keeps
+     asking for the ?v= assets that HTML names, and shows the previous version
+     of the site — the deploy looks like it never happened. So: ask the server
+     what it is serving right now, and if it has moved on, take the new one.
+     Once per version — the guard is what stops a reload loop when the answer
+     doesn't change. */
+  (async () => {
+    const running = tag && tag.textContent;
+    if (!running || running === "dev") return;
+    const KEY = "hl-freshened";
+    try {
+      const html = await (await fetch("/", { cache: "no-store" })).text();
+      const latest = (html.match(/app\.js\?v=([^"'&]+)/) || [])[1];
+      if (!latest || latest === running) { sessionStorage.removeItem(KEY); return; }
+      if (sessionStorage.getItem(KEY) === latest) return;
+      sessionStorage.setItem(KEY, latest);
+      await Promise.all(assetUrls().map(u => fetch(u, { cache: "reload" }).catch(() => {})));
+      location.reload();
+    } catch { /* offline, or the fetch was blocked — nothing to do */ }
+  })();
 })();
 
 /* ================= menu bar: name + appearance ================= */
