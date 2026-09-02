@@ -116,18 +116,16 @@ const DIGITAL_PHOTOS = [
 ];
 
 // FILMS — one entry per project, sorted newest-first by `at` below, so a new
-// project only needs a correct date, not a hand-picked slot. Placeholder
-// content: swap posters/copy for the real thing whenever it's ready, the
-// shape (roles/meta/description/festivals) is what renderFilms() expects.
-// roles are always a subset of FILM_ROLES below — that's what the filter
-// chips at the top of the page match against.
+// project only needs a correct date, not a hand-picked slot. roles are always
+// a subset of FILM_ROLES below — that's what the filter chips at the top of
+// the page match against.
 const FILM_ROLES = ["Director", "Producer", "DP"];
 const ROLE_LABEL = { Director: "Director", Producer: "Producer", DP: "Director of Photography" };
 // `director` names who directed it when it wasn't Haolang; `stills` is a set
 // of frame grabs — a project with 3+ of them gets the stills-first DP
-// treatment on the FILMS list (list: 3 stills + credits, no poster; detail:
-// poster + description up top, up to 6 stills below) instead of the plain
-// poster row/page every other project uses.
+// treatment on the FILMS list (list: the first 3 + credits, no poster;
+// detail: poster + description up top, the whole set in a grid below)
+// instead of the plain poster row/page every other project uses.
 const film = (title, at, o) =>
   ({ id: "film-" + (++_fid), name: title, kind: "Film", icon: "i-folder-mac", at, size: "--", children: [],
      poster: o.poster, meta: o.meta, type: o.type, director: o.director, description: o.description,
@@ -247,6 +245,10 @@ const FILM_PROJECTS = [
       "assets/photos/films/burning-stage/still-4.jpg",
       "assets/photos/films/burning-stage/still-5.jpg",
       "assets/photos/films/burning-stage/still-6.jpg",
+      "assets/photos/films/burning-stage/still-7.jpg",
+      "assets/photos/films/burning-stage/still-8.jpg",
+      "assets/photos/films/burning-stage/still-9.jpg",
+      "assets/photos/films/burning-stage/still-10.jpg",
     ],
   }),
   film("Rock‘n’Roll", "2023-11-01T00:00", {
@@ -281,6 +283,9 @@ const FILM_PROJECTS = [
       "assets/photos/films/caged/still-4.jpg",
       "assets/photos/films/caged/still-5.jpg",
       "assets/photos/films/caged/still-6.jpg",
+      "assets/photos/films/caged/still-7.jpg",
+      "assets/photos/films/caged/still-8.jpg",
+      "assets/photos/films/caged/still-9.jpg",
     ],
   }),
   film("LIPSTICK ON A LEOPARD 豹", "2022-06-01T00:00", {
@@ -297,39 +302,9 @@ const FILM_PROJECTS = [
       "assets/photos/films/lipstick-on-a-leopard/still-4.jpg",
       "assets/photos/films/lipstick-on-a-leopard/still-5.jpg",
       "assets/photos/films/lipstick-on-a-leopard/still-6.jpg",
+      "assets/photos/films/lipstick-on-a-leopard/still-7.jpg",
+      "assets/photos/films/lipstick-on-a-leopard/still-8.jpg",
     ],
-  }),
-  film("Undertow", "2025-05-02T00:00", {
-    poster: "assets/photos/placeholder.jpg",
-    type: "Narrative Short",
-    meta: "2025 · 14 min",
-    description: "A dockworker's quiet routine breaks when a stranger asks him to keep something he shouldn't.",
-    festivals: ["Sundance Film Festival — Official Selection", "Tribeca Festival"],
-    roles: ["Director", "DP"],
-  }),
-  film("Static", "2024-11-14T00:00", {
-    poster: "assets/photos/placeholder.jpg",
-    type: "Narrative Short",
-    meta: "2024 · 9 min",
-    description: "Two roommates communicate only through the television between them.",
-    festivals: ["SXSW"],
-    roles: ["Director"],
-  }),
-  film("Glasshouse", "2024-06-20T00:00", {
-    poster: "assets/photos/placeholder.jpg",
-    type: "Narrative Feature",
-    meta: "2024 · 92 min",
-    description: "A family rebuilds a greenhouse after a storm, and everything they'd buried along with it.",
-    festivals: ["Cannes — Official Selection", "Berlinale"],
-    roles: ["Producer"],
-  }),
-  film("Night Shift", "2023-09-08T00:00", {
-    poster: "assets/photos/placeholder.jpg",
-    type: "Narrative Short",
-    meta: "2023 · 11 min",
-    description: "An overnight security guard starts hearing the building breathe.",
-    festivals: [],
-    roles: ["DP"],
   }),
 ];
 // the FILMS list reads newest first — order comes from each project's own
@@ -1066,7 +1041,7 @@ function fitStills(root) {
       const mark = () => {
         if (!img.naturalWidth) return;
         const own = img.naturalWidth / img.naturalHeight;
-        img.classList.toggle("fit-whole", Math.abs(own - cell) / cell > 0.04);
+        img.classList.toggle("fit-whole", Math.abs(own - cell) / cell > 0.15);
       };
       img.complete ? mark() : img.addEventListener("load", mark, { once: true });
     });
@@ -1143,7 +1118,7 @@ function renderFilms(list) {
 }
 function renderFilmDetail(node) {
   const stillsMode = node.stills.length >= 3;
-  const stills = node.stills.slice(0, 6);
+  const stills = node.stills;
   els.filmDetailView.innerHTML = `
     <div class="fd-container">
       <div class="fd-wrap">
