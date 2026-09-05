@@ -116,13 +116,27 @@ const canWrite = () => Boolean(WRITE_KEY);
 
 function blankState() {
   const blocks = {};
-  BLOCKS.forEach(b => { blocks[b.id] = { status: "pending", start: null, end: null, adj: 0, note: "" }; });
+  BLOCKS.forEach(b => { blocks[b.id] = { status: "pending", start: null, end: null, adj: 0, note: "", etaEnd: null }; });
   return blocks;
 }
 function normalise() {
   BLOCKS.forEach(b => {
-    S.blocks[b.id] = Object.assign({ status: "pending", start: null, end: null, adj: 0, note: "" }, S.blocks[b.id] || {});
+    S.blocks[b.id] = Object.assign({ status: "pending", start: null, end: null, adj: 0, note: "", etaEnd: null }, S.blocks[b.id] || {});
   });
+  // Repair a board that already recorded two things rolling at once (an old
+  // double-tap): the latest one is what the floor is actually shooting, and
+  // the earlier ones closed when it began.
+  const live = BLOCKS.filter(b => st(b).status === "running");
+  if (live.length > 1) {
+    const keep = live[live.length - 1];
+    live.slice(0, -1).forEach(b => {
+      const s = st(b);
+      s.status = "done";
+      s.end = st(keep).start || Date.now();
+      if (s.start == null || s.start > s.end) s.start = s.end;
+      s.etaEnd = null;
+    });
+  }
 }
 function loadLocal() {
   S = { mode: "absorb", autoNext: true, blocks: blankState() };
@@ -142,7 +156,9 @@ function runProjection(dur) {
     const s = st(b);
     let ps, pe;
     if (s.status === "done" && s.start != null && s.end != null) { ps = s.start; pe = s.end; }
-    else if (s.status === "running" && s.start != null) { ps = s.start; pe = Math.max(s.start + dur[b.id] * 60000, NOW); }
+    // An overrunning block pinned at NOW quietly reports the day is fine right
+    // up until it isn't. When the AD has called an ETA, project from that.
+    else if (s.status === "running" && s.start != null) { ps = s.start; pe = Math.max(NOW, s.etaEnd || (s.start + dur[b.id] * 60000)); }
     else if (s.status === "skipped") { ps = cursor; pe = cursor; }
     else { ps = cursor; pe = ps + dur[b.id] * 60000; }
     out[b.id] = { ps, pe };
@@ -238,8 +254,8 @@ async function rpc(fn, body) {
 }
 function snapshotForSync() {
   const blocks = {};
-  BLOCKS.forEach(b => { const x = st(b); blocks[b.id] = { status: x.status, start: x.start, end: x.end, adj: x.adj || 0, note: x.note || "" }; });
-  return { blocks, mode: S.mode, autoNext: S.autoNext };
+  BLOCKS.forEach(b => { const x = st(b); blocks[b.id] = { status: x.status, start: x.start, end: x.end, adj: x.adj || 0, note: x.note || "", etaEnd: x.etaEnd || null }; });
+  return { blocks, mode: S.mode, autoNext: S.autoNext, v: 3 };
 }
 function setSync(state, txt) {
   syncState = state;
@@ -271,11 +287,15 @@ function applyRemote(d) {
     cur.end = nx.end ?? null;
     cur.adj = nx.adj || 0;
     cur.note = nx.note || "";
+    cur.etaEnd = nx.etaEnd ?? null;
     const inp = R[b.id] && R[b.id].note;
     if (inp && document.activeElement !== inp) inp.value = cur.note;
   });
-  if (d.mode) S.mode = d.mode;
+  // Only trust a mode written by a build that knows holding the wrap is the
+  // default; an older document would otherwise drag the board back to cascade.
+  if (d.mode && d.v >= 3) S.mode = d.mode;
   if (typeof d.autoNext === "boolean") S.autoNext = d.autoNext;
+  normalise();
   saveLocal();
   APPLYING = false;
   syncControls(); paintAllActions(); tick();
@@ -303,14 +323,25 @@ function nextActionable(from) {
 function act(b, a) {
   if (!canWrite()) return;
   const s = st(b), t = Date.now();
+  // A double-tap on Done used to close the block twice and auto-start a second
+  // item alongside the one already rolling. Only a running block can be done.
+  if (a === "done" && s.status !== "running") return;
+  if (a === "start" && s.status === "running") return;
   if (a === "start") {
     BLOCKS.forEach(x => { if (st(x).status === "running") { st(x).status = "done"; st(x).end = t; } });
-    s.status = "running"; s.start = t; s.end = null;
+    s.status = "running"; s.start = t; s.end = null; s.etaEnd = null;
   } else if (a === "done") {
-    s.status = "done"; s.end = t;
-    if (S.autoNext) { const n = nextActionable(idx(b)); if (n) { st(n).status = "running"; st(n).start = t; st(n).end = null; } }
+    s.status = "done"; s.end = t; s.etaEnd = null;
+    if (S.autoNext && !BLOCKS.some(x => st(x).status === "running")) {
+      const n = nextActionable(idx(b));
+      if (n) { st(n).status = "running"; st(n).start = t; st(n).end = null; st(n).etaEnd = null; }
+    }
   } else if (a === "reopen") { s.status = "running"; s.end = null; if (s.start == null) s.start = t; }
-  else if (a === "cancel") { s.status = "pending"; s.start = null; s.end = null; }
+  else if (a === "cancel") { s.status = "pending"; s.start = null; s.end = null; s.etaEnd = null; }
+  else if (a === "eta5") { s.etaEnd = t + 5 * 60000; }
+  else if (a === "eta10") { s.etaEnd = t + 10 * 60000; }
+  else if (a === "eta15") { s.etaEnd = t + 15 * 60000; }
+  else if (a === "etaClear") { s.etaEnd = null; }
   else if (a === "skip") { s.status = "skipped"; s.start = null; s.end = null; }
   else if (a === "plus") { s.adj = (s.adj || 0) + 5; }
   else if (a === "plus10") { s.adj = (s.adj || 0) + 10; }
@@ -371,6 +402,7 @@ function shell() {
     <span class="ad-pill ad-sync" id="ad-sync" data-s="idle"><i></i><span>…</span></span>
     <span class="ad-spacer"></span>
     <button class="ad-pill" id="ad-report">Day report</button>
+    <button class="ad-pill" id="ad-reset">Reset day</button>
   </div>
   <div class="ad-modenote" id="ad-modenote"></div>
   <div class="ad-donors" id="ad-donors" hidden></div>
@@ -466,14 +498,19 @@ function paintActions(b) {
   if (b.m === 0 || !canWrite()) { r.acts.innerHTML = ""; return; }
   let h = "";
   if (s.status === "pending")      h = `<button class="ad-btn go" data-a="start">Start</button><button class="ad-btn t" data-a="skip">Skip</button>`;
-  else if (s.status === "running") h = `<button class="ad-btn fin" data-a="done">Done</button><button class="ad-btn t" data-a="cancel">Undo</button>`;
+  else if (s.status === "running") h = `<button class="ad-btn fin" data-a="done">Done</button><button class="ad-btn t" data-a="cancel">Undo</button>`
+    + `<div class="ad-brk"></div><span class="ad-etalbl">needs</span>`
+    + `<button class="ad-btn t" data-a="eta5">5</button><button class="ad-btn t" data-a="eta10">10</button><button class="ad-btn t" data-a="eta15">15</button>`
+    + (s.etaEnd ? `<button class="ad-btn t" data-a="etaClear">×</button>` : "");
   else if (s.status === "done")    h = `<button class="ad-btn t" data-a="reopen">Reopen</button>`;
   else                             h = `<button class="ad-btn t" data-a="cancel">Restore</button>`;
-  h += `<div class="ad-brk"></div>
+  h += s.status === "running"
+     ? `<div class="ad-brk"></div><button class="ad-btn t" data-a="edit">✎</button>`
+     : `<div class="ad-brk"></div>
         <button class="ad-btn t" data-a="minus">−5</button>
         <button class="ad-btn t" data-a="plus">+5</button>
         <button class="ad-btn t" data-a="plus10">+10</button>`
-     + (s.status === "pending" ? "" : `<button class="ad-btn t" data-a="edit">✎</button>`);
+       + (s.status === "pending" ? "" : `<button class="ad-btn t" data-a="edit">✎</button>`);
   r.acts.innerHTML = h;
   r.acts.querySelectorAll("button").forEach(btn => btn.addEventListener("click", () => act(b, btn.dataset.a)));
   if (s.status === "pending" && r.edit) r.edit.classList.remove("on");
@@ -517,8 +554,13 @@ function tick() {
       } else if (s.status === "running") {
         r.d.innerHTML = `${used}<small>/${target}</small>`;
         const left = target - used;
-        r.dd.textContent = left >= 0 ? left + "m left" : signed(-left) + "m over";
-        r.dd.className = "dd " + (left < 0 ? "bad" : "");
+        if (s.etaEnd && s.etaEnd > NOW) {
+          r.dd.textContent = "out ~" + fmtShort(s.etaEnd);
+          r.dd.className = "dd eta";
+        } else {
+          r.dd.textContent = left >= 0 ? left + "m left" : signed(-left) + "m over";
+          r.dd.className = "dd " + (left < 0 ? "bad" : "");
+        }
       } else {
         const changed = target !== b.m;
         r.d.innerHTML = changed ? `<s>${b.m}</s>${target}` : String(target);
@@ -576,16 +618,20 @@ function tick() {
     const taken = LAST.donors.filter(x => x.delta < 0).reduce((a, x) => a - x.delta, 0);
     $r("ad-now-lbl").textContent = "On the floor — since " + fmt(s.start);
     $r("ad-now-ttl").textContent = cur.t;
-    $r("ad-now-meta").textContent = `${used} / ${target} min · ${left >= 0 ? left + " min left" : (-left) + " min over"}`
+    const outAt = s.etaEnd && s.etaEnd > NOW ? ` · out ~${fmt(s.etaEnd)}` : "";
+    $r("ad-now-meta").textContent = `${used} / ${target} min${outAt} · ${left >= 0 ? left + " min left" : (-left) + " min over"}`
       + (S.mode !== "cascade" && taken ? ` · ${taken} min taken from ${LAST.donors.filter(x => x.delta < 0).length} later items, wrap unchanged` : "")
       + ` · next: ${nextActionable(idx(cur)) ? nextActionable(idx(cur)).t : "wrap"}`;
-    $r("ad-now-fill").style.width = Math.min(100, (used / Math.max(1, target)) * 100) + "%";
+    const span = s.etaEnd && s.etaEnd > NOW ? Math.round((s.etaEnd - s.start) / 60000) : target;
+    $r("ad-now-fill").style.width = Math.min(100, (used / Math.max(1, span)) * 100) + "%";
     $r("ad-now-fill").classList.toggle("over", used > target);
     if (canWrite() && acts.dataset.for !== cur.id) {
       acts.dataset.for = cur.id;
       acts.innerHTML = `<button class="ad-big" data-g="done">Done</button>
-                        <button class="ad-big ghost" data-g="plus">+5</button>
-                        <button class="ad-big ghost" data-g="plus10">+10</button>`;
+                        <span class="ad-etalbl big">still needs</span>
+                        <button class="ad-big ghost" data-g="eta5">5 min</button>
+                        <button class="ad-big ghost" data-g="eta10">10 min</button>
+                        <button class="ad-big ghost" data-g="eta15">15 min</button>`;
       acts.querySelectorAll("button").forEach(x => x.addEventListener("click", () => act(cur, x.dataset.g)));
     }
   } else {
@@ -725,6 +771,14 @@ function mount(host) {
   const auto = $r("ad-auto");
   auto.disabled = !canWrite();
   auto.addEventListener("change", () => { S.autoNext = auto.checked; save(); });
+  const reset = $r("ad-reset");
+  reset.hidden = !canWrite();
+  reset.addEventListener("click", () => {
+    if (!canWrite()) return;
+    if (!confirm("Clear every start, finish, nudge and note for today? Every device sees this.")) return;
+    S.blocks = blankState();
+    save(); buildRows(); syncControls(); tick();
+  });
   $r("ad-report").addEventListener("click", () => {
     const t = dayReport();
     navigator.clipboard && navigator.clipboard.writeText(t).catch(() => {});

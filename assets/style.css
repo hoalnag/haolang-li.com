@@ -1540,6 +1540,9 @@ body.admin-on .icon-item .fadmin { display: flex; }
 .ad-c-dur .dd.bad { color: var(--ad-bad); }
 .ad-c-dur .dd.adj { color: var(--folder); }
 .ad-c-dur .dd.floor { color: var(--ad-warn); }
+.ad-c-dur .dd.eta { color: var(--accent); }
+.ad-etalbl { align-self: center; font-size: 9.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--text-dim); margin-right: 1px; }
+.ad-etalbl.big { font-size: 10px; color: var(--text-dim); margin: 0 3px 0 7px; }
 
 .ad-c-act { padding: 8px 9px 9px; }
 .ad-c-act .arow { display: flex; gap: 4px; flex-wrap: wrap; justify-content: flex-end; }
