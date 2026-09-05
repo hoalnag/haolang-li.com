@@ -342,9 +342,10 @@ function folderContent() {
 // for whenever there's real content to put there.
 function defaultFolders() {
   return [
-    folder("FILMS", "2026-07-16T11:40", [
+    folder("FILMS", "2026-09-05T08:00", [
       folder("Film Projects", "2026-07-16T11:40", []),
       folder("Generative Projects", "2026-07-16T11:40", []),
+      folder("AD Schedule", "2026-09-05T08:00", []),
       folder("Reviews", "2026-07-16T11:40", []),
       folder("Equipment", "2026-07-16T11:40", []),
     ]),
@@ -588,6 +589,7 @@ const els = {
   columnsView: $("columns-view"), galleryView: $("gallery-view"), digitalView: $("digital-view"),
   filmsView: $("films-view"), filmsSectionView: $("films-section-view"),
   filmDetailView: $("film-detail-view"), stillLightbox: $("still-lightbox"),
+  adView: $("ad-view"),
   status: $("status-text"), rubber: $("rubber-band"),
   menuLayer: $("menu-layer"), overlayLayer: $("overlay-layer"),
   sidebar: $("sidebar"), desktop: $("desktop"), contactLayer: $("contact-layer"),
@@ -830,19 +832,27 @@ function render() {
   const onFilms = cwd.name === "Film Projects";
   const onFilmDetail = Boolean(cwd.parent && cwd.parent.name === "Film Projects");
   const onFilmsSection = cwd !== ROOT && cwd.parent === ROOT && (cwd.children || []).some(c => c.kind === "Folder");
-  const custom = onDigital || onFilms || onFilmDetail || onFilmsSection;
+  // AD Schedule is a live tool rather than a listing: it mounts its own board
+  // and keeps running until you navigate away from it.
+  const onAd = cwd.name === "AD Schedule";
+  const custom = onDigital || onFilms || onFilmDetail || onFilmsSection || onAd;
   stopPortrait();
   els.deskView.hidden = !onDesk;
   els.digitalView.hidden = !onDigital;
   els.filmsView.hidden = !onFilms;
   els.filmsSectionView.hidden = !onFilmsSection;
   els.filmDetailView.hidden = !onFilmDetail;
+  els.adView.hidden = !onAd;
   els.iconView.hidden = custom || view !== "icon" || onDesk;
   els.listView.hidden = custom || view !== "list";
   els.columnsView.hidden = custom || view !== "columns";
   els.galleryView.hidden = custom || view !== "gallery";
 
-  if (onDesk) {
+  if (!onAd && window.ADBoard) ADBoard.unmount();
+
+  if (onAd) {
+    if (window.ADBoard) ADBoard.mount(els.adView);
+  } else if (onDesk) {
     renderDesk(list);
   } else if (onDigital) {
     renderDigital(list);

@@ -105,6 +105,38 @@ mov("Filmmaker's Reel.mov", "2026-07-15T20:35", "assets/files/Filmmakers_Reel.mo
 
 切到 List / Columns / Gallery 视图时,Desktop 会回到常规显示。
 
+## AD Schedule(FILMS 里的实时通告板)
+
+`FILMS › AD Schedule`,路由 `/films/ad-schedule`。拍摄当天的活体通告板:每一项点
+「Start / Done」,整张表按实际用时重排,并且**把硬节点钉死**——超时的分钟数从后面的
+turnaround / setup / strike 里扣,而不是让收工时间往后跑。
+
+- 代码全在 `assets/ad-board.js`(自成一体,`window.ADBoard.mount(el)` / `.unmount()`),
+  样式在 `style.css` 末尾的 AD Schedule 段,用的是全站同一套 Finder token。
+- 三种重排策略:**保收工·先压周转** / **保收工·先压场次** / **不保·顺延收工**。
+  地板值:场次最低 30 min、turnaround 10 min、strike 20 min;**午餐和 company move 锁死**。
+  压不下去时会明说还差几分钟,不粉饰。
+- 页面上只出现角色名和街区,不出现演员真名和门牌号 —— 这是公开页面。
+
+### 后端:Supabase(公开可看,凭密钥才能改)
+
+一次性设置:在 Supabase → SQL Editor 里跑 [`supabase-ad-schedule.sql`](supabase-ad-schedule.sql)。
+它建一张 `shoot_state` 表(RLS 开启、**不给任何策略也不给 grant**,所以 PostgREST 根本碰不到),
+只暴露两个 `security definer` 函数:
+
+- `shoot_get(id)` —— 任何人可读,访客就是靠它实时跟看的
+- `shoot_put(id, key, state)` —— 必须带对密钥才能写
+
+跑完 SQL 最后会打印一行 `bookmark_this`,形如
+`https://haolang-li.com/films/ad-schedule#k=<key>`。**这个带密钥的链接就是操作权**:
+
+- 你自己存书签,电脑和 iPad 各打开一次,之后密钥进 localStorage,刷新也在
+- 想让制片/导演也能改,把这条链接发给他们即可
+- 不带密钥进来的人 = 只读,页面顶部会写明「Watching live」
+
+密钥只存在 URL 和你的浏览器里,**不在网站代码里**,所以别人拿公开 anon key 也捞不到、改不了。
+换一天拍摄:在 `shoot_state` 里插一行新的 `id`,改 `ad-board.js` 顶部的 `SHOOT_ID`。
+
 ## 桌面背景
 
 静态渐变,写在 `style.css` 的 `.desktop`(深色)和 `[data-theme="light"] .desktop`(浅色)里。
