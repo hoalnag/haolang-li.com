@@ -638,7 +638,7 @@ function makeVelocityTracker() {
 const els = {
   win: $("window"), sideNav: $("side-nav"), title: $("tb-title"),
   back: $("tb-back"), fwd: $("tb-fwd"), content: $("content"),
-  iconView: $("icon-view"), listView: $("list-view"), deskView: $("desk-view"),
+  iconView: $("icon-view"), listView: $("list-view"), homeView: $("home-view"),
   columnsView: $("columns-view"), galleryView: $("gallery-view"), digitalView: $("digital-view"),
   filmsView: $("films-view"), filmsSectionView: $("films-section-view"),
   filmDetailView: $("film-detail-view"), stillLightbox: $("still-lightbox"),
@@ -665,38 +665,6 @@ const DATE_FMT = new Intl.DateTimeFormat("en-US", {
   month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit",
 });
 const dateOf = (n) => n.at ? DATE_FMT.format(new Date(n.at)).replace(",", "").replace(/(\d{4}) /, "$1 at ") : "—";
-function since(at) {
-  const mins = Math.round((Date.now() - new Date(at)) / 60000);
-  if (mins < 1) return "now";
-  if (mins < 60) return `${mins}m`;
-  const hrs = Math.round(mins / 60);
-  if (hrs < 24) return `${hrs}h`;
-  const days = Math.round(hrs / 24);
-  if (days < 31) return `${days}d`;
-  return `${Math.round(days / 30)}mo`;
-}
-/* Recently Updated builds itself from the tree: newest `at` first. Organizing
-   folders (sections, and FILMS' own Film Projects/Reviews/Equipment) never
-   show up themselves — only the real content living inside them does. */
-function recentUpdates(limit = 5) {
-  const found = [];
-  (function walk(node) {
-    (node.children || []).forEach(child => {
-      if (child.kind !== "Folder") found.push(child);
-      walk(child);
-    });
-  })(ROOT);
-  // the reel sits on the desktop and inside FILMS; the feed should still name it once.
-  // photos are a bulk archive with their own home (PHOTOGRAPHY › Dazzcam) — they'd otherwise
-  // flood this list on their own, so they sit out of the spotlight.
-  const seen = new Set();
-  return found
-    .filter(n => n.at && !n.isPhoto)
-    .sort((a, b) => new Date(b.at) - new Date(a.at))
-    .filter(n => { const k = n.href || n.id; return !seen.has(k) && seen.add(k); })
-    .slice(0, limit);
-}
-
 /* ================= sidebar (built from the live tree, keyed by id) =========
    Home plus the four sections, flat, no icons — quiet text, room to breathe.
    A section with sub-pages (FILMS today) is a disclosure row instead of a
@@ -873,7 +841,7 @@ function render() {
   els.back.disabled = !history.length;
   els.fwd.disabled = !future.length;
 
-  // Home has its own arrangement; Dazzcam is a photo wall and FILMS is a
+  // Home is the single-frame showcase; Dazzcam is a photo wall and FILMS is a
   // project list, each with no other view — none of these four ever fall
   // back to the plain grid/list/columns/gallery. A section's own page (FILMS
   // itself, landed on via the breadcrumb) reads as a centered credits-style
@@ -886,8 +854,8 @@ function render() {
   const onFilmDetail = Boolean(cwd.parent && cwd.parent.name === "Film Projects");
   const onFilmsSection = cwd !== ROOT && cwd.parent === ROOT && (cwd.children || []).some(c => c.kind === "Folder");
   const custom = onDigital || onFilms || onFilmDetail || onFilmsSection;
-  stopPortrait();
-  els.deskView.hidden = !onDesk;
+  stopHome();
+  els.homeView.hidden = !onDesk;
   els.digitalView.hidden = !onDigital;
   els.filmsView.hidden = !onFilms;
   els.filmsSectionView.hidden = !onFilmsSection;
@@ -898,7 +866,7 @@ function render() {
   els.galleryView.hidden = custom || view !== "gallery";
 
   if (onDesk) {
-    renderDesk(list);
+    renderHome();
   } else if (onDigital) {
     renderDigital(list);
   } else if (onFilms) {
@@ -936,81 +904,207 @@ function render() {
     if (sortBtn) sortBtn.onclick = () => { sortAsc = !sortAsc; render(); };
   }
 
+  // Arriving somewhere new starts at the top and fades up into place, the
+  // way pages change on wim-wenders.com. Re-renders of the same page (a
+  // folder reload, a view switch) don't replay it.
+  if (cwd.id !== lastArrivalId) {
+    lastArrivalId = cwd.id;
+    els.content.scrollTop = 0;
+    arrive(onDesk ? els.homeView : onDigital ? els.digitalView : onFilms ? els.filmsView
+      : onFilmsSection ? els.filmsSectionView : onFilmDetail ? els.filmDetailView
+      : view === "list" ? els.listView : view === "columns" ? els.columnsView
+      : view === "gallery" ? els.galleryView : els.iconView);
+  }
+
   updateStatus();
   syncSidebar();
   adminDecorate();
 }
-/* ---- the desk: portrait, weather, papers, and the folders as blocks ---- */
-const CITIES = [
-  { name: "New York", lat: 40.7128, lon: -74.006, tz: "America/New_York" },
-  { name: "Beijing",  lat: 39.9042, lon: 116.4074, tz: "Asia/Shanghai" },
-];
-const PORTRAITS = [1, 2, 3, 4, 5, 6].map(i => `assets/photos/portrait-0${i}.jpg`);
+let lastArrivalId = null;
+/* restart the arrival animation on a view; its rows, if it has any, follow
+   one after another (see .is-arriving in the stylesheet) */
+function arrive(el) {
+  if (!el) return;
+  el.querySelectorAll(".film-row, .fd-still, .dg-item, .fs-credit-item").forEach((c, i) =>
+    c.style.setProperty("--i", Math.min(i, 12)));
+  el.classList.remove("is-arriving");
+  void el.offsetWidth;
+  el.classList.add("is-arriving");
+}
+/* ================= HOME: one film at a time =================
+   Built after the gallery on wim-wenders.com: the frame is the page, the
+   chrome steps back, and two quiet lines under the picture say what it is.
+   The frame and the caption both open the film; ‹ › step through by hand.
 
-function renderDesk(list) {
-  const folders = list.filter(n => n.children);
-  const papers = list.filter(n => !n.children);
-  els.deskView.innerHTML = `
-    <section class="desk-aside">
-      <ul class="desk-files">
-        ${papers.map(n => `
-          <li class="desk-item desk-file" data-i="${list.indexOf(n)}">
-            ${iconSvg(n, "")}
-            <span class="df-name">${n.name.replace(/\.[^.]+$/, "").replace(/_/g, " ")}</span>
-            <span class="df-kind">${(n.name.split(".").pop() || "").toUpperCase()}</span>
-          </li>`).join("")}
-      </ul>
+   Which still comes next: every still in Film Projects gets its turn, dealt
+   in rounds. A round visits every film once, in a shuffled order, so no
+   film comes back before all the others have had a frame. Each film deals
+   its own stills from a shuffled pile of its own, so over successive rounds
+   every frame is shown before any of that film's frames repeat. */
+
+// The self-introduction below the frame. Empty for now — the space is laid
+// out and held either way; drop paragraphs (plain strings) in to fill it.
+const HOME_INTRO = { label: "About", paragraphs: [] };
+
+const shuffled = (a) => {
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+};
+const homeDeck = (() => {
+  const piles = new Map();          // film id → that film's stills not yet dealt this pass
+  let round = [], last = null;
+  return function draw() {
+    if (!round.length) {
+      round = shuffled(FILM_PROJECTS.filter(p => p.stills.length));
+      if (!round.length) return null;
+      // a round never opens on the film that closed the one before it
+      if (round.length > 1 && round[0] === last) round.push(round.shift());
+    }
+    const film = round.shift();
+    let pile = piles.get(film.id);
+    if (!pile || !pile.length) piles.set(film.id, pile = shuffled([...film.stills]));
+    last = film;
+    return { film, src: pile.shift() };
+  };
+})();
+
+// what has been shown, so ‹ retraces it exactly; › past the end deals anew
+let homeHist = [], homePos = -1, homeLayer = 0, homeToken = 0;
+
+const homeMeta = (p) => {
+  const meta = p.meta || "";
+  const year = (meta.match(/\b(?:19|20)\d{2}\b/) || [])[0];
+  const mins = (meta.match(/(\d+)\s*min/i) || [])[1];
+  const roles = p.roles.map(r => ROLE_LABEL[r] || r).join(", ");
+  return [mins && `${mins} min`, p.type, year, roles && `<strong>${roles}</strong>`].filter(Boolean).join(" · ");
+};
+const CHEVRON = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+
+function renderHome() {
+  const intro = HOME_INTRO.paragraphs.filter(t => t && String(t).trim());
+  const papers = ROOT.children.filter(n => !n.children);   // CV, self intro, reel — still one tap away
+  els.homeView.innerHTML = `
+    <section class="home-hero">
+      <div class="home-stage">
+        <button class="home-nav home-prev" aria-label="Previous film">${CHEVRON("M14.5 5 7.5 12l7 7")}</button>
+        <a class="home-frame"><img class="hf-img" alt=""><img class="hf-img" alt=""></a>
+        <button class="home-nav home-next" aria-label="Next film">${CHEVRON("M9.5 5l7 7-7 7")}</button>
+      </div>
+      <a class="home-caption">
+        <span class="hc-title"></span>
+        <span class="hc-meta"></span>
+      </a>
+      <div class="home-progress" aria-hidden="true"><i></i></div>
     </section>
-
-    <figure class="portrait">
-      <div class="pt-frame" id="pt-frame"><span class="pt-mono">HL</span></div>
-      <figcaption class="pt-cap"><span class="pt-dots" id="pt-dots"></span></figcaption>
-    </figure>
-
-    <div class="wx" id="wx">
-      ${CITIES.map(c => `
-        <div class="wx-row" data-city="${c.name}">
-          <span class="wx-city">${c.name}</span>
-          <span class="wx-time" data-tz="${c.tz}">—</span>
-          <span class="wx-temp">—</span>
-        </div>`).join("")}
-    </div>
-
-
-    <section class="desk-folders">
-      ${folders.map(n => `
-        <button class="desk-item desk-block" data-i="${list.indexOf(n)}">
-          <span class="db-count">${n.children.length || ""}</span>
-          <span class="db-name">${n.name}</span>
-        </button>`).join("")}
-    </section>
-
-    <section class="desk-recent">
-      <h2 class="dr-head">Recently Updated</h2>
-      <ul class="dr-list">
-        ${recentUpdates().map(n => `
-          <li class="dr-row" data-path="${pathOf(n).map(p => p.name).join("/")}">
-            ${iconSvg(n, "")}
-            <span class="dr-name">${n.name.replace(/\.[^.]+$/, "").replace(/_/g, " ")}</span>
-            <span class="dr-where">${n.parent && n.parent !== ROOT ? n.parent.name : "Home"}</span>
-            <span class="dr-when">${since(n.at)}</span>
-          </li>`).join("")}
-      </ul>
+    <section class="home-intro${intro.length ? "" : " is-empty"}">
+      ${intro.length ? `
+        <h2 class="hi-label">${HOME_INTRO.label}</h2>
+        <div class="hi-body">${intro.map(t => `<p>${t}</p>`).join("")}</div>` : ""}
+      <nav class="home-links">
+        ${papers.map(n => `<button class="hl-link" data-id="${n.id}">${n.name.replace(/\.[^.]+$/, "").replace(/_/g, " ")}</button>`).join("")}
+      </nav>
     </section>`;
 
-  els.deskView.querySelectorAll(".dr-row").forEach(row => {
-    row.addEventListener("click", () => {
-      const names = row.dataset.path.split("/").slice(1);
-      let node = ROOT;
-      for (const nm of names) node = (node.children || []).find(c => c.name === nm) || node;
-      node.children ? navigate(node) : openNode(node);
-    });
-  });
+  const hero = els.homeView.querySelector(".home-hero");
+  const stage = hero.querySelector(".home-stage");
+  const frame = hero.querySelector(".home-frame"), caption = hero.querySelector(".home-caption");
+  hero.querySelector(".home-prev").addEventListener("click", () => homeStep(-1));
+  hero.querySelector(".home-next").addEventListener("click", () => homeStep(1));
+  hero.querySelector(".home-progress i").addEventListener("animationend", () => homeStep(1));
 
-  startPortrait();
-  tickCityClocks();
-  loadWeather();
+  // both the picture and its two lines lead to the film
+  let swiped = false;
+  [frame, caption].forEach(el => el.addEventListener("click", e => {
+    e.preventDefault();
+    if (swiped) { swiped = false; return; }
+    const entry = homeHist[homePos], node = entry && INDEX.get(entry.film.id);
+    if (node) navigate(node);
+  }));
+  // the frame holds still while you're looking at it
+  [stage, caption].forEach(el => {
+    el.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") hero.classList.add("paused"); });
+    el.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") hero.classList.remove("paused"); });
+  });
+  // a sideways swipe turns the page on touch screens
+  let sx = null;
+  stage.addEventListener("pointerdown", e => { if (e.pointerType !== "mouse") sx = e.clientX; });
+  stage.addEventListener("pointerup", e => {
+    if (sx === null) return;
+    const dx = e.clientX - sx; sx = null;
+    if (Math.abs(dx) > 40) { swiped = true; homeStep(dx < 0 ? 1 : -1); }
+  });
+  els.homeView.querySelectorAll(".hl-link").forEach(b =>
+    b.addEventListener("click", () => openNode(INDEX.get(b.dataset.id))));
+
+  homeLayer = 0;
+  if (homePos < 0) { const first = homeDeck(); if (!first) return; homeHist.push(first); homePos = 0; }
+  showHomeFrame(homeHist[homePos], true);
 }
+
+function homeStep(d) {
+  if (!homeHist.length) return;
+  if (d > 0) {
+    if (homePos < homeHist.length - 1) homePos++;
+    else {
+      const next = homeDeck(); if (!next) return;
+      homeHist.push(next); homePos++;
+    }
+  } else if (homePos > 0) {
+    homePos--;
+  } else {
+    // nothing earlier yet: deal a frame in front, from the same rounds
+    let prev = homeDeck();
+    if (prev && prev.film === homeHist[0].film) prev = homeDeck() || prev;
+    if (!prev) return;
+    homeHist.unshift(prev);
+  }
+  showHomeFrame(homeHist[homePos]);
+}
+
+function showHomeFrame(entry, first = false) {
+  const hero = els.homeView.querySelector(".home-hero");
+  if (!hero || !entry) return;
+  const node = INDEX.get(entry.film.id);
+  const href = node ? pathForNode(node) : "#";
+  const imgs = hero.querySelectorAll(".hf-img");
+  const incoming = imgs[1 - homeLayer], outgoing = imgs[homeLayer];
+  const caption = hero.querySelector(".home-caption"), frame = hero.querySelector(".home-frame");
+  const bar = hero.querySelector(".home-progress i");
+  const token = ++homeToken;
+
+  const paintCaption = () => {
+    hero.querySelector(".hc-title").textContent = entry.film.name;
+    hero.querySelector(".hc-meta").innerHTML = homeMeta(entry.film);
+    frame.href = caption.href = href;
+    frame.setAttribute("aria-label", `${entry.film.name} — open the film`);
+  };
+  const reveal = () => {
+    if (token !== homeToken) return;            // a later step already took over
+    incoming.classList.add("on");
+    outgoing.classList.remove("on");
+    homeLayer = 1 - homeLayer;
+    if (first) paintCaption();
+    else {
+      caption.classList.add("swap");
+      setTimeout(() => { if (token !== homeToken) return; paintCaption(); caption.classList.remove("swap"); }, 320);
+    }
+    // restart the dwell: its end is what turns to the next frame
+    bar.style.animation = "none"; void bar.offsetWidth; bar.style.animation = "";
+    // have the frame after this one decoded before it's needed
+    if (homePos === homeHist.length - 1) {
+      const ahead = homeDeck();
+      if (ahead) {
+        homeHist.push(ahead); new Image().src = ahead.src;
+        if (homeHist.length > 240) { homeHist.shift(); homePos--; }
+      }
+    } else new Image().src = homeHist[homePos + 1].src;
+  };
+  incoming.src = entry.src;
+  (incoming.decode ? incoming.decode() : Promise.resolve()).then(reveal, reveal);
+}
+
+// leaving HOME: drop any frame still decoding so it can't land on another page
+function stopHome() { homeToken++; }
 
 /* ---- digital: a quiet contact-sheet wall, one tap opens the full frame ---- */
 /* Justified rows (Flickr/Google Photos style): every photo keeps its own
@@ -1181,6 +1275,7 @@ function renderFilms(list) {
       if (filmRoleFilter === chip.dataset.role) return;   // mutually exclusive: always exactly one
       filmRoleFilter = chip.dataset.role;
       renderFilms(items());
+      arrive(els.filmsView.querySelector(".film-list"));
     });
   });
   els.filmsView.querySelectorAll(".film-row").forEach(row => {
@@ -1521,65 +1616,6 @@ $("mb-mode").addEventListener("mousedown", e => {
     r.left, r.bottom + 4);
 });
 
-/* portrait: keep only the frames that actually load, then cross-fade them */
-let ptTimer = 0, clockTimer = 0;
-function stopPortrait() { clearInterval(ptTimer); ptTimer = 0; clearInterval(clockTimer); clockTimer = 0; }
-function startPortrait() {
-  const frame = $("pt-frame"), dots = $("pt-dots");
-  if (!frame) return;
-  const found = new Array(PORTRAITS.length);
-  let pending = PORTRAITS.length;
-  const settle = () => {
-    if (--pending) return;
-    const srcs = found.filter(Boolean);
-    if (!srcs.length) { frame.classList.add("empty"); return; }   // monogram stands in
-    frame.classList.remove("empty");
-    frame.innerHTML = srcs.map((s, i) => `<img src="${s}" alt="" class="${i ? "" : "on"}">`).join("");
-    if (dots && srcs.length > 1) dots.innerHTML = srcs.map((_, i) => `<i class="${i ? "" : "on"}"></i>`).join("");
-    if (srcs.length < 2 || REDUCED.matches) return;
-    let i = 0;
-    ptTimer = setInterval(() => {
-      const imgs = frame.querySelectorAll("img"), pips = dots ? dots.querySelectorAll("i") : [];
-      imgs[i].classList.remove("on"); pips[i] && pips[i].classList.remove("on");
-      i = (i + 1) % imgs.length;
-      imgs[i].classList.add("on"); pips[i] && pips[i].classList.add("on");
-    }, 4600);
-  };
-  PORTRAITS.forEach((src, idx) => {
-    const im = new Image();
-    im.onload = () => { found[idx] = src; settle(); };
-    im.onerror = settle;
-    im.src = src;
-  });
-}
-
-function tickCityClocks() {
-  const paint = () => {
-    document.querySelectorAll(".wx-time[data-tz]").forEach(el => {
-      el.textContent = new Intl.DateTimeFormat("en-US", {
-        hour: "numeric", minute: "2-digit", timeZone: el.dataset.tz,
-      }).format(new Date());
-    });
-  };
-  paint();
-  clockTimer = setInterval(paint, 30000);
-}
-
-/* live temperature from Open-Meteo (public, no key); falls back quietly */
-async function loadWeather() {
-  await Promise.all(CITIES.map(async c => {
-    const cell = document.querySelector(`.wx-row[data-city="${c.name}"] .wx-temp`);
-    if (!cell) return;
-    try {
-      const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${c.lat}&longitude=${c.lon}&current=temperature_2m`);
-      if (!r.ok) throw new Error(r.status);
-      const j = await r.json();
-      const t = j?.current?.temperature_2m;
-      cell.textContent = Number.isFinite(t) ? `${Math.round(t)}°` : "—";
-    } catch { cell.textContent = "—"; }
-  }));
-}
-
 /* ---- columns: every level of the path stays on screen, left to right ---- */
 function renderColumns(list) {
   const chain = pathOf(cwd);                    // root … cwd
@@ -1663,11 +1699,12 @@ function updateStatus() {
 }
 
 /* ================= selection ================= */
-const ITEM_SEL = { icon: ".icon-item, .desk-item", list: ".lv-row", columns: ".col-row[data-i]", gallery: ".gal-thumb", digital: ".dg-item" };
+const ITEM_SEL = { home: ".hl-none", icon: ".icon-item", list: ".lv-row", columns: ".col-row[data-i]", gallery: ".gal-thumb", digital: ".dg-item" };
 // Digital is its own mode regardless of what `view` is set to (it has no
 // icon/list/columns/gallery fallback) — this is the single source of truth
 // for "what's actually on screen right now" that selection/clicks key off.
 function curView() {
+  if (cwd === ROOT && !els.homeView.hidden) return "home";
   if (cwd.name === "Dazzcam" && !els.digitalView.hidden) return "digital";
   if (cwd !== ROOT && cwd.parent === ROOT && !els.filmsSectionView.hidden) return "films-section";
   if (cwd.name === "Film Projects" && !els.filmsView.hidden) return "films";
@@ -1727,7 +1764,7 @@ els.content.addEventListener("mousedown", e => {
   }
   if (e.target.closest(".lv-head")) return;
   // columns and gallery wire their own clicks; only icon/list/digital drag-select
-  if (["columns", "gallery", "films", "films-section", "film-detail"].includes(curView())) { els.content.focus(); return; }
+  if (["home", "columns", "gallery", "films", "films-section", "film-detail"].includes(curView())) { els.content.focus(); return; }
   const hit = handleItemMousedown(e);
   if (!hit) startRubberBand(e);
   els.content.focus();
@@ -1736,7 +1773,7 @@ els.content.addEventListener("mousedown", e => {
    handling) already behaved; mouse and touch now agree. A modified click
    (⌘/Ctrl/Shift) stays selection-only, since that's how multi-select works. */
 els.content.addEventListener("click", e => {
-  if (["columns", "gallery", "films", "films-section", "film-detail"].includes(curView())) return;
+  if (["home", "columns", "gallery", "films", "films-section", "film-detail"].includes(curView())) return;
   if (e.target.tagName === "INPUT") return;          // don't hijack an inline rename
   if (e.metaKey || e.ctrlKey || e.shiftKey) return;   // modified click: selection only
   const el = e.target.closest(ITEM_SEL[curView()]);
@@ -1815,6 +1852,10 @@ els.content.addEventListener("keydown", e => {
   if (e.key === "Escape") { closeOverlays(); selection.clear(); applySelectionClasses(); return; }
   if (e.key === "Enter") { e.preventDefault(); if (selection.size === 1) startRename([...selection][0]); return; }
 
+  if (cv === "home") {
+    if (e.key === "ArrowLeft" || e.key === "ArrowRight") { e.preventDefault(); homeStep(e.key === "ArrowRight" ? 1 : -1); }
+    return;
+  }
   const arrows = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -cols, ArrowDown: cols };
   if (e.key in arrows && list.length) {
     e.preventDefault();
@@ -2572,15 +2613,6 @@ function adminDecorate() {
        <button class="fa-btn" data-fa="del" title="Delete">✕</button>
      </span>`;
 
-  // desktop: the five big folders as blocks, plus a New-folder block
-  const folders = $("desk-view") && !$("desk-view").hidden ? $("desk-view").querySelector(".desk-folders") : null;
-  if (folders) {
-    folders.querySelectorAll(".desk-block").forEach(b => {
-      const id = INDEX.get(cwd.id) === ROOT ? items()[+b.dataset.i]?.id : null;
-      if (id) b.insertAdjacentHTML("beforeend", ctrl(id, { move: true }));
-    });
-    folders.insertAdjacentHTML("beforeend", `<button class="desk-block new-folder" data-fadd="">＋<span class="db-name" style="margin-top:8px">New folder</span></button>`);
-  }
   // inside a folder (icon view): New-folder tile + per-folder controls
   if (view === "icon" && cwd.id !== "desktop") {
     const iv = $("icon-view");
