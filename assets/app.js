@@ -32,7 +32,7 @@ const DESK_FILES = () => [
   { ...mov("Filmmaker's Reel.mov", "2026-07-15T20:35", REEL.url), external: true },
 ];
 
-// Dazz-shot stills, chronological — the content of the PHOTOGRAPHY section.
+// Dazz-shot stills, chronological — the content of PHOTOGRAPHY › Dazzcam.
 // Renders as its own minimalist photo grid (see renderDigital) instead of
 // the plain file grid.
 const DIGITAL_PHOTOS = [
@@ -113,14 +113,22 @@ const DIGITAL_PHOTOS = [
   img("digital-75.jpg", "2026-07-05T17:54:00", "assets/photos/digital/digital-75.jpg", 1.5),
   img("digital-76.jpg", "2026-07-05T20:19:00", "assets/photos/digital/digital-76.jpg", 2.3529),
   img("digital-77.jpg", "2026-07-05T20:19:00", "assets/photos/digital/digital-77.jpg", 2.3529),
+  img("digital-78.jpg", "2026-09-12T02:31:00", "assets/photos/digital/digital-78.jpg", 1.5),
+  img("digital-79.jpg", "2026-09-12T02:31:00", "assets/photos/digital/digital-79.jpg", 1.5),
+  img("digital-80.jpg", "2026-09-12T02:31:00", "assets/photos/digital/digital-80.jpg", 1.5),
 ];
 
 // FILMS — one entry per project, sorted newest-first by `at` below, so a new
 // project only needs a correct date, not a hand-picked slot. roles are always
 // a subset of FILM_ROLES below — that's what the filter chips at the top of
 // the page match against.
-const FILM_ROLES = ["Director", "DP", "Producer"];
-const ROLE_LABEL = { Director: "Director", Producer: "Producer", DP: "Director of Photography" };
+const FILM_ROLES = ["Director", "DP", "Producer", "AI"];
+const ROLE_LABEL = { Director: "Director", Producer: "Producer", DP: "Director of Photography", AI: "Generator" };
+// the filter chips name the kind of work, not the credit: an AI film's credit
+// reads "Generator", but its chip just says AI
+const CHIP_LABEL = { ...ROLE_LABEL, AI: "AI" };
+// `vimeo` is { id, h, ar } for an embed on the detail page (h = the private-link
+// hash of an unlisted video, omit for public ones; ar defaults to stillRatio);
 // `director` names who directed it when it wasn't Haolang; `stills` is a set
 // of frame grabs — a project with 3+ of them gets the stills-first DP
 // treatment on the FILMS list (list: the first 3 + credits, no poster;
@@ -129,9 +137,55 @@ const ROLE_LABEL = { Director: "Director", Producer: "Producer", DP: "Director o
 const film = (title, at, o) =>
   ({ id: "film-" + (++_fid), name: title, kind: "Film", icon: "i-folder-mac", at, size: "--", children: [],
      poster: o.poster, meta: o.meta, type: o.type, director: o.director, description: o.description,
-     festivals: o.festivals || [], roles: o.roles || [], stills: o.stills || [],
+     festivals: o.festivals || [], roles: o.roles || [], stills: o.stills || [], vimeo: o.vimeo,
      stillRatio: o.stillRatio || 16 / 9 });
 const FILM_PROJECTS = [
+  film("Rooted", "2026-09-14T14:20", {
+    // detail page runs poster + info, then the film, then stills
+    poster: "assets/photos/films/rooted/poster.jpg",
+    type: "Narrative Short",
+    meta: "2026 · 9 min",
+    director: "Haolang Li, Tiger Lee",   // as credited on the poster
+    description: "A man wakes with no memory of who he is, lying beside the vine-swallowed wreck of a colossal starship. Piecing together fragments left in its ruins, he learns he was once a scientist's assistant entrusted with the final key needed to complete the ship's “rooting” ritual, which would let the vessel become humanity's first city on this new world while its reactor slowly poisoned the planet with radiation. As he uncovers the mutiny that separated him from the doctor who tried to stop it, he must decide whether to let the ritual finish at last, or sever the next generation of humans from the very machine built to save them.",
+    festivals: ["Higgsfield Global Film Festival"],
+    roles: ["Director", "AI"],
+    vimeo: { id: "1226695523", h: "77c8f18059" },
+    stillRatio: 2.35,
+    stills: [
+      "assets/photos/films/rooted/still-1.jpg",
+      "assets/photos/films/rooted/still-2.jpg",
+      "assets/photos/films/rooted/still-3.jpg",
+      "assets/photos/films/rooted/still-4.jpg",
+      "assets/photos/films/rooted/still-5.jpg",
+      "assets/photos/films/rooted/still-6.jpg",
+      "assets/photos/films/rooted/still-7.jpg",
+      "assets/photos/films/rooted/still-8.jpg",
+      "assets/photos/films/rooted/still-9.jpg",
+      "assets/photos/films/rooted/still-10.jpg",
+      "assets/photos/films/rooted/still-11.jpg",
+      "assets/photos/films/rooted/still-12.jpg",
+      "assets/photos/films/rooted/still-13.jpg",
+    ],
+  }),
+  film("Who I Used to Know", "2026-09-10T20:02", {
+    poster: "assets/photos/films/who-i-used-to-know/poster.jpg",
+    type: "Experimental Short",
+    meta: "2026 · 8 min",
+    director: "Tiger Lee",
+    description: "What is Sinophone? It might be someone “Who I Used to Know”.\n\n故事的真相到底是什么？可能是迷離的華夷風。",
+    roles: ["DP"],
+    stillRatio: 1.8963,   // DCI 4096×2160
+    stills: [
+      "assets/photos/films/who-i-used-to-know/still-1.jpg",
+      "assets/photos/films/who-i-used-to-know/still-2.jpg",
+      "assets/photos/films/who-i-used-to-know/still-3.jpg",
+      "assets/photos/films/who-i-used-to-know/still-4.jpg",
+      "assets/photos/films/who-i-used-to-know/still-5.jpg",
+      "assets/photos/films/who-i-used-to-know/still-6.jpg",
+      "assets/photos/films/who-i-used-to-know/still-7.jpg",
+      "assets/photos/films/who-i-used-to-know/still-8.jpg",
+    ],
+  }),
   film("Essence + Stone", "2026-06-01T00:00", {
     // no poster for this one -- DP-only, list row stays 3-stills-and-credits,
     // detail page's poster block just doesn't render (see renderFilmDetail).
@@ -312,10 +366,8 @@ const FILM_PROJECTS = [
      what parks it at the end of the list until there's something to say. */
   film("One Way Street", null, { roles: ["Director"] }),
   film("Sunset Hunter", null, { roles: ["Director", "DP"] }),
-  film("Rooted", null, { roles: ["Director"] }),
   film("Rosy's Project", null, { roles: ["DP"] }),
   film("Denali", null, { roles: ["Producer"] }),
-  film("Tiger's Project", null, { roles: ["DP"] }),
 ];
 // the FILMS list reads newest first — order comes from each project's own
 // date, so adding one is just a matter of giving it the right `at`.
@@ -331,7 +383,7 @@ FILM_PROJECTS.sort((a, b) => {
 function folderContent() {
   return {
     "Film Projects": [...FILM_PROJECTS],
-    PHOTOGRAPHY: [...DIGITAL_PHOTOS].reverse(), // newest shot first
+    Dazzcam: [...DIGITAL_PHOTOS].reverse(), // newest shot first
   };
 }
 
@@ -342,16 +394,17 @@ function folderContent() {
 // for whenever there's real content to put there.
 function defaultFolders() {
   return [
-    folder("FILMS", "2026-09-05T08:00", [
+    folder("FILMS", "2026-09-14T14:20", [
       folder("Film Projects", "2026-07-16T11:40", []),
       folder("Generative Projects", "2026-07-16T11:40", []),
-      folder("AD Schedule", "2026-09-05T08:00", []),
       folder("Reviews", "2026-07-16T11:40", []),
       folder("Equipment", "2026-07-16T11:40", []),
     ]),
     folder("WORK EXPERIENCE", "2026-08-29T09:00", []),
     folder("WRITINGS", "2026-07-17T23:10", []),
-    folder("PHOTOGRAPHY", "2026-06-25T15:00", []),
+    folder("PHOTOGRAPHY", "2026-09-12T02:31", [
+      folder("Dazzcam", "2026-09-12T02:31", []),
+    ]),
   ];
 }
 
@@ -589,7 +642,7 @@ const els = {
   columnsView: $("columns-view"), galleryView: $("gallery-view"), digitalView: $("digital-view"),
   filmsView: $("films-view"), filmsSectionView: $("films-section-view"),
   filmDetailView: $("film-detail-view"), stillLightbox: $("still-lightbox"),
-  adView: $("ad-view"),
+
   status: $("status-text"), rubber: $("rubber-band"),
   menuLayer: $("menu-layer"), overlayLayer: $("overlay-layer"),
   sidebar: $("sidebar"), desktop: $("desktop"), contactLayer: $("contact-layer"),
@@ -634,7 +687,7 @@ function recentUpdates(limit = 5) {
     });
   })(ROOT);
   // the reel sits on the desktop and inside FILMS; the feed should still name it once.
-  // photos are a bulk archive with their own home (PHOTOGRAPHY) — they'd otherwise
+  // photos are a bulk archive with their own home (PHOTOGRAPHY › Dazzcam) — they'd otherwise
   // flood this list on their own, so they sit out of the spotlight.
   const seen = new Set();
   return found
@@ -651,7 +704,7 @@ function recentUpdates(limit = 5) {
    itself — only a sub-folder is an actual page. Links is the same pattern,
    already was. */
 let linksOpen = true;
-const openSections = new Set(["FILMS"]);   // section names whose sub-list starts expanded
+const openSections = new Set(["FILMS", "PHOTOGRAPHY"]);   // section names whose sub-list starts expanded
 function buildSidebar() {
   const section = (node, label = node.name) =>
     `<button class="side-item side-section" data-fid="${node.id}"><span>${label}</span></button>`;
@@ -671,8 +724,8 @@ function buildSidebar() {
 
   let h = `<div class="side-sections">` + section(ROOT, "HOME");
   ROOT.children.filter(n => n.children).forEach(n => {
-    // "has sub-pages" means real sub-folders (kind Folder) — PHOTOGRAPHY's
-    // children are its photos, not organizing folders, so it stays a link
+    // "has sub-pages" means real sub-folders (kind Folder) — a section whose
+    // children are only files, not organizing folders, stays a plain link
     h += n.children.some(c => c.kind === "Folder") ? sectionGroup(n) : section(n);
   });
   h += `</div>`;
@@ -820,7 +873,7 @@ function render() {
   els.back.disabled = !history.length;
   els.fwd.disabled = !future.length;
 
-  // Home has its own arrangement; PHOTOGRAPHY is a photo wall and FILMS is a
+  // Home has its own arrangement; Dazzcam is a photo wall and FILMS is a
   // project list, each with no other view — none of these four ever fall
   // back to the plain grid/list/columns/gallery. A section's own page (FILMS
   // itself, landed on via the breadcrumb) reads as a centered credits-style
@@ -828,31 +881,23 @@ function render() {
   // sub-folders" test the sidebar uses to decide whether a section gets the
   // disclosure treatment.
   const onDesk = view === "icon" && cwd === ROOT;
-  const onDigital = cwd.name === "PHOTOGRAPHY" && list.some(n => n.isPhoto);
+  const onDigital = cwd.name === "Dazzcam" && list.some(n => n.isPhoto);
   const onFilms = cwd.name === "Film Projects";
   const onFilmDetail = Boolean(cwd.parent && cwd.parent.name === "Film Projects");
   const onFilmsSection = cwd !== ROOT && cwd.parent === ROOT && (cwd.children || []).some(c => c.kind === "Folder");
-  // AD Schedule is a live tool rather than a listing: it mounts its own board
-  // and keeps running until you navigate away from it.
-  const onAd = cwd.name === "AD Schedule";
-  const custom = onDigital || onFilms || onFilmDetail || onFilmsSection || onAd;
+  const custom = onDigital || onFilms || onFilmDetail || onFilmsSection;
   stopPortrait();
   els.deskView.hidden = !onDesk;
   els.digitalView.hidden = !onDigital;
   els.filmsView.hidden = !onFilms;
   els.filmsSectionView.hidden = !onFilmsSection;
   els.filmDetailView.hidden = !onFilmDetail;
-  els.adView.hidden = !onAd;
   els.iconView.hidden = custom || view !== "icon" || onDesk;
   els.listView.hidden = custom || view !== "list";
   els.columnsView.hidden = custom || view !== "columns";
   els.galleryView.hidden = custom || view !== "gallery";
 
-  if (!onAd && window.ADBoard) ADBoard.unmount();
-
-  if (onAd) {
-    if (window.ADBoard) ADBoard.mount(els.adView);
-  } else if (onDesk) {
+  if (onDesk) {
     renderDesk(list);
   } else if (onDigital) {
     renderDigital(list);
@@ -1124,7 +1169,7 @@ function renderFilms(list) {
     <div class="film-filters">
       ${FILM_ROLES.map((r, i) => `
         ${i ? '<span class="film-filter-sep">/</span>' : ""}
-        <button class="film-chip ${filmRoleFilter === r ? "on" : ""}" data-role="${r}">${ROLE_LABEL[r]}</button>`).join("")}
+        <button class="film-chip ${filmRoleFilter === r ? "on" : ""}" data-role="${r}">${CHIP_LABEL[r]}</button>`).join("")}
     </div>
     <div class="film-list">
       ${shown.length ? shown.map(p =>
@@ -1166,6 +1211,12 @@ function renderFilmDetail(node) {
           `}
         </div>
       </div>
+      ${node.vimeo ? `
+        <div class="fd-video" style="--video-ar:${node.vimeo.ar || node.stillRatio}">
+          <iframe src="https://player.vimeo.com/video/${node.vimeo.id}?${node.vimeo.h ? `h=${node.vimeo.h}&` : ""}title=0&byline=0&portrait=0&dnt=1"
+            title="${node.name}" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+            referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+        </div>` : ""}
       ${stillsMode ? `
         <div class="fd-stills" data-still-ar="${node.stillRatio}" style="--still-ar:${node.stillRatio}">
           ${stills.map((s, i) => `<button class="fd-still" data-i="${i}"><img src="${s}" alt="" loading="lazy"></button>`).join("")}
@@ -1617,7 +1668,7 @@ const ITEM_SEL = { icon: ".icon-item, .desk-item", list: ".lv-row", columns: ".c
 // icon/list/columns/gallery fallback) — this is the single source of truth
 // for "what's actually on screen right now" that selection/clicks key off.
 function curView() {
-  if (cwd.name === "PHOTOGRAPHY" && !els.digitalView.hidden) return "digital";
+  if (cwd.name === "Dazzcam" && !els.digitalView.hidden) return "digital";
   if (cwd !== ROOT && cwd.parent === ROOT && !els.filmsSectionView.hidden) return "films-section";
   if (cwd.name === "Film Projects" && !els.filmsView.hidden) return "films";
   if (cwd.parent && cwd.parent.name === "Film Projects" && !els.filmDetailView.hidden) return "film-detail";
@@ -1810,7 +1861,7 @@ function startRename(node) {
 const VIEW_ICON = { icon: "t-grid", list: "t-list", columns: "t-columns", gallery: "t-gallery" };
 function setView(v) {
   if (!VIEW_ICON[v]) return;
-  if (cwd.name === "PHOTOGRAPHY") return; // one view here — nothing to switch to
+  if (cwd.name === "Dazzcam") return; // one view here — nothing to switch to
   view = v;
   render();
 }
