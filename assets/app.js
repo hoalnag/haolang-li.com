@@ -306,7 +306,7 @@ const FILM_PROJECTS = [
     ],
   }),
   film("Rock‘n’Roll", "2023-11-01T00:00", {
-    poster: "assets/photos/placeholder.jpg",   // TODO: swap in a real poster when there is one
+    poster: "assets/photos/films/rock-n-roll/poster.jpg",
     type: "Abstract Short",
     meta: "2023 · 3 min",
     description: "Two students get stuck in the Weinstein elevator and fall into an awkward conversation — one of them barely speaks English, so they talk through a translation app on his phone. When “We Will Rock You” starts playing, the language barrier stops mattering. Nothing was rehearsed and most of it is improvised, so some of the awkwardness is real.",
