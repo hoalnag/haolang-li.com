@@ -206,6 +206,10 @@ svg { display: block; }
 }
 .side-expand svg { width: 15px; height: 15px; transform: scaleX(-1); }
 .win-body:has(.sidebar.collapsed) .side-expand { display: flex; }
+/* it sits where the toolbar starts, so the toolbar steps right to clear it
+   instead of letting Back/Forward slide underneath */
+.toolbar { transition: padding-left .22s ease; }
+.win-body:has(.sidebar.collapsed) .toolbar { padding-left: 48px; }
 .side-expand:hover { color: var(--text); background: rgba(255, 255, 255, .07); }
 [data-theme="light"] .side-expand:hover { background: rgba(0, 0, 0, .05); }
 
@@ -1324,6 +1328,7 @@ body.admin-on .icon-item .fadmin { display: flex; }
 
   /* the toolbar runs out of room too — the search field is the first to go */
   .toolbar { padding: 0 8px 0 6px; }
+  .win-body:has(.sidebar.collapsed) .toolbar { padding-left: 46px; }
   .tb-nav { margin-right: 4px; }
   .tb-search { display: none; }
 }
