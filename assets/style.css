@@ -179,7 +179,12 @@ svg { display: block; }
   transition: margin-left .22s ease;
 }
 .sidebar.collapsed { margin-left: -190px; }
-.traffic { display: flex; align-items: center; gap: 8px; padding: 19px 14px 14px 20px; flex: 0 0 auto; cursor: default; }
+/* The window's top edge is one row: traffic lights and the collapse button
+   on the sidebar side, Back/Forward, the path and Search on the toolbar side.
+   Both halves are the toolbar's 52px tall and centre their contents, so every
+   control shares a single centre line (it had drifted 4px lower on the
+   sidebar side, which set the lights on padding instead). */
+.traffic { display: flex; align-items: center; gap: 8px; height: 52px; padding: 0 14px 0 20px; flex: 0 0 auto; cursor: default; }
 .tl {
   width: 12px; height: 12px; border-radius: 50%; padding: 0;
   display: flex; align-items: center; justify-content: center;
@@ -203,7 +208,7 @@ svg { display: block; }
 
 /* the one way back in once the sidebar's collapsed — hidden the rest of the time */
 .side-expand {
-  display: none; position: absolute; top: 16px; left: 14px; z-index: 25;
+  display: none; position: absolute; top: 13px; left: 14px; z-index: 25;   /* (52 − 26) / 2: on the toolbar's centre line */
   width: 26px; height: 26px; border-radius: 6px;
   align-items: center; justify-content: center;
   color: var(--text-dim);
@@ -663,24 +668,23 @@ svg { display: block; }
 .home-hero {
   height: 100cqh; min-height: 430px;
   display: flex; flex-direction: column; align-items: center; justify-content: center;
-  padding: 26px 0 34px;
+  padding: 18px 0 24px;
 }
 .home-stage {
-  --gutter: clamp(52px, 8cqw, 104px);
+  --gutter: clamp(48px, 6cqw, 88px);
   position: relative;
   width: 100%; padding: 0 var(--gutter);
   display: flex; justify-content: center;
   touch-action: pan-y;                    /* sideways swipes belong to the frame */
 }
 /* The frame keeps one box whatever the still's shape, so the caption never
-   jumps: every still is shown whole inside it, sat on the bottom edge — the
-   picture always meets its caption, and a scope frame's spare height simply
-   becomes air above it. */
+   jumps, and every still is shown whole and centred inside it — level with
+   the chevrons either side, whether it's 4:3, 16:9 or 2.4:1 scope. */
 .home-frame {
   position: relative; display: block;
-  width: min(100%, 960px);
+  width: min(100%, 1180px);
   aspect-ratio: 16 / 9;
-  max-height: calc(100cqh - 210px);
+  max-height: calc(100cqh - 170px);
   cursor: pointer;
 }
 /* A true dissolve, not a dip: the incoming frame resolves on top while the
@@ -689,7 +693,7 @@ svg { display: block; }
    between two low-key stills the frame would briefly look empty. */
 .hf-img {
   position: absolute; inset: 0; width: 100%; height: 100%;
-  object-fit: contain; object-position: center bottom;
+  object-fit: contain; object-position: center;
   opacity: 0; z-index: 0;
   transition: opacity .9s var(--ease-film) .9s;
 }
@@ -713,7 +717,7 @@ svg { display: block; }
 .home-nav:active { transform: scale(.94); transition-duration: 80ms; }
 
 .home-caption {
-  margin-top: 26px; padding: 0 24px;
+  margin-top: 22px; padding: 0 24px;
   display: flex; flex-direction: column; align-items: center; gap: 11px;
   text-align: center; text-decoration: none; color: inherit; cursor: pointer;
   transition: opacity .32s ease-out, transform .5s var(--ease-out);
@@ -783,11 +787,11 @@ svg { display: block; }
      the full width, and the chevrons drop to either side of the title. */
   .home-hero { padding: 18px 0 26px; min-height: 360px; }
   .home-stage { --gutter: 12px; }
-  .home-nav { --nav-w: 44px; height: 44px; top: calc(100% + 37px); }
+  .home-nav { --nav-w: 44px; height: 44px; top: calc(100% + 33px); }
   .home-prev { left: 4px; }
   .home-next { right: 4px; }
   .home-nav svg { width: 22px; height: 22px; }
-  .home-frame { max-height: calc(100cqh - 200px); }
+  .home-frame { max-height: calc(100cqh - 180px); }
   .home-caption { padding: 0 52px; }
   .hc-title { font-size: 18px; letter-spacing: .12em; padding-left: .12em; }
   .hc-meta { font-size: 10px; letter-spacing: .16em; line-height: 1.6; }
@@ -1115,16 +1119,6 @@ body.admin-on .icon-item .fadmin { display: flex; }
   pointer-events: none;
 }
 
-/* ---- status bar ---- */
-.statusbar {
-  height: 27px; flex: 0 0 auto;
-  display: flex; align-items: center; justify-content: center;
-  border-top: 1px solid var(--hairline);
-  padding: 0 12px;
-  position: relative;
-}
-.status-text { font-size: 11px; color: var(--text-dim); }
-
 /* ---- resize handle ---- */
 .resize-handle { position: absolute; right: 0; bottom: 0; width: 16px; height: 16px; cursor: nwse-resize; }
 
@@ -1321,7 +1315,7 @@ body.admin-on .icon-item .fadmin { display: flex; }
 
 
   /* 12px traffic lights are far under the 44px touch target — pad the hit area out */
-  .traffic { gap: 18px; padding: 20px 0 16px 22px; }
+  .traffic { gap: 18px; padding: 0 0 0 22px; }
   .tl { position: relative; }
   .tl::after { content: ""; position: absolute; inset: -13px; }
 
@@ -1335,7 +1329,8 @@ body.admin-on .icon-item .fadmin { display: flex; }
 /* keep the bottom chrome clear of the home indicator */
 @supports (padding: env(safe-area-inset-bottom)) {
   @media (max-width: 740px) {
-    .statusbar { padding-bottom: max(6px, env(safe-area-inset-bottom)); height: auto; min-height: 24px; }
+    /* with no status bar under it, the content itself keeps clear of the home indicator */
+    .content { padding-bottom: env(safe-area-inset-bottom); }
     .hl-toast { bottom: calc(26px + env(safe-area-inset-bottom)); }
     .gb-tools { bottom: calc(22px + env(safe-area-inset-bottom)); }
   }

@@ -643,7 +643,7 @@ const els = {
   filmsView: $("films-view"), filmsSectionView: $("films-section-view"),
   filmDetailView: $("film-detail-view"), stillLightbox: $("still-lightbox"),
 
-  status: $("status-text"), rubber: $("rubber-band"),
+  rubber: $("rubber-band"),
   menuLayer: $("menu-layer"), overlayLayer: $("overlay-layer"),
   sidebar: $("sidebar"), desktop: $("desktop"), contactLayer: $("contact-layer"),
 };
@@ -915,8 +915,6 @@ function render() {
       : view === "list" ? els.listView : view === "columns" ? els.columnsView
       : view === "gallery" ? els.galleryView : els.iconView);
   }
-
-  updateStatus();
   syncSidebar();
   adminDecorate();
 }
@@ -1099,8 +1097,17 @@ function showHomeFrame(entry, first = false) {
       }
     } else new Image().src = homeHist[homePos + 1].src;
   };
+  // Reveal once the picture is decoded, so the dissolve never shows it half
+  // drawn. decode() alone isn't enough to rely on: Chromium holds it back
+  // while the page is hidden (a tab opened in the background), so the load
+  // event backs it up — whichever comes first wins, the other is a no-op.
+  let settled = false;
+  const go = () => { if (!settled) { settled = true; reveal(); } };
+  incoming.onload = () => setTimeout(go, 250);
+  incoming.onerror = go;
   incoming.src = entry.src;
-  (incoming.decode ? incoming.decode() : Promise.resolve()).then(reveal, reveal);
+  if (incoming.decode) incoming.decode().then(go, () => {});
+  if (incoming.complete && incoming.naturalWidth) setTimeout(go, 250);   // already cached: load won't fire again
 }
 
 // leaving HOME: drop any frame still decoding so it can't land on another page
@@ -1692,11 +1699,6 @@ function renderGallery(list) {
   on && on.scrollIntoView({ block: "nearest", inline: "nearest" });
 }
 
-function updateStatus() {
-  const n = items().length;
-  const sel = selection.size;
-  els.status.textContent = sel ? `${sel} of ${n} selected` : `${n} item${n === 1 ? "" : "s"}`;
-}
 
 /* ================= selection ================= */
 const ITEM_SEL = { home: ".hl-none", icon: ".icon-item", list: ".lv-row", columns: ".col-row[data-i]", gallery: ".gal-thumb", digital: ".dg-item" };
@@ -1720,7 +1722,6 @@ function applySelectionClasses() {
   elementsForItems().forEach(el => {
     el.classList.toggle("selected", selection.has(list[+el.dataset.i]));
   });
-  updateStatus();
 }
 function selectOnly(node, idx) { selection.clear(); if (node) selection.add(node); anchorIndex = idx; applySelectionClasses(); }
 
@@ -1810,7 +1811,6 @@ function startRubberBand(e) {
       inside ? selection.add(node) : selection.delete(node);
       el.classList.toggle("selected", selection.has(node));
     });
-    updateStatus();
   };
   const onUp = () => {
     band.hidden = true;
