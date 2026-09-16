@@ -454,6 +454,104 @@ svg { display: block; }
   .dg-caption { padding: 22px 14px 18px; }
 }
 
+/* ================= WRITINGS: feed + reading page =================
+   A single column, like a contents page: date | title + standfirst, hairlines
+   between. The reading page is a narrow measure set in a book face, with the
+   display face kept for the title and the small type around it. */
+.writings-view, .essay-view { min-height: 100%; padding: 28px 32px 64px; }
+.wr-wrap { max-width: 860px; margin: 0 auto; }
+.wr-filters { flex-wrap: wrap; row-gap: 8px; }
+.wr-list { display: flex; flex-direction: column; border-top: 1px solid var(--hairline); }
+.wr-item {
+  display: grid; grid-template-columns: 128px 1fr 24px; align-items: baseline; gap: 24px;
+  width: 100%; padding: 26px 0 28px; text-align: left; background: none; color: inherit;
+  border-bottom: 1px solid var(--hairline);
+}
+.wr-date {
+  font-family: var(--font-display); font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--text-dim); white-space: nowrap;
+}
+.wr-main { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.wr-title {
+  font-family: var(--font-display); font-weight: 300; font-size: 24px; line-height: 1.25;
+  color: var(--text); transition: opacity .3s ease-out;
+}
+.wr-dek { max-width: 62ch; font-size: 14px; line-height: 1.6; color: var(--text-dim); }
+.wr-meta {
+  margin-top: 2px;
+  font-family: var(--font-display); font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--text-dim);
+}
+.wr-arrow {
+  justify-self: end; font-size: 15px; color: var(--text-dim);
+  opacity: 0; transform: translateX(-6px);
+  transition: opacity .35s ease-out, transform .5s var(--ease-out);
+}
+.wr-item:hover .wr-arrow, .wr-item:focus-visible .wr-arrow { opacity: 1; transform: none; }
+.wr-item:hover .wr-title { opacity: .72; }
+.wr-empty { padding: 18vh 0 0; text-align: center; }
+.wr-empty-title {
+  font-family: var(--font-display); font-weight: 300; font-size: 13px; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--text);
+}
+.wr-empty p { margin-top: 14px; font-size: 13px; color: var(--text-dim); }
+
+.es-wrap { max-width: 660px; margin: 0 auto; }
+.es-back, .es-page {
+  background: none; color: var(--text-dim); text-align: left;
+  font-family: var(--font-display); font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+  transition: color .3s ease-out;
+}
+.es-back:hover { color: var(--text); }
+.es-head { margin: 44px 0 36px; }
+.es-kicker {
+  font-family: var(--font-display); font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--text-dim);
+}
+.es-title {
+  margin-top: 16px;
+  font-family: var(--font-display); font-weight: 300; font-size: 40px; line-height: 1.15;
+  color: var(--text); text-wrap: balance;
+}
+.es-dek { margin-top: 16px; font-size: 17px; line-height: 1.55; color: var(--text-dim); text-wrap: pretty; }
+.es-cover { margin: 0 0 40px; }
+.es-cover img { display: block; width: 100%; height: auto; }
+.es-body {
+  font-family: "Iowan Old Style", "Palatino Linotype", Palatino, Georgia, "Songti SC", serif;
+  font-size: 18px; line-height: 1.75; color: var(--text);
+  user-select: text; -webkit-user-select: text; cursor: auto;
+}
+.es-body p + p { margin-top: 1.1em; }
+.es-body p { text-wrap: pretty; }
+.es-body a { color: inherit; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.es-body .es-h {
+  margin: 2em 0 .7em;
+  font-family: var(--font-display); font-weight: 400; font-size: 13px; letter-spacing: .18em; text-transform: uppercase;
+}
+.es-body .es-quote {
+  margin: 1.6em 0; padding-left: 20px; border-left: 1px solid var(--text-dim);
+  font-style: italic; color: var(--text-dim);
+}
+.es-pager {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 24px;
+  margin-top: 64px; padding-top: 22px; border-top: 1px solid var(--hairline);
+}
+.es-page { display: flex; flex-direction: column; gap: 8px; }
+.es-older { text-align: right; align-items: flex-end; }
+.es-page-title {
+  font-size: 17px; font-weight: 300; letter-spacing: 0; text-transform: none; color: var(--text);
+}
+button.es-page:hover .es-page-title { opacity: .72; }
+@media (max-width: 740px) {
+  .writings-view, .essay-view { padding: 20px 18px 48px; }
+  .wr-item { grid-template-columns: 1fr; gap: 8px; padding: 22px 0 24px; }
+  .wr-arrow { display: none; }
+  .wr-title { font-size: 21px; }
+  .es-head { margin: 32px 0 28px; }
+  .es-title { font-size: 30px; }
+  .es-body { font-size: 17px; }
+}
+
 /* ================= FILMS: vertical project list + role filter =================
    One row per project — poster left, everything else stacked to its right.
    The DIRECTOR/PRODUCER/DP chips filter which rows show. No icon/list/
@@ -1342,7 +1440,8 @@ body.admin-on .icon-item .fadmin { display: flex; }
    photos, the credits list) follow one after another rather than all at
    once. JS sets --i on each row and restarts .is-arriving (see arrive()). */
 .is-arriving { animation: arrive-view .55s var(--ease-out) both; }
-.is-arriving :is(.film-row, .fd-still, .fs-credit-item),
+.is-arriving :is(.film-row, .fd-still, .fs-credit-item, .wr-item),
+.is-arriving.wr-list > .wr-item,
 .is-arriving.film-list > .film-row {
   animation: arrive-row .9s var(--ease-out) both;
   animation-delay: calc(var(--i, 0) * 60ms + 90ms);

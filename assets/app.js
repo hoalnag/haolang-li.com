@@ -383,6 +383,7 @@ FILM_PROJECTS.sort((a, b) => {
 function folderContent() {
   return {
     "Film Projects": [...FILM_PROJECTS],
+    WRITINGS: [...WRITINGS],
     Dazzcam: [...DIGITAL_PHOTOS].reverse(), // newest shot first
   };
 }
@@ -422,6 +423,24 @@ function foldersFromRows(rows) {
   sortRec(tops);
   return tops;
 }
+
+// WRITINGS — one entry per piece; the feed sorts newest first by `at`, so a
+// new piece only needs its date. `body` is plain text: a blank line starts a
+// new paragraph, a line starting "## " is a subheading, "> " a pull quote
+// (inline <em>/<a> are fine). `dek` is the one-line standfirst under the
+// title; `tags` build the filter row on the feed; `cover` is optional.
+const essay = (title, at, o) =>
+  ({ id: "essay-" + (++_fid), name: title, kind: "Essay", icon: "i-doc-mac", at, size: "--", children: [],
+     dek: o.dek, tags: o.tags || [], body: o.body || "", cover: o.cover });
+const WRITINGS = [
+  // essay("Title", "2026-09-16T00:00", {
+  //   dek: "One sentence on what it's about.",
+  //   tags: ["Film"],
+  //   body: `First paragraph.
+  //
+  // Second paragraph.`,
+  // }),
+].sort((a, b) => b.at.localeCompare(a.at));
 
 let ROOT;
 const INDEX = new Map();                 // id -> node, rebuilt on every tree change
@@ -468,7 +487,10 @@ const TAG_COLORS = ["#FF9F0A", "#FF453A", "#0A84FF", "#FFD60A", "#BF5AF2", "#FF9
    /films/film-projects/static — so it stays correct as sections grow
    sub-folders and those sub-folders grow their own content, with nothing
    to keep in sync by hand. */
-const slugify = (s) => s.toLowerCase().trim().replace(/&/g, "and").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+// a title with no Latin letters at all (a Chinese essay title) keeps its own
+// characters instead of collapsing to an empty segment
+const slugWith = (s, re) => s.toLowerCase().trim().replace(/&/g, "and").replace(re, "-").replace(/^-+|-+$/g, "");
+const slugify = (s) => slugWith(s, /[^a-z0-9]+/g) || slugWith(s, /[^\p{L}\p{N}]+/gu);
 function pathForNode(node) {
   if (!node || node === ROOT) return "/";
   const parts = [];
@@ -479,7 +501,8 @@ function nodeForPath(path) {
   const parts = (path || "/").replace(/^\/+|\/+$/g, "").split("/").filter(Boolean);
   let node = ROOT;
   for (const part of parts) {
-    const next = (node.children || []).find(c => slugify(c.name) === part.toLowerCase());
+    let seg = part; try { seg = decodeURIComponent(part); } catch {}
+    const next = (node.children || []).find(c => slugify(c.name) === seg.toLowerCase());
     if (!next) return ROOT;   // unknown path — same fallback as before
     node = next;
   }
@@ -487,7 +510,7 @@ function nodeForPath(path) {
 }
 function syncUrl(push) {
   const path = pathForNode(cwd);
-  if (path === location.pathname) return;
+  if (encodeURI(path) === location.pathname) return;
   window.history[push ? "pushState" : "replaceState"](null, "", path);
 }
 function initialNodeFromLocation() {
@@ -641,7 +664,8 @@ const els = {
   iconView: $("icon-view"), listView: $("list-view"), homeView: $("home-view"),
   columnsView: $("columns-view"), galleryView: $("gallery-view"), digitalView: $("digital-view"),
   filmsView: $("films-view"), filmsSectionView: $("films-section-view"),
-  filmDetailView: $("film-detail-view"), stillLightbox: $("still-lightbox"),
+  filmDetailView: $("film-detail-view"),
+  writingsView: $("writings-view"), essayView: $("essay-view"), stillLightbox: $("still-lightbox"),
 
   rubber: $("rubber-band"),
   menuLayer: $("menu-layer"), overlayLayer: $("overlay-layer"),
@@ -853,13 +877,17 @@ function render() {
   const onFilms = cwd.name === "Film Projects";
   const onFilmDetail = Boolean(cwd.parent && cwd.parent.name === "Film Projects");
   const onFilmsSection = cwd !== ROOT && cwd.parent === ROOT && (cwd.children || []).some(c => c.kind === "Folder");
-  const custom = onDigital || onFilms || onFilmDetail || onFilmsSection;
+  const onWritings = cwd.name === "WRITINGS" && cwd.parent === ROOT;
+  const onEssay = cwd.kind === "Essay";
+  const custom = onDigital || onFilms || onFilmDetail || onFilmsSection || onWritings || onEssay;
   stopHome();
   els.homeView.hidden = !onDesk;
   els.digitalView.hidden = !onDigital;
   els.filmsView.hidden = !onFilms;
   els.filmsSectionView.hidden = !onFilmsSection;
   els.filmDetailView.hidden = !onFilmDetail;
+  els.writingsView.hidden = !onWritings;
+  els.essayView.hidden = !onEssay;
   els.iconView.hidden = custom || view !== "icon" || onDesk;
   els.listView.hidden = custom || view !== "list";
   els.columnsView.hidden = custom || view !== "columns";
@@ -875,6 +903,10 @@ function render() {
     renderFilmsSection(cwd);
   } else if (onFilmDetail) {
     renderFilmDetail(cwd);
+  } else if (onWritings) {
+    renderWritings(list);
+  } else if (onEssay) {
+    renderEssay(cwd);
   } else if (view === "icon") {
     els.iconView.innerHTML = list.map((n, i) => `
       <div class="icon-item ${selection.has(n) ? "selected" : ""}" data-i="${i}">
@@ -912,6 +944,7 @@ function render() {
     els.content.scrollTop = 0;
     arrive(onDesk ? els.homeView : onDigital ? els.digitalView : onFilms ? els.filmsView
       : onFilmsSection ? els.filmsSectionView : onFilmDetail ? els.filmDetailView
+      : onWritings ? els.writingsView : onEssay ? els.essayView
       : view === "list" ? els.listView : view === "columns" ? els.columnsView
       : view === "gallery" ? els.galleryView : els.iconView);
   }
@@ -923,7 +956,7 @@ let lastArrivalId = null;
    one after another (see .is-arriving in the stylesheet) */
 function arrive(el) {
   if (!el) return;
-  el.querySelectorAll(".film-row, .fd-still, .dg-item, .fs-credit-item").forEach((c, i) =>
+  el.querySelectorAll(".film-row, .fd-still, .dg-item, .fs-credit-item, .wr-item").forEach((c, i) =>
     c.style.setProperty("--i", Math.min(i, 12)));
   el.classList.remove("is-arriving");
   void el.offsetWidth;
@@ -948,12 +981,14 @@ const shuffled = (a) => {
   for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
   return a;
 };
+// films whose stills stay off the showcase (they still have their own pages)
+const HOME_SKIP = new Set(["Rock‘n’Roll"]);
 const homeDeck = (() => {
   const piles = new Map();          // film id → that film's stills not yet dealt this pass
   let round = [], last = null;
   return function draw() {
     if (!round.length) {
-      round = shuffled(FILM_PROJECTS.filter(p => p.stills.length));
+      round = shuffled(FILM_PROJECTS.filter(p => p.stills.length && !HOME_SKIP.has(p.name)));
       if (!round.length) return null;
       // a round never opens on the film that closed the one before it
       if (round.length > 1 && round[0] === last) round.push(round.shift());
@@ -1249,6 +1284,98 @@ function filmStillsRow(p, list) {
         ${filmCredits(p)}
       </div>
     </button>`;
+}
+
+/* ================= WRITINGS: a quiet feed =================
+   One column, newest first: date on the left, title + standfirst on the
+   right, hairlines between. Tags (when pieces carry any) filter the feed —
+   "All" plus one chip per tag. A piece opens as its own reading page. */
+let writingTag = "All";
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const essayDate = (at) => { const [y, m, d] = at.slice(0, 10).split("-"); return `${+d} ${MONTHS[+m - 1]} ${y}`; };
+// ~230 English words or ~450 Chinese characters a minute
+function readMins(body) {
+  const cjk = (body.match(/[\u3400-\u9fff]/g) || []).length;
+  const words = body.replace(/<[^>]+>/g, " ").replace(/[\u3400-\u9fff]/g, " ").split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 230 + cjk / 450));
+}
+const essayMeta = (e) => [...e.tags, e.body.trim() && `${readMins(e.body)} min read`].filter(Boolean).join(" · ");
+function essayBodyHtml(body) {
+  return body.trim().split(/\n\s*\n/).map(b => {
+    const t = b.trim();
+    if (t.startsWith("## ")) return `<h2 class="es-h">${t.slice(3)}</h2>`;
+    if (t.startsWith("> ")) return `<blockquote class="es-quote">${t.replace(/^>\s?/gm, "")}</blockquote>`;
+    return `<p>${t.replace(/\n/g, "<br>")}</p>`;
+  }).join("");
+}
+function renderWritings(list) {
+  const tags = [...new Set(list.flatMap(e => e.tags))];
+  if (writingTag !== "All" && !tags.includes(writingTag)) writingTag = "All";
+  const shown = writingTag === "All" ? list : list.filter(e => e.tags.includes(writingTag));
+  els.writingsView.innerHTML = `
+    <div class="wr-wrap">
+      ${tags.length ? `
+      <div class="film-filters wr-filters">
+        ${["All", ...tags].map((t, i) => `
+          ${i ? '<span class="film-filter-sep">/</span>' : ""}
+          <button class="film-chip ${writingTag === t ? "on" : ""}" data-tag="${t}">${t}</button>`).join("")}
+      </div>` : ""}
+      ${shown.length ? `
+      <div class="wr-list">
+        ${shown.map(e => `
+        <button class="wr-item" data-i="${list.indexOf(e)}">
+          <time class="wr-date">${essayDate(e.at)}</time>
+          <span class="wr-main">
+            <span class="wr-title">${e.name}</span>
+            ${e.dek ? `<span class="wr-dek">${e.dek}</span>` : ""}
+            ${essayMeta(e) ? `<span class="wr-meta">${essayMeta(e)}</span>` : ""}
+          </span>
+          <span class="wr-arrow" aria-hidden="true">→</span>
+        </button>`).join("")}
+      </div>` : `
+      <div class="wr-empty">
+        <div class="wr-empty-title">Writings</div>
+        <p>Nothing published yet.</p>
+      </div>`}
+    </div>`;
+  els.writingsView.querySelectorAll(".film-chip").forEach(chip => {
+    chip.addEventListener("click", () => {
+      if (writingTag === chip.dataset.tag) return;
+      writingTag = chip.dataset.tag;
+      renderWritings(items());
+      arrive(els.writingsView.querySelector(".wr-list"));
+    });
+  });
+  els.writingsView.querySelectorAll(".wr-item").forEach(row => {
+    row.addEventListener("click", () => navigate(list[+row.dataset.i]));
+  });
+}
+function renderEssay(node) {
+  const all = node.parent.children.filter(c => c.kind === "Essay");
+  const i = all.indexOf(node);
+  const newer = all[i - 1], older = all[i + 1];
+  const pager = (e, label, cls) => e ? `
+    <button class="es-page ${cls}" data-id="${e.id}">
+      <span class="es-page-label">${label}</span>
+      <span class="es-page-title">${e.name}</span>
+    </button>` : `<span class="es-page ${cls}"></span>`;
+  els.essayView.innerHTML = `
+    <article class="es-wrap">
+      <button class="es-back">← All writings</button>
+      <header class="es-head">
+        <div class="es-kicker"><time>${essayDate(node.at)}</time>${essayMeta(node) ? ` · ${essayMeta(node)}` : ""}</div>
+        <h1 class="es-title">${node.name}</h1>
+        ${node.dek ? `<p class="es-dek">${node.dek}</p>` : ""}
+      </header>
+      ${node.cover ? `<figure class="es-cover"><img src="${node.cover}" alt=""></figure>` : ""}
+      <div class="es-body">${essayBodyHtml(node.body)}</div>
+      ${all.length > 1 ? `
+      <nav class="es-pager">${pager(newer, "Newer", "es-newer")}${pager(older, "Older", "es-older")}</nav>` : ""}
+    </article>`;
+  els.essayView.querySelector(".es-back").addEventListener("click", () => navigate(node.parent));
+  els.essayView.querySelectorAll("button.es-page").forEach(btn => {
+    btn.addEventListener("click", () => navigate(INDEX.get(btn.dataset.id)));
+  });
 }
 
 /* ---- a section's own page (e.g. landing on FILMS via the breadcrumb):
@@ -1711,6 +1838,8 @@ function curView() {
   if (cwd !== ROOT && cwd.parent === ROOT && !els.filmsSectionView.hidden) return "films-section";
   if (cwd.name === "Film Projects" && !els.filmsView.hidden) return "films";
   if (cwd.parent && cwd.parent.name === "Film Projects" && !els.filmDetailView.hidden) return "film-detail";
+  if (cwd.name === "WRITINGS" && !els.writingsView.hidden) return "writings";
+  if (cwd.kind === "Essay" && !els.essayView.hidden) return "essay";
   return view;
 }
 function elementsForItems() {
@@ -1765,7 +1894,7 @@ els.content.addEventListener("mousedown", e => {
   }
   if (e.target.closest(".lv-head")) return;
   // columns and gallery wire their own clicks; only icon/list/digital drag-select
-  if (["home", "columns", "gallery", "films", "films-section", "film-detail"].includes(curView())) { els.content.focus(); return; }
+  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay"].includes(curView())) { els.content.focus(); return; }
   const hit = handleItemMousedown(e);
   if (!hit) startRubberBand(e);
   els.content.focus();
@@ -1774,7 +1903,7 @@ els.content.addEventListener("mousedown", e => {
    handling) already behaved; mouse and touch now agree. A modified click
    (⌘/Ctrl/Shift) stays selection-only, since that's how multi-select works. */
 els.content.addEventListener("click", e => {
-  if (["home", "columns", "gallery", "films", "films-section", "film-detail"].includes(curView())) return;
+  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay"].includes(curView())) return;
   if (e.target.tagName === "INPUT") return;          // don't hijack an inline rename
   if (e.metaKey || e.ctrlKey || e.shiftKey) return;   // modified click: selection only
   const el = e.target.closest(ITEM_SEL[curView()]);
