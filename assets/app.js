@@ -433,6 +433,31 @@ const essay = (title, at, o) =>
   ({ id: "essay-" + (++_fid), name: title, kind: "Essay", icon: "i-doc-mac", at, size: "--", children: [],
      dek: o.dek, tags: o.tags || [], body: o.body || "", cover: o.cover });
 const WRITINGS = [
+  essay("Eavesdrop", "2026-09-08T00:00", {
+    dek: "An afternoon on a Washington Square Park bench, a phone left recording, and a conversation about eggs.",
+    tags: ["Prose"],
+    body: `“Just a tiny bit closer…”  I dragged my body like a wriggling snail along the bench. I stopped as I sensed the smell of the baguette inside the old lady’s bag; That’s when I realized I’d reached the minimum social distance. I glimpsed their lips moving, but all I could hear was the sound of a contrabass from the other side of Washington Square Park. Till that day, I had never considered jazz cacophonous.
+
+I chose to stay nonetheless, for not often would I have such leisure of relaxing in a Park bench, bathing in early fall sunshine while inhaling second-hand marijuana.
+
+Maybe it was a COVID aftereffect that my auditory perception had degraded, or maybe the old couple had noticed my clownish sitting pose, either way, I hear nothing but jazz.
+
+Change of strategy.
+
+I took out my phone, placed it between the couple and me, then turned on an AI transcription software (which I found exciting probably due to the unethicalness), hoping to capture from their mouths something useful for this writing assignment.
+
+Then I sat straight. The jazz sounded less annoying as I wondered what could possibly be transcribed. Should it be some sensational gossip? Something such as a conspiracy theory I’ve never heard of or a dark secret from the couple that they used to be sex murderers or the confirmation of recent rumors that the president had died…? Not actually. Judging by their expression it maybe just small talks. I don’t like small talk, since I’m not good at it. Are they even a couple?
+
+Aside from the jazz, what I could hear were some blurry chit-chats from people. What was there to laugh at. What was so funny?  Hold up. Where did all those negativities came from? Maybe I’m just having a bad day, even under this lovely weather. Think positively: I was listening to free Jazz without accidentally catching the musicians' eyes which would then oblige me to tip…
+
+The couple left. I turned my phone on, it reads:
+
+> “Let’s sit here for a minute. Sit here for a minute shall we? Do we have eggs at home? We had a boiled egg. Not a lot. Yes we have some. Trying to get rid of some of that stuff in the freezer. No, not if we go out to Dinner with Daniel. Tomorrow is what…Sunday? Let’s go.”(Granola Transcription Sept 8th.)
+
+It turned out to be about eggs. My mother once said you should never let eggs run out in your fridge. It seems like an internationally recognized thing.
+
+I left and went and bought some eggs.`,
+  }),
   // essay("Title", "2026-09-16T00:00", {
   //   dek: "One sentence on what it's about.",
   //   tags: ["Film"],
