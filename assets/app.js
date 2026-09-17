@@ -1174,6 +1174,15 @@ $("tb-search-input").addEventListener("keydown", e => {
 });
 document.addEventListener("click", e => { if (!e.target.closest("#tb-search")) closeSearchResults(); });
 
+/* ================= what people open =================
+   Umami counts pages by itself; these are the clicks it can't see — which
+   film, which piece of writing, which file. Names only, nothing about the
+   person. With no Umami script on the page (see index.html), it does
+   nothing at all. */
+function track(event, data) {
+  try { window.umami?.track(event, data); } catch {}
+}
+
 /* ================= navigation ================= */
 function navigate(node, { record = true } = {}) {
   if (node === cwd) return;
@@ -1417,7 +1426,7 @@ function renderHome() {
     e.preventDefault();
     if (swiped) { swiped = false; return; }
     const entry = homeHist[homePos], node = entry && INDEX.get(entry.film.id);
-    if (node) navigate(node);
+    if (node) { track("film-open", { film: node.name, from: "home" }); navigate(node); }
   }));
   // the frame holds still while you're looking at it
   [stage, caption].forEach(el => {
@@ -1433,7 +1442,11 @@ function renderHome() {
     if (Math.abs(dx) > 40) { swiped = true; homeStep(dx < 0 ? 1 : -1); }
   });
   els.homeView.querySelectorAll(".hl-link").forEach(b =>
-    b.addEventListener("click", () => openNode(INDEX.get(b.dataset.id))));
+    b.addEventListener("click", () => {
+      const node = INDEX.get(b.dataset.id);
+      track("file-open", { file: node ? node.name : b.dataset.id });
+      openNode(node);
+    }));
 
   homeLayer = 0;
   if (homePos < 0) { const first = homeDeck(); if (!first) return; homeHist.push(first); homePos = 0; }
@@ -1557,10 +1570,14 @@ function renderHomeStack() {
     e.preventDefault();
     if (swiped) { swiped = false; return; }
     const entry = stackSets[stackPos] && stackSets[stackPos][0], node = entry && INDEX.get(entry.film.id);
-    if (node) navigate(node);
+    if (node) { track("film-open", { film: node.name, from: "home-phone" }); navigate(node); }
   }));
   els.homeView.querySelectorAll(".hl-link").forEach(b =>
-    b.addEventListener("click", () => openNode(INDEX.get(b.dataset.id))));
+    b.addEventListener("click", () => {
+      const node = INDEX.get(b.dataset.id);
+      track("file-open", { file: node ? node.name : b.dataset.id });
+      openNode(node);
+    }));
   if (stackPos < 0) { const first = dealStackSet(); if (!first.length) return; stackSets.push(first); stackPos = 0; }
   showStackSet(stackSets[stackPos], true);
 }
@@ -1798,6 +1815,7 @@ function renderWork() {
       </div>
       <a class="wk-cv" href="assets/files/CV.pdf" target="_blank" rel="noopener">Full CV ↗</a>
     </div>`;
+  els.workView.querySelector(".wk-cv").addEventListener("click", () => track("file-open", { file: "CV.pdf", from: "work" }));
 }
 
 function renderWorkLock() {
@@ -1821,7 +1839,7 @@ function renderWorkLock() {
     form.classList.add("busy"); err.textContent = "";
     const ok = await unlockWork(input.value).catch(() => false);
     form.classList.remove("busy");
-    if (ok) { if (cwd === onPage) { renderWork(); arrive(els.workView); } return; }
+    if (ok) { track("work-unlock"); if (cwd === onPage) { renderWork(); arrive(els.workView); } return; }
     err.textContent = "Incorrect password.";
     input.select();
     form.classList.remove("shake"); void form.offsetWidth; form.classList.add("shake");
@@ -1906,7 +1924,11 @@ function renderWritings(list) {
     });
   });
   els.writingsView.querySelectorAll(".wr-item").forEach(row => {
-    row.addEventListener("click", () => navigate(list[+row.dataset.i]));
+    row.addEventListener("click", () => {
+      const piece = list[+row.dataset.i];
+      track("writing-open", { title: piece.name });
+      navigate(piece);
+    });
   });
 }
 function renderEssay(node) {
@@ -1933,6 +1955,7 @@ function renderEssay(node) {
       <nav class="es-pager">${pager(newer, "Newer", "es-newer")}${pager(older, "Older", "es-older")}</nav>` : ""}
     </article>`;
   els.essayView.querySelector(".es-back").addEventListener("click", () => navigate(node.parent));
+  els.essayView.querySelector(".es-pdf")?.addEventListener("click", () => track("pdf-open", { title: node.name }));
   const figs = [...els.essayView.querySelectorAll(".es-fig img")];
   figs.forEach((img, i) => img.addEventListener("click", () => openStillLightbox(figs.map(f => f.getAttribute("src")), i)));
   els.essayView.querySelectorAll("button.es-page").forEach(btn => {
@@ -1975,7 +1998,11 @@ function renderFilms(list) {
     });
   });
   els.filmsView.querySelectorAll(".film-row").forEach(row => {
-    row.addEventListener("click", () => navigate(list[+row.dataset.i]));
+    row.addEventListener("click", () => {
+      const film = list[+row.dataset.i];
+      track("film-open", { film: film.name, from: "list", role: filmRoleFilter });
+      navigate(film);
+    });
   });
   fitStills(els.filmsView);
 }
