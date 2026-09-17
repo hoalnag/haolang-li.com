@@ -1182,7 +1182,10 @@ document.addEventListener("click", e => { if (!e.target.closest("#tb-search")) c
    person. With no Umami script on the page (see index.html), it does
    nothing at all. */
 function track(event, data) {
-  try { window.umami?.track(event, data); } catch {}
+  try {
+    if (localStorage.getItem("umami.disabled")) return;   // this browser opted out (see index.html)
+    window.umami?.track(event, data);
+  } catch {}
 }
 
 /* ================= navigation ================= */

@@ -23,9 +23,23 @@
 <meta name="twitter:card" content="summary_large_image">
 <link rel="icon" type="image/png" href="assets/logo.png">
 <link rel="apple-touch-icon" href="assets/logo.png">
-<link rel="stylesheet" href="assets/style.css?v=79">
+<link rel="stylesheet" href="assets/style.css?v=80">
 <!-- Umami: privacy-first, cookie-free counts. Pages are counted on their
      own; the named events come from track() in app.js. -->
+<script>
+  /* Who does not get counted. Umami skips a browser that carries its
+     "umami.disabled" flag, and track() in app.js honours the same flag —
+     the tracker alone would still send the named events. Visiting
+     /?notrack sets it for this browser, /?track clears it again, and
+     anything that is not the live site (a local preview) never counts. */
+  (function () {
+    try {
+      if (/[?&]notrack\b/.test(location.search)) localStorage.setItem("umami.disabled", "1");
+      else if (/[?&]track\b/.test(location.search)) localStorage.removeItem("umami.disabled");
+      if (!/(^|\.)haolang-li\.com$/.test(location.hostname)) localStorage.setItem("umami.disabled", "1");
+    } catch (e) {}
+  })();
+</script>
 <script defer src="https://cloud.umami.is/script.js" data-website-id="a2350b53-7bd0-4faa-8008-d19a5c22c1fc"></script>
 </head>
 <body>
@@ -286,6 +300,6 @@
   <!-- context menu / quick look / get info render here -->
   <div id="overlay-layer"></div>
 
-  <script src="assets/app.js?v=79"></script>
+  <script src="assets/app.js?v=80"></script>
 </body>
 </html>
