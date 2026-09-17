@@ -1095,9 +1095,10 @@ function buildSidebar() {
     }
     const btn = e.target.closest(".side-item");
     if (!btn) return;
-    if (btn.dataset.contact) { openContactSheet(); return; }
+    if (btn.dataset.contact) { track("contact-open"); openContactSheet(); return; }
     if (btn.dataset.app) {
       const app = LINKS.find(l => l.id === btn.dataset.app);
+      track("link-out", { to: btn.dataset.app });
       if (app) window.open(app.href, "_blank", "noopener");
       return;
     }
@@ -1149,6 +1150,7 @@ function renderSearchResults() {
 }
 function closeSearchResults() { $("tb-search-results").hidden = true; searchHi = -1; }
 function selectSearchResult(entry) {
+  track("search-result", { picked: entry.label });
   openNode(entry.node);
   $("tb-search-input").value = "";
   closeSearchResults();
@@ -1840,6 +1842,7 @@ function renderWorkLock() {
     const ok = await unlockWork(input.value).catch(() => false);
     form.classList.remove("busy");
     if (ok) { track("work-unlock"); if (cwd === onPage) { renderWork(); arrive(els.workView); } return; }
+    track("work-unlock-failed");
     err.textContent = "Incorrect password.";
     input.select();
     form.classList.remove("shake"); void form.offsetWidth; form.classList.add("shake");
@@ -1919,6 +1922,7 @@ function renderWritings(list) {
     chip.addEventListener("click", () => {
       if (writingTag === chip.dataset.tag) return;
       writingTag = chip.dataset.tag;
+      track("writings-filter", { tag: writingTag });
       renderWritings(items());
       arrive(els.writingsView.querySelector(".wr-list"));
     });
@@ -1956,8 +1960,21 @@ function renderEssay(node) {
     </article>`;
   els.essayView.querySelector(".es-back").addEventListener("click", () => navigate(node.parent));
   els.essayView.querySelector(".es-pdf")?.addEventListener("click", () => track("pdf-open", { title: node.name }));
+  // counted once: the end of the text scrolled into view
+  const tail = els.essayView.querySelector(".es-body > :last-child");
+  if (tail && window.IntersectionObserver) {
+    const io = new IntersectionObserver(entries => {
+      if (!entries.some(x => x.isIntersecting)) return;
+      io.disconnect();
+      track("writing-finished", { title: node.name });
+    }, { root: els.content, threshold: 0.6 });
+    io.observe(tail);
+  }
   const figs = [...els.essayView.querySelectorAll(".es-fig img")];
-  figs.forEach((img, i) => img.addEventListener("click", () => openStillLightbox(figs.map(f => f.getAttribute("src")), i)));
+  figs.forEach((img, i) => img.addEventListener("click", () => {
+    track("figure-open", { title: node.name, figure: i + 1 });
+    openStillLightbox(figs.map(f => f.getAttribute("src")), i);
+  }));
   els.essayView.querySelectorAll("button.es-page").forEach(btn => {
     btn.addEventListener("click", () => navigate(INDEX.get(btn.dataset.id)));
   });
@@ -1993,6 +2010,7 @@ function renderFilms(list) {
     chip.addEventListener("click", () => {
       if (filmRoleFilter === chip.dataset.role) return;   // mutually exclusive: always exactly one
       filmRoleFilter = chip.dataset.role;
+      track("films-filter", { role: filmRoleFilter });
       renderFilms(items());
       arrive(els.filmsView.querySelector(".film-list"));
     });
@@ -2006,7 +2024,16 @@ function renderFilms(list) {
   });
   fitStills(els.filmsView);
 }
+// Vimeo tells the page when someone presses play (dnt=1 keeps it cookie-free)
+let vimeoWatched = null;
+window.addEventListener("message", e => {
+  if (!/player\.vimeo\.com$/.test(new URL(e.origin).host)) return;
+  let msg = e.data; try { msg = typeof msg === "string" ? JSON.parse(msg) : msg; } catch { return; }
+  if (msg && msg.event === "play" && vimeoWatched) track("video-play", { film: vimeoWatched });
+});
+
 function renderFilmDetail(node) {
+  vimeoWatched = node.vimeo ? node.name : null;
   const stillsMode = node.stills.length >= 3;
   const stills = node.stills;
   els.filmDetailView.innerHTML = `
@@ -2042,7 +2069,10 @@ function renderFilmDetail(node) {
     </div>`;
   if (stillsMode) {
     els.filmDetailView.querySelectorAll(".fd-still").forEach(btn => {
-      btn.addEventListener("click", () => openStillLightbox(stills, +btn.dataset.i));
+      btn.addEventListener("click", () => {
+        track("still-open", { film: node.name, still: +btn.dataset.i + 1 });
+        openStillLightbox(stills, +btn.dataset.i);
+      });
     });
     fitStills(els.filmDetailView);
   }
@@ -2845,7 +2875,7 @@ function materialize(box, anchorRect) {
   springTo(box, { x: 0, y: 0, scale: 1, opacity: 1 }, { response: 0.38 });
 }
 function quickLook(node) {
-  if (node.isPhoto) { photoViewer(node); return; }
+  if (node.isPhoto) { track("photo-open", { photo: node.name }); photoViewer(node); return; }
   closeOverlays();
   const box = document.createElement("div");
   box.className = "qlook";
