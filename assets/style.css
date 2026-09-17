@@ -221,10 +221,10 @@ svg { display: block; }
 .win-body:has(.sidebar.collapsed) .toolbar { padding-left: 48px; }
 .side-expand:hover { color: var(--text); }
 
-.side-scroll { flex: 1; overflow-y: auto; padding: 0 10px 14px; }
+.side-scroll { flex: 1; overflow-y: auto; padding: 0 16px 14px; }
 
 /* build footer: reload past the cache, and show which build is loaded */
-.side-foot { flex: 0 0 auto; padding: 8px 10px 12px; border-top: 1px solid var(--hairline); }
+.side-foot { flex: 0 0 auto; padding: 8px 14px 12px; border-top: 1px solid var(--hairline); }
 .side-refresh {
   display: flex; align-items: center; gap: 7px;
   width: 100%; height: 28px; padding: 0 8px;
@@ -244,7 +244,7 @@ svg { display: block; }
 }
 .side-item {
   display: flex; align-items: center; gap: 7px;
-  width: 100%; height: 26px; padding: 0 8px;
+  width: 100%; height: 26px; padding: 0 6px;
   border-radius: 6px;
   font-size: 12px; color: var(--sidebar-fg);
   text-align: left; white-space: nowrap; overflow: hidden;
@@ -693,9 +693,7 @@ button.es-page:hover .es-page-title { opacity: .72; }
   text-align: left;
 }
 .film-list .film-row:last-child { border-bottom: 1px solid var(--hairline); }
-/* no row highlight — the picture answers the pointer instead */
-.film-poster img, .film-still img { transition: opacity .35s ease-out; }
-.film-row:hover .film-poster img, .film-row:hover .film-still img { opacity: .8; }
+/* no row highlight and no dimmed picture: the pointer alone says a row opens */
 .film-row .film-title { transition: color .3s ease-out; }
 .film-poster {
   flex: 0 0 auto; width: 280px;
