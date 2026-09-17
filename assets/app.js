@@ -427,12 +427,289 @@ function foldersFromRows(rows) {
 // WRITINGS — one entry per piece; the feed sorts newest first by `at`, so a
 // new piece only needs its date. `body` is plain text: a blank line starts a
 // new paragraph, a line starting "## " is a subheading, "> " a pull quote
-// (inline <em>/<a> are fine). `dek` is the one-line standfirst under the
-// title; `tags` build the filter row on the feed; `cover` is optional.
+// (inline <em>/<a> are fine), "### " a sub-subheading, "![caption](src)" a
+// figure, lines starting "• " a bullet list, and a lone "---" line ends the
+// text: everything after it (notes, references) is set small, links live.
+// `dek` is the one-line standfirst under the title; `tags` build the filter
+// row on the feed; `cover` and `pdf` (the original file) are optional.
 const essay = (title, at, o) =>
   ({ id: "essay-" + (++_fid), name: title, kind: "Essay", icon: "i-doc-mac", at, size: "--", children: [],
-     dek: o.dek, tags: o.tags || [], body: o.body || "", cover: o.cover });
+     dek: o.dek, tags: o.tags || [], body: o.body || "", cover: o.cover, pdf: o.pdf });
 const WRITINGS = [
+  essay("In Search of Cinematic Sacredness", "2025-05-04T00:00", {
+    dek: "A Comparative Analysis of mediated construction of Tibet in Martin Scorsese and Pema Tesden's Films",
+    tags: ["Film"],
+    pdf: "assets/files/cinematic-sacredness.pdf",
+    body: `In this age where film, like all other art forms, is seemingly challenged by the fact that reality can be replicated instantly with a smartphone button, what Benjamin once described as "the transformation of the superstructure" has now become embedded in everyday life. According to Benjamin, "the present condition of production" is "useful for the formulation of revolutionary demands in the politics of art. (Benjamin, 2007)" This indicates that our task is not only to interpret the aesthetics of captured images but to understand how they function politically and joins the dialectical reproduction of the society. Following Benjamin’s idea, we must embrace the transformations and approach film from a materialist standpoint to ask what it can still do today. In an ideal filmic world, signs come with symbols, exchange comes with use value, and rationality comes with religion. In Plate's argument, he states that “diegetic realities of cinema constantly collapse into the afilmic world, supplying both form and content for humans’ sacred strivings." Today, the two most dominant film industries, Hollywood and Chinese state-sponsored cinema, both fail to turn the invisible imagination into a visible diegetic world and collapse the diegetic into the filmic – space of real and lived experience. When capitalist spectacles displace religion, the sacred is understood against the secular, and images are only there to entertain, distract, and amaze; where does the sacred realm go? In this paper, I will center the discussion around contemporary cinematic imaginations and recreations of Tibet by Hollywood directors represented by Martin Scorsese and Tibetan New Wave directors represented by Pema Tseden. Through discussing the motivation behind their creation, sacredness inside the text, and contemporary implications of their works in general, this paper will discuss film's mediating role in modern life by reorganizing a way of precepting the sacred.
+
+Inspired by the screenwriter Melissa Mathison, an American director, Martin Scorsese, an American director, shot the film “Kundun” in 1996 Morroco – to avoid forces from the Chinese government in his storytelling of Tibet and Dalai Lama. The film tells the story of the fourteenth Dalai Lama, from birth to the final moment when he is forced to escape to India to avoid prosecution by the Chinese government. At first glance, the idea of a Western director telling a Tibetan story may seem suspicious – and vulnerable to critique through the lens of Orientalism.
+
+From a storytelling point of view, such an indictment is traceable. Written upfront to commence the film, Scorsese claims, "In war-torn Asia, Tibetans have practiced non-violence for over a thousand years." The statement is by no means valid, as claimed by Chirico: "Dalai Lamas have advocated violence as a means of preserving Tibet and the Buddha Dharma. (Chirico, 2019)" This indicates, to a certain extent, Scorsese's ideal imagination of Tibet and his fall into Orientalism romanticization of Tibet as a pure, clean, and perfect land. In addition, politically, according to Chirico, Gestures were made toward Feudalism in Tibet, but they were insufficient in showing that the Chinese could have a point. In Kundun, feudalism in Tibet is exhibited through little Dalai Lama's growth – he seeks reforms, such as rejecting unnecessary etiquette between himself and the monks. Still, Scorsese did not criticize the feudal system but made minor the issue by focusing on Dalai's personal growth. His portrayal of Chairman Mao further reflects this tendency: Mao appears as a caricature filled with Marxist clichés and devoid of historical complexity, which raised questions about the film's treatment of cross-cultural political entanglements. I have always had a strong affection towards films that are originated from, created by, and delivered to the same cultural group of people and rendered such as authenticity. In this case, however, the endeavor of this American director in search of meaning from oriental regions is then a production originated from Tibet, by both Tibetan and American and for American audiences.
+
+Despite all Orientalism nitpicking on Kundun, compared to other contemporary directors' work, such as “Seven Years in Tibet,” which depicts a lost Westerner discovering sacredness and redemption in the imagined Tibet, Scorsese follows a comparatively more authentic representation of the Dalai Lama's biography. What does it mean for a film to mediate the sacred across cultural boundaries? Moreover, do both films rely on Tibet as a mediating image through which the West contemplates its desire for transcendence?
+
+Pema Tseden's film provides a comparison from another point of view – a perspective from the locals, with anxieties reflected upon the prevalence of modernity in Tibet. Pema Tseden was born in Hainan Tibetan Autonomous Prefecture of Qinghai Province. He holds a strong cultural memory for the Tibetan people. It would then be safe to say that films by Pema Tseden are from Tibet, by Tibetan, and for Tibet. In his first film, "The Silent Holy Stone," Pema Tseden tells the story of a little monk's journey back to the village where his family lives. During the visit, he witnessed the permeation of modern culture in the Tibetan region. Things like DVD players, television, broadcast players, and snacks from modern Han culture seem incompatible with what Westerners in the 90s imagined as “holiness” in Tibetan culture.
+
+"Focalizer," as Bal suggests, is an agent that indicates the vision that offers a perspective for the viewer (Bal, 1995), which is crucial in understanding Pema Tseden's directorial intention and blocking voyeurism. In this film, the young monk serves as the focalizer, portrayed as both wise and youthful. The film opens with him reciting scriptures in the monastery while eagerly anticipating watching a DVD with the living Buddha – another child monk. This highlights the intersection of tradition and curiosity towards modernity. After the little monk travels back to his hometown for the spring festival, he becomes intrigued by the brand-new television in his home, which plays "Journey to the West." The little monk also heard his brother reading a Chinese textbook and heard from him a dream to go to big cities. The little monk expresses his love and curiosity in all his witness of modernity in Tibet. However, when he hears his younger brother enthusiastically praising the wonders of Han culture’s math lessons, he proudly talks about Tibetan astronomical and calendrical calculations. Overall, he makes his judgment. Though he enjoys watching television, as a monk, he prefers Journey to the West, which depicts a monk's journey to acquire Buddhist truth and deliberately avoids TV dramas that depict secular romantic relationships.
+
+In Scorsese and Pema Tseden's depiction of early 20th-century Tibet, Durkheimian defined sacred and transcendence as constructed in different manners. According to Siefert, in her book chapter discussing the lost imperialism in the 20th century United States, Shangri-La is a place of unrivaled peace and the wisdom lost to Western modernity in the wake of both the Great War and the Depression (Siefert, 2015). After experiencing the loss of faith in humanity and the capitalism bubble, Shangri-La, Tibet, and the imagination of transcendence in the Far East becomes the perfect place for seeking redemption and holiness. In Kundun, close-up shots of bronze Buddha sculptures recur throughout the film, emphasizing this search for holiness through aesthetic and symbolic repetition. Applying the concept of gaze – a look that a-historizes and disembodies itself and objectifies the contemplated object (class/4.3) – it could be analyzed that gazing at Dalai Lama and the temples is not Buddha, but Martin Scorsese himself while interviewing Dalai Lama. Following mostly after close-ups of Dalai Lama, these images appear not only as an indication of Dalai Lama’s legitimacy in being a mystical “chosen one" but also the image of seeing the personified god and purified land of Eden.
+
+![](assets/writings/cinematic-sacredness/still-1.jpg)
+![](assets/writings/cinematic-sacredness/still-2.jpg)
+
+![](assets/writings/cinematic-sacredness/still-3.jpg)
+![](assets/writings/cinematic-sacredness/still-4.jpg)
+
+For “The Silent Holy Stone,” can we honestly say that Pema Tseden's Tibet escapes the mechanics of the gaze, or is it simply a gaze that turns inward – a self-reflexive, yet still constructed look? Pema Tseden's cinematic Tibet is not an "objective" reflection of reality but a mediated construction shaped by his subjective framing, compositional choices, and structured narratives. Throughout the film, unlike Kundun, which employs numerous moving shots and close-ups designed to provoke emotional responses from the audience immersed in the dark theater, Pema Tseden takes a different approach. He avoids emphasizing the protagonist's facial expressions, characterizing his cinematic style with restraint and composure. This approach breaks the imagination of a "mystical Tibet" and instead presents the region through his lens of everyday life realism. However, this does not imply that Pema Tseden's representation of Tibet is an unmediated reality. On the contrary, it is still a carefully constructed cinematic reality that offers an alternative image of Tibet that resists romanticization and imagination while having a discussion around tradition and modernity.
+
+Thus, the center of discussion lies not on whether reality is gazed upon or not but on who does the seeing and how the product of seeing mediates reality. Comparing the structure of "Kundun” and “The Silent Holy Stone,” it’s worth noting that both protagonists in the film encounter anotherness that intrudes into their lives. For Dalai Lama, it is the communists invading their land, and for the little monk, it’s the gradual modernization that seems to demystify the sacred, commercialize experience, and reduce belief to spectacle. Building upon this parallel, both “Kundun” and “The Silent Holy Stone” can be seen as narratives of resistance – each protagonist, in their own context, is confronting an otherness that unsettles their world's spiritual and cultural fabric. The “otherness” here—whether in the form of political violence or modernization—is not just an external threat but a force that reveals inner truths. Through their encounters with this otherness, the films do not simply document loss or intrusion; they visualize a struggle to preserve meaning, to re-enchant the sacred within a transforming world. The sacred, then, is activated and made perceptible through contrast and conflict.
+
+To prevent the discussion from falling again into the dualism of sacred and secular that mystifies the transcendence and reduces it to abstract symbolism, an overarching implication is needed to clarify the sacred product of cinematic sites. To interpret from Professor Angela Zito’s essay announcing that “we should examine how media practices make experiences and values ‘sacred’ (Zito, 2007),” theologies, doctrines, and religious symbols in films are all supplementary material to produce the cinematic sacredness. In this view, the sacred is not a fixed theological being waiting to be discovered and gazed upon, but something dynamically constructed through cinematic form using sound, image, narrative, etc. Martin Scorsese represents and revitalizes Tibet in Morocco through cinematic constructions that place the audiences in the lost world of Tibet and thus proves to American audiences (though Disney is discouraged from screening publicly the film due to forces from the Chinese government) that there could be an oriental magic land existing with them. Comparatively, Pema Tseden captures in-depth the reality of Tibetan people’s lives and proves to Chinese audiences that a truth-bearing character – the little monk – can take the essence and discard the useless from the incoming modernism wave. Through the construction of these cinematic worlds, shaped by each director’s perceived reality, the film functions not merely as a reflector of religious tradition but as an active site where sacred meaning is invented and reconfigured. In this way, cinema emerges as a medium of modern religion – an art form born of modernity participating in the continual reinvention of society.
+
+---
+
+<em>Final project for Religion and Media (Professor Angela Zito), May 2025.</em>
+
+## References
+
+Bal, M. (1995). Reading The Gaze: The construction of Gender in ‘Rembrandt.’ In How obvious is art? (pp. 147–173). https://doi.org/10.1007/978-1-349-24065-4_8
+
+Benjamin, W. (2007). The work of art in the age of mechanical reproduction. In SAGE Publications Ltd eBooks (pp. 25–33). https://doi.org/10.4135/9781446269534.n3
+
+Chirico, K. P. S. (2019). Scorsese’s Kundun as Catholic Encounter with the Dalai Lama and His Tibetan Dharma1. In BRILL eBooks (pp. 171–195). https://doi.org/10.1163/9789004411401_010
+
+Comaroff, J. (1994). Defying disenchantment. reflections on ritual, power, and history. In University of Hawaii Press eBooks (pp. 301–314). https://doi.org/10.1515/9780824842529-014
+
+Siefert, M. (2015). Frank Capra’s Eastern Horizons: American identity and the cinema of international relations. Historical Journal of Film Radio and Television, 35(3), 539–541. https://doi.org/10.1080/01439685.2015.1059618
+
+Zito, Angela. “Can television mediate religious experience? The theology of Joan of Arcadia” in Religion: Beyond a Concept, edited by Hent DeVries. Fordham University Press, 2007. pp 724-738.`,
+  }),
+  essay("Affordable Housing or Public Space", "2024-10-23T00:00", {
+    dek: "A Case Study on Elizabeth Street Garden",
+    tags: ["Research"],
+    pdf: "assets/files/elizabeth-street-garden.pdf",
+    body: `On May 10, 2024, while riding a Citi Bike down Elizabeth Street in Little Italy, I caught sight of an intriguing open garden bathed in the warm glow of the sunset. Though captivated, I decided not to stop for a closer look. Three months later, upon returning to New York after traveling, I remembered the spot and resolved to explore it. On August 25, 2024, I entered the garden and immediately noticed a banner on my left reading, “Help Save the Garden.” Scanning the QR code beside it, I unknowingly embarked on a journey to uncover the challenges facing this unique space. A flyer at the site explained that the garden is kept open to the public by neighborhood volunteers, offering hundreds of free community programs across its 20,000 square feet of green space and ornamental sculptures.
+
+![](assets/writings/elizabeth-street-garden/fig-1.jpg)
+
+After learning more about the functions of community boards and its advisory role in the society, I decide to go to Community board 2 to dive more deeply into the subject. On September 12th, 2024, after registering through the community Board No. 2’s official website, I went to a routine meeting featuring Landmarks Committee 1.
+
+Community Board 2 (CB2) addresses key concerns related to development, planning, land use, and zoning, as well as the delivery of essential City services like sanitation and street upkeep. (Manhattan Community Board 2, n.d.) Located at 3 Washington Square Village, CB2 covers places including Greenwich Village, Little Italy, SoHo, NoHo, Hudson Square, Chinatown, Gansevoort Market, and of course, Elizabeth Street Garden.
+
+Arriving early at CB2’s office, I also met Mark Diller, the district manager. After a short self-introduction of myself and my interest in researching more about Elizabeth Street Garden, he told me that this meeting features entirely on the Landmarks Preservation Committee, or LPC. Also, he introduced me to a lady named Jeannine Kiely, who is the president of “Friends of Elizabeth Street Garden.” I introduced myself to Jeannine and received her contact information.
+
+After a zoom meeting with Jeannie Kiely, the founder of “Friends of Elizabeth Street Garden” at the community board meeting, I kept on contacting her and knew more information about the history of the site, current state of the lawsuit, and efforts community boards had made throughout the years of fighting. Furthermore, I proposed a possible solution after taking a closer look at the issue.
+
+Back in 1822, according to a book named “History of Public-School Society (PSS) of the City of New York,” it documented that “the pastor of the Bethel Baptist church applied to his trustees and requested them to erect a building for a school in Elizabeth Street. (Bourne, 1870)” Having the name of “school No. 5,” the building is subject to charitable trust - a legally binding arrangement that donates assets to a charity or nonprofit for charitable purposes.
+
+The next transfer of property right happened in 1853. As documented in the book of PSS history “The school property remained in the care of the Society until transferred to the Board of Education, in 1853. (Bourne, 1870)”
+
+The area where Elizabeth Street is located, the Little Italy, is traditionally a neighborhood where generations of Italian immigrants have been proud to call home. According to a newspaper published back in 1974, an organization named “The Little Italy Restoration Association” had consulted with the Department of City Planning and proposed a plan in building a 600-pupil elementary school. (Fowler, 1976)
+
+In 1981, a 151-unit building of federally subsidized apartments was built on one end of the parcel, leaving the adjacent 20000 square foot lot vacant until the city leased it for $4,000 a month to Allan Reiver, the owner of an adjacent gallery. (New York Times, 2019) Allan Reiver transformed it into a garden and outdoor exhibition room for architectural garden ornaments. With two lion-shaped sculptures, lush parterres filled with vegetation, and comfortable chairs and tables for relaxation, the Elizabeth Street Garden sends forth an atmosphere of historical relics. That is the reason why the garden differs much from other open spaces. In 1990, according to a report by DNAinfo, the Allan got CB2’s support to lease the lot, where weeds are overgrown, and sculptures are stored. After a year has passed, Allan paid $4000 to the city every month , planted vegetations in the garden, and maintained the garden. (Tcholakian, n.d.)
+
+In 2012, the city council member Margret Chin proposed to make the lot as an affordable housing component to the Seward Park Urban Renewal Area (SPURA). This proposal, the starter of the twelve years fight against demolishing the garden, is later granted by the Department of Housing Preservation and Development (HPD) in 2012 (Colon, 2019). Claiming that SoHo area needs more affordable housing and opportunities to let more people enjoy the area, Ms. Chin has a certain point of argument.
+
+The conflicting issue placed the two most needed spaces - affordable housing and open recreational space – on the opposite sides of discussion. People standing against the demolishment argues that even though creating affordable housing is a must-needed planning to the city, it should not be done at the sacrifice of the public garden. According to New York Times, the city plans to sell the land to build a seven-story, 123 apartment elevators building - Heaven Green - for low-income seniors owned by a construction company called “Penrose.” A rendered image by Haven Green of what the building and the surrounding environment will look like is pasted down below. Comparing to what I saw in the garden in real life, the view of the open space after the new construction lost its sense of history and sense of distilled time.
+
+![](assets/writings/elizabeth-street-garden/fig-2.jpg)
+
+To have a better understanding of the issue, I went to the garden again to investigate on Oct 20th. I walked into the garden from the gate at Elizabeth Street. The other gate is located at Mott Street at the opposite side of the block. I want to the garden in a lovely afternoon with dense people inside, so most of the sittings are occupied with downtown New Yorkers reading, talking, and online working. People love the garden, but the space is not enough.
+
+Under such circumstance, getting rid of the garden and build a new senior affordable is going to post direct harm to the neighborhood’s quality of living. People including Martin Scorsese, Robert Denaro, and Kiki Smith had sent letters to the mayor. Putting the usefulness of these letters from celebrities aside, I agree to what Professor. Broderick said in a class that we shouldn’t be relying on special voices to vote for justice. In all, it should be a collective effort from the community.
+
+During my visit to the Elizabeth Street Garden, I spoke with two volunteers stationed at a table near the entrance. After a brief introduction, I inquired about the current state of the legal efforts to preserve the garden. The volunteers were unable to provide new information beyond what is publicly available, as they are only permitted to discuss official updates published by the garden’s administration. Nevertheless, I asked about an area in the garden that appeared unfurnished and filled with debris. They explained that, due to the financial strain of ongoing legal battles, the garden lacks sufficient funding to repair and maintain this section. Consequently, the area remains in disrepair.
+
+![](assets/writings/elizabeth-street-garden/fig-3.jpg)
+
+The potential destruction of Elizabeth Street Garden threatens not only the community but also the prosperity of nearby businesses and organizations. An open letter to Mayor Eric Adams hosted on the garden’s official website, highlights that the garden draws over a thousand visitors each week, offering significant economic benefits to local businesses. Described as a “unique green oasis” amid the dense urban landscape, the garden serves as both an artistic space and a popular spot for residents and tourists. As of November 6, 2024, a total of 222 organizations and businesses have signed this letter in support of preserving the garden.
+
+During my October 30 visit to nearby businesses, I spoke with locals about their perspectives. At “Lovely Day,” a Thai restaurant located a street away from the garden, I spoke with an employee named Claire. She explained that Lovely Day signed the open letter, adding, “I go to the garden every day before and after work, and so does the owner of this restaurant. She walks her dog in the garden every morning.” Claire also noted the “symbiotic” relationship between the shop and the garden, suggesting that each brings foot traffic to the other.
+
+I also visited “Maguire,” a nearby clothing store, and spoke to the owner, Debb. She shared that while she had signed the letter, she harbored mixed feelings. “I know that maybe the construction of affordable housing could bring me more customers,” she said, “but I’m worried that the sun will be blocked even more. Right now, the buildings nearby already shade the area in the afternoon—I don’t want all the sunlight to disappear.” Her words underscored the broader sentiment: that losing the garden would impact not just residents but the entire local ecosystem of businesses, challenging both the neighborhood’s character and economic liveliness.
+
+Inside a report shared with me from Jeannie, I read a diagram describing acres of parkland per 1.000 residents in relationship to different areas in New York. It is concluded that the Acres of Parkland per 1.000 residents for areas inside CB2 is significantly lower than NYC’s goal. The garden, unfortunately, is in the only downtown neighborhood that NYC Parks defines as underserved by open space. Little Italy & SoHo have even less open space – open space ratio of 0.07 or 3 square foot per person, equalizing to the size of a subway seat. While exploring the Lower East Side and Little Italy, I observed that there are few alternative sites where residents can relax and spend leisure time. One such site is the Dorothy Strelsin Memorial Garden at 174 Suffolk Street (illustrated in the photo on the right), a small rectangular garden that offers a similar sense of tranquility. Visitors there were engaged in activities like meditation and reading. However, this garden is only about one-third the size of the Elizabeth Street Garden, making it insufficient to accommodate large gatherings or public events due to limited space.
+
+![](assets/writings/elizabeth-street-garden/fig-4.png)
+
+![](assets/writings/elizabeth-street-garden/fig-5.jpg)
+
+Jeannie also explained to me the bigger and better alternative for another construction site of the affordable house: the 388 Hudson. At that side, five times as much housing could be established, and the garden wouldn’t have to be destroyed. Officially named the “Win-Win proposal,” it’s proposed by the Council member Christopher Marte. A funding transfer from Haven Green, in collaboration with up-zonings from the Council, can realize up to approximately 705 new affordable housing units and preserve Elizabeth Street Garden. However, the suggestion was not accepted immediately, but after 6 years. According to an interview with Joseph Reiver whose father Allan Reiver was the creater of the garden, he said that: “they started making plans to build on it recently after wasting six years. And then the other sites, they’ve also said similar dismissive things. Maybe they will start building on them too, who knows. (Nevins, 2024)” On the left side is a photograph of 388 Hudson, which is still an open ground garage.
+
+![](assets/writings/elizabeth-street-garden/fig-6.jpg)
+
+As for the current state of the garden till October 29th, according to Architectural Record, an order is enacted to vacate the property was issued for September 10, but the garden, facing significant challenges, was granted an additional two weeks when an appeals court judge suspended the eviction notice. It now has permission to stay open until at least October 30 (Schulman, 2024). As the new deadline approaches, the future of the garden remains uncertain. On November 2nd, advocates of Elizabeth Street Garden claims that their eviction has been paused pending an appeal, which means that the case is currently scheduled for February 2025 (Houlis, 2024).
+
+In conclusion, the Elizabeth Street Garden stands as a rare and cherished green space in a densely populated area of New York City with both historical and cultural value. It provides both a landmark and a recreational haven for the community. This ongoing dispute over its potential demolition and redevelopment reflects broader challenges in the process of urban planning, where the need for affordable housing shall be balanced with preserving public spaces that contribute to both the residents’ quality of life and the prosperity of the businesses and organizations adjacent to the site. Despite advocacy from prominent individuals, local businesses, and community groups, the garden’s future remains uncertain as it faces impending legal and political obstacles few months later. This case highlights the importance of inclusive community decision-making and the need for sustainable solutions that address multiple needs from people without sacrificing one for the other. Furthermore, the proposed alternative site at 388 Hudson presents a viable “win-win” solution, underscoring the possibility of constructive collaboration between housing and preservation goals. As the community continues to advocate for the garden, its fate rests on the outcomes of the upcoming appeals, leaving the future of this unique green oasis in question.
+
+---
+
+<em>Written for Shaping the Urban Environment (Professor Mosette Broderick), October 2024.</em>
+
+## References
+
+A Lush Urban Garden or Senior Citizen Housing: Which Would You Choose? (2020). New York Times. https://www.nytimes.com/2019/03/07/nyregion/garden-little-italy-senior-housing.html
+
+Bourne, W. O. (1870). History of the Public School Society of the City of New York. http://ci.nii.ac.jp/ncid/BA19342182
+
+CB2 Manhattan Community Board – Manhattan Community Board 2. (n.d.). CB2 Manhattan Community Board - Manhattan Community Board 2. https://cbmanhattan.cityofnewyork.us/cb2/
+
+Colon, D. (2019, January 23). Inside the fight over the Elizabeth Street Garden. Curbed NY. https://ny.curbed.com/2019/1/23/18194444/nolita-new-york-affordable-housing-elizabeth-street-garden
+
+Fowler, G. (1976). City, to revive and refurbish little Italy. Nytimes. https://www.nytimes.com/1974/09/20/archives/city-to-revive-and-refurbish-little-italy.html
+
+HomeElizabeth Street Garden | Friends of Elizabeth Street Garden. (n.d.). https://elizabethstreetgarden.org/
+
+Houlis, K. (2024, November 3). Eviction of NYC’s Elizabeth Street Garden paused pending an appeal. CBS News. https://www.cbsnews.com/newyork/news/elizabeth-street-garden-eviction-paused-pending-appeal/
+
+Nevins, J. (2024, October 23). Meet Joseph Reiver, the man fighting to save the Elizabeth Street Garden. Interview Magazine. https://www.interviewmagazine.com/culture/meet-joseph-reiver-the-man-fighting-to-save-the-elizabeth-street-garden
+
+Schulman, P. (2024, October 28). Elizabeth Street Garden gets temporary stay of eviction. Architectural Record. https://www.architecturalrecord.com/articles/17174-elizabeth-street-garden-gets-temporary-stay-of-eviction
+
+Tcholakian, D. (n.d.). Here’s what you need to know about fight over Elizabeth Street Garden - Nolita - New York - DNAInfo. DNAinfo New York. https://www.dnainfo.com/new-york/20160918/nolita/heres-what-you-need-know-about-fight-over-elizabeth-street-garden/
+
+Wiseman discusses public welfare. (n.d.). Studs Terkel Radio Archive. https://studsterkel.wfmt.com/programs/frederick-wiseman-discusses-public-welfare`,
+  }),
+  essay("Vicinity, Volume, and a Progressive Sense of Place", "2025-12-03T00:00", {
+    dek: "Migrant Infrastructures and Everyday Practices at Dong Xuan Center",
+    tags: ["Research"],
+    pdf: "assets/files/dong-xuan-center.pdf",
+    body: `## 1. Introduction
+
+Discourses under the topic of migration, sense of belonging, and community formation have been a crucial component of urban and cultural geography studies. Questions were asked regarding the survival ship, rights to space, and rights to live of minority groups in society based on egalitarian principles. Meanwhile, concerns were also suggested on the commercialization and essentialization of communities that aware us also on the danger of capital intrusion. Within this broader discussion, both existing scholarship on the area’s history and a 2025 report issued by the local district indicate that the Dong Xuan Center (DXC), a market in Lichtenberg, Berlin shaped strongly by Vietnamese traditions, offers a particularly compelling site for examining the dialectical relationship between economic logics and modes of social survival. The DXC makes visible both the economic vitality that provides a hub for migrant groups’ sense of belonging and the regulatory restrictions imposed by local authorities. Discussions around DXC makes it a key site for reflecting how migrant communities could negotiate existence and belonging in modern capitalist cities.
+
+Aside from historical, political, and theoretical inquiries, this paper takes on a fresh perspective through ethnographic observation of the visible nearby. Instead of approaching the market as a static ethnic site or a poli-economic zone of interest, this paper observes the DXC as a daily infrastructure and give back the agency to members inside, including Vietnamese, Turkish, Indian, and Chinese vendors. Through ethnographic observation, this paper asks the research question of how Vietnamese and other migrant entrepreneurs at the Dong Xuan Center negotiate their sense of belonging through embodied practices within the everyday vicinity of the community.
+
+## 2. Review of the Literature
+
+Vietnam communities in Berlin have a highly heterogeneous history. Generally, two main groups immigrated from Vietnam. The first were refugees who arrived in the Federal Republic of Germany (FRG) under the Geneva Refugee Convention after the Vietnam War (Beth & Tuckermann, 2012). The East German government, through its close relations with North Vietnam, signed an agreement that brought 70,000 Vietnamese contract workers to East Germany (Nguyễn, 2024). Around 2005, Vietnamese contract workers established the Dong Xuan Center, making it the core of Vietnamese cultural and economic life in East Germany. However, Nguyễn (2024) noted that Western boat immigrants did not visit until 2010. Immigrants at the DXC were considered loyal to socialist Vietnam. Today, segregation is less pronounced, thanks to third-wave migration and generational change.
+
+A paper on the "Transformative power of arrival infrastructures" describes DXC as an outcome of the marginalized economic situation of Vietnamese Berliners. They faced labor market exclusion in the early 2000s (Kreichauf et al., 2020). The author identifies two types of infrastructure. One is shaped internally, by sustained social and cultural networks. The other is shaped externally, by systems of governance and economic logic (Kreichauf et al., 2020). Ethnic economies, from an external perspective, play a crucial socio-economic role. They provide employment and services within migrant networks and serve as visible sites between marginalized groups and the wider urban economy. Schmiz and Kitzmann examined immigrant entrepreneurs as agents bridging internal and external infrastructures. Entrepreneurs create economic and social benefits by promoting their ethnicity (Schmiz & Kitzmann, 2017).
+
+While entrepreneurial agency in such infrastructures makes minority economies visible, it also raises questions about the commodification of cultural difference. What do we really mean when discussing diversity in a society? Is it an ideology that celebrates difference and encourages speaking up, or a set of moral guidelines that promotes equity? Maybe neither answer catches the telos of this celebrated liberal concept of multiformity. As Lee (1992) warned in his essay on commodification of ethnicity, “a celebration of ethnic diversity is prone to criticism of essentialism, be it through parades or festivals as place-making activities or through branding initiatives, e.g., of Chinatowns.” The ethnic diversity is transformed into a social spectacle that’s easily commercialized. Toward the further development plan of DXC of “developing a Chinatown-style neighborhood with housing, business areas, kindergartens… (Kreichauf et al., 2020)” Local governments in Berlin react in a defensive manner, fearing the formation of a “parallel society.” In line with the Urban Development Plan for Industry and Commerce, the Lichtenberg authorities rejected DXC’s plan to transform the land use from industrial to mixed-use retail (Schmiz & Kitzmann, 2017).
+
+At first, the link between commercialization and the essentialization of minority communities seems plausible. However, upon closer inspection, if we view diversity and mobility only through a cultural lens and ignore power and material conditions, anti-essentialism loses its force. Veronis (2007), in a study of Latin Americans in Toronto, explained that minority spaces form through experiences of 'othering' and constant engagement with difference and exclusion. This situation mirrors hardships faced by Vietnamese groups. Veronis (2007) further stated that being labeled 'Other' becomes a political identity used to fight exclusion. If we discuss anti-essentialism without considering minority groups' living conditions, it becomes a romanticized ideal. Commercialization and the symbolization of identity are not always forms of estrangement. Instead, they may help build subjectivity and identity. Massey's essay on "a global sense of place" argues that the specificity of a place comes from the unique constellation of social relations. These relations meet at a particular location (Massey, 1991). She opposes a reactionary sense of place and believes that as time and space compress, we also need a progressive view. This vision parallels Veronis (2007), who describes the "barrio latino" and "casa" as "third spaces"—arenas where Latin Americans negotiate identity, community, and citizenship.
+
+The literature reveals a dialectical relationship between material survival and symbolic belonging. Minority groups rely on economic participation for their livelihoods while also seeking a sense of togetherness that resists commodification. Biao Xiang (2021) describes vicinity as a reconciliation of this tension, where physical estrangement is felt, and togetherness is imagined. When experience and symbolism are divided, meaning is lost. Vicinity thus forms a site where daily encounters build social ties. Similarly, Gieseking (2015) argues that physical presence and repeated encounters create the 'volume' of urban spaces, giving depth to social relations through embodied experiences. Both concepts highlight how daily interactions spatially and socially shape communities.
+
+This paper also draws on Yi-Fu Tuan’s spatial ethics, which emphasize being with the world in a sympathetic, meaningful way. Guided by Tuan and Xiang’s ideas, the analysis connects the material and emotional aspects of the Dong Xuan Center to broader questions of how people coexist. The paper argues that the DXC is a progressive space for coexistence, where social and spatial relationships interact. By focusing on everyday negotiations within the DXC, the analysis aims to overcome the simple binary of commodification versus authenticity, showing how practices in the center shape its development.
+
+## 3. Method: Descriptive Ethnography
+
+To understand how migrant entrepreneurs at the Dong Xuan Center negotiate their sense of belonging, I combined primary and secondary sources. Primary sources consist of direct observations, mapping based on participation, sensory ethnography, the latest government documents from 2025, and casual interviews. Secondary sources include journal articles, online websites, and books.
+
+For my personal observations, from September to December 2025, I visited the Dong Xuan center 9 times and spent a decent amount of time at each visit. I interviewed merchants and customers, mapped out DXC, and observed the surroundings while participating. Such first-person engagements are central to understanding vicinity, as conceptualized by Xiang Biao, where meaning is produced through bodily presence and everyday encounters. After each visit, I would immediately record what I observed on my phone as an audio file so that I could review it when writing. I used these techniques not only to critically observe the space but also to engage with the community, build stronger relationships, and encourage more interactions. All observations respect anonymity, and no personal data or identifying details were recorded.
+
+Reflecting on my methodology, the combination of primary and secondary sources shows a complementary effect, largely due to my limited access to official administrative documents from DXC. In addition, because of my limited proficiency in German, I could not communicate smoothly with most Vietnamese merchants, so I relied on a trusted translator in several interactions; this aspect will be further described later. Moreover, since each visit to DXC required at least 3.5 hours, including travel time, I had to manage my daily routine and deliberately engage with the field. I achieved this by integrating DXC into my own practical, lived needs—shopping for groceries, repairing my friend’s computer, eating, and doing my nails—which became part of my everyday life in Berlin. It is also worth noting, with reflexivity, that my positionality as a Chinese student shaped how vendors engaged with me. I was perceived primarily more as a customer rather than a researcher, which facilitated certain interactions during my visits.
+
+## 4. Conceptual Framework
+
+This paper draws upon three main concepts suggested by past scholars: progressive sense of place, volume of space, and vicinity. Through engaging with these concepts, this paper provides an analytical framework on how migrant entrepreneurs and workers at DXC negotiate a sense of belonging through everyday practices.
+
+Following Massey’s proposition of a progressive sense of place amid modernization, I treat DXC as a place with a non-static identity, non-enclosed boundaries, and a mix of broader social relationships. This lens provides me with a sense of distributed power that is absent in a top-down unity. Instead, power emerges from DXC’s relationships with the outer world, which shapes its trading practices, internal arrangements, and diasporic stories.
+
+Secondly, volume of space, as Gieseking implemented in her analysis of lesbian struggles in New York City, informs my analysis of DXC as a tool for engaging with bodily presences in DXC. As volume of space captures the compound result of bodily crossing-over, essentially, how people move among DXC, the walking routes, smell, and division of spaces, it provides informative materials on analyzing bodily engagements with the community and the formation of social networks within the community.
+
+Thirdly, the vicinity, or the scope of vision suggested by Xiang, provides the basis for my analysis of DXC as a lens for observing the surroundings from the perspectives of merchants, customers, and nearby residents. As a major unit in the middle of Lichtenberg, this paper investigates the role that DXC plays as a unique entity in the daily lives of people in the surrounding area. Through observing festivals, special commodities, and ethnic food, I treat DXC itself as a site for constructing a material sense of the nearby.
+
+## 5. Case Study Description
+
+### a. Arrival at DXC: Sensory and Visual
+
+During my first visit to DXC, instead of taking the tram that would have brought me directly to the main entrance, I followed Google Maps while riding a bike and accidentally rode into a warehouse stacked with bottled drinks. The space's stillness felt unsettling. I was unsure whether I had trespassed. Walking through the narrow aisles, I eventually found an exit that opened into the northern edge of the Dong Xuan Center.
+
+![Figure A: Warehouse south of DXC. Shot by author](assets/writings/dong-xuan-center/fig-a.jpg)
+
+![Figure B: Interiors. Shot by author](assets/writings/dong-xuan-center/fig-b.jpg)
+
+There are seven rectangular halls in DXC, each roughly the size of half a football field and only one story high. Unlike modern malls or shopping centers, their appearance is plain and industrial. Inside each hall, the space is split into two long sections, with shops lined up in parallel rows on both sides. A narrow, straight aisle runs through the middle, connecting both entrances and leaving each business enough room for both retail activities and wholesale storage. Walking through the halls, I constantly noticed a pungent smell and kept wondering what it was. I finally figured it out later when I was getting my nails done at DXC—it was the scent of fake nail powder. It was so strong that it even overpowered the smell of food, though I eventually got used to it. Feeling a bit tired after browsing the entire area, I saw businesses including restaurants, nail salons, barbershops, grocery stores, markets, and other retail shops. Among all kinds of shops, I found more guest traffic in markets and salons, and fewer in retail shops. Through observing the merchants and language, I found that the businesses are mostly owned by Asian, Turkish, and Arabic immigrant entrepreneurs. As for customers, the race seems mixed. From my personal observation, the guest flow is slightly higher than on weekdays, given its closure on Tuesday rather than Sunday.
+
+![Figure C: Hall 1. Shot by author](assets/writings/dong-xuan-center/fig-c.jpg)
+
+![Figure D: Mapping. Mapped by author](assets/writings/dong-xuan-center/fig-d.jpg)
+
+### b. Mapping of DXC
+
+The map above illustrates my condensed observational findings from the site. As green color illustrates one’s bodily route, the entrance is right beside the tram stop of Herzbergstraße with the M-line passing through. While red blocks all markets and restaurants, purple blocks indicate other businesses I visited and interacted with. While the red blocks represent all the markets and restaurants, the purple blocks indicate the other businesses I visited and interacted with. When reading the map vertically from top to bottom, a pattern emerges: the number of red blocks increases, suggesting a preference for being located closer to the entrance and therefore better guest flow. Also, by labeling different shops and areas alphabetically, I can more easily locate and refer to them when describing my participation scheme.
+
+### c. Participating in DXC
+
+This descriptive section focuses on subjective participation in DXC. By engaging with the site through practical routines as a resident of Lichtenberg, I seek to understand the space from within, through the embodied perspective of someone who shops, repairs, and eats.
+
+First, I had long wanted to break my nail-biting habit, so I decided it was time to get a manicure. DXC offers plenty of choices that are cheap and professional compared to others. I went to the shop “a” and tried to communicate my demands, but failed due to my lack of proficiency in German. Amazingly, when the Vietnamese receptionist realized I spoke Chinese, she immediately switched to Chinese. Later, I learned that this was because she had spent some time studying at a university in Hong Kong. The manicure costs only 25 euros. Once the work officially began, something unexpected happened: all the staff, including the owner, gathered around me with curiosity. In a brief exchange, I learned the reason: they had never seen a man get his nails done. This surprised me. In Berlin, it is common for men to paint their nails or get manicures, especially in queer-friendly districts. Their surprise made visible the cultural assumptions about ideas about gender, presentation, and norms. Moments later, their comments, laughter, and gentle teasing folded me into their social world. I learned from the receptionist, my gatekeeper, about the site's ethnic distribution. I was told that, except for the businesses run by Vietnamese people, the two halls at the northeastern corner are mostly dominated by Turkish and Arabic businesses (area “G”), and the one labeled area “B” is a cluster of Chinese vendors.
+
+Following her directions, I want to visit Area B during my next visit and stop at a shop that sells watches. The owner, originally from Wenzhou, imports the goods from China and distributes them across Europe. Through an informal interview, I asked the owner some questions regarding her personal and social life. Here are five key takeaways I excerpted from our conversation:
+
+• “My monthly rent is cheap, only about 1,800 euros. Way cheaper compared to the rents in central Berlin.”
+• “The center’s advertising helped my business a lot. The Vietnamese owner’s daughter and son have taken over running the place. They did a lot of online advertising.”
+• “Doing retail here is tough since thieves come almost every day to steal my watches. We’ve called the police before, but generally it’s useless.”
+• “My neighbors and I get along well, if we don’t sell the same stuff. (laughter)”
+• “We Chinese mostly stick together. We play mahjong, and we have a Dong Xuan Center group chat on WeChat.” (Translated from Chinese dialogue)
+
+The owner was nice to me. We exchanged contact, and she even invited me to a mahjong night, but unfortunately, I did not have the chance to join. Furthermore, I visited two other Chinese vendors whose views on their business conditions were noticeably less optimistic. One of them complained that she is forced to sell goods at very low prices and can barely make a living. One possible explanation for this stark contrast lies in the type of goods they sell. The vendor who reported barely making a living primarily deals in wholesale clothing: items that appeared old-fashioned and low-priced. From this perspective, the struggle may not simply stem from market saturation, but also from the need for merchandise to adapt to shifting trends and consumer preferences.
+
+![Figure E: Women’s day. Shot by author](assets/writings/dong-xuan-center/fig-e.jpg)
+
+During my subsequent visits to DXC, I came across several gatherings organized by the local Vietnamese community. On October 20th, I walked past a restaurant (area “H”) and noticed several women dressed in ethnic clothing with red flowers and bandanas as decorations. Intrigued, I walked inside and tried to learn about the event from a waiter using Google Translate. I learned that it was a celebration for “Vietnamese Women’s Day.”Inside, nearly every table was filled with women dining together, while men stood nearby holding bouquets of flowers, waiting to present them. The atmosphere was warm, festive, and intimate. Unfortunately, because the banquet was fully booked in advance, I was unable to join the celebration myself.
+
+![Figure F: Google Translation. Shot by author](assets/writings/dong-xuan-center/fig-f.jpg)
+
+Another ceremonial space I encountered was the banquet hall where a wedding was taking place. It was again a coincidental encounter, this time at area “d”, where a relatively more modern architecture takes place. Inside, the hall was filled with bright lights, floral decorations, and round tables arranged in the familiar style of East and Southeast Asian wedding banquets.
+
+![Figure G: Wedding inside a hall. Shot by author](assets/writings/dong-xuan-center/fig-g.jpg)
+
+### d. DXC and Restrictions from Local Government
+
+The newest report published by the Lichtenberg district (Bezirksamt Lichtenberg von Berlin, 2025) on the commercial use of land aligns with the paper by Schmiz and Kitzmann (2017). It claimed that DXC is considered a “special center (Sonderzentrum)” that “no further retail growth shall occur (kein Einzelhandelswachstum erfolgen).” The reason for its classification as a “special center,” as the report explains, is that the Dong Xuan Center is a predominantly Asian-oriented commercial and service location. And due to the “highly specialized assortment, wholesale orientation, and regionally oriented customer base, " it disqualifies it from fulfilling the everyday needs of nearby residents. (Bezirksamt Lichtenberg von Berlin, 2025)” In short, in 2025, the DXC is approached by local authorities with a conservative attitude, thereby placing the burden of negotiation and survival largely on the migrant entrepreneurs who inhabit it.
+
+## 6. Discussion
+
+While the Lichtenberg retail plan argues that the DXC’s “highly specialized” product range prevents it from serving local everyday needs, my ethnographic observations reveal a different lived reality. The district fails to acknowledge the everyday relational infrastructures of survival ships that operate through migrant economies, generating a “place of sense” in the broader neighborhood. In the discussion section, two main perspectives will be considered, one from within, including the business owners and cultural practitioners, and the other from without, including travelers and nearby residents.
+
+Firstly, DXC itself demonstrates a basic “place of sense” through its daily use and existence. According to Kreichauf et al. (2020), DXC, as a “basic infrastructure,” empowers migrants by enabling arrival, belonging, mobility, and economic activity. Through repeated trading practices, DXC accumulates agency by circulating in Berlin’s discourse as a node of cultural presence, which attracts a wide range of visitors.
+
+Secondly, the “sense of place” then emerges from relational practices. As an import and export center in Europe for Asian goods, DXC serves as the hub for transnational trade (Kreichauf et al., 2020). My encounters with Chinese and Vietnamese entrepreneurs reveal their business practices, including importing from their homeland and exporting around Europe. This situates DXC in a web of global connections. This relationality resonates with Massey’s argument that places are “constructed out of social relations…meeting and weaving together at a particular locus (Massey, 1991).” DXC embodies precisely such a place. From merchants selling the newest version of Labubu to those who provide nail materials and services across Europe, DXC’s meaning emerges not solely from “ethnic character” but from its everyday function as a relational infrastructure that connects Berlin and Europe to wider Asian worlds. The relational value is also generated from within, through, for example, every merchant’s psychological mapping of DXC, togetherness between Chinese merchants and their community, and the mutual struggle against thieves.
+
+Thirdly, the volume of space that pronounces the immigrant identity is generated through cultural practices. Gieseking’s idea of volume emphasizes bodily movements, gathering, and leaving traces in space. The celebrations I encountered, including Vietnamese Women’s Day at a restaurant and a wedding banquet, accumulate in spatial memory. DXC thus becomes a site of cultural reproduction that allows migrant communities to continuously remake their identities through everyday rituals and shared practices. In addition, the smell of nail polish also adds a layer to its unique, sensational character. Therefore, DXC’s volume is produced by the very communities that inhabit it, making the site more than just a marketplace.
+
+By framing the analysis externally, DXC creates a sense of community for residents. Contrary to the district’s classification of the center as a special provider of cultural goods with little relevance to everyday demand, my observations suggest otherwise. What I encountered are affordable services, including nail salons, hairdressers, and phone and computer repair shops. They met my practical needs during fieldwork and are likely to be necessary for the daily routines of nearby residents. In this sense, DXC participates in what Xiang Biao (2021) calls vicinity. DXC thus becomes a site for showing how commercial interests and relational connections can co-exist. Analyzing from this angle, one cannot ignore the broader commercial considerations behind the government’s restrictive stance toward DXC: the competition between DXC and other retail centers in Lichtenberg, which is never explicitly addressed in planning documents but could nevertheless affect policy decisions. This becomes one of the future research possibilities.
+
+## 7. Conclusion
+
+Taken together, the findings from this paper suggest that the Dong Xuan Center functions less as a bounded, paralleled ethnic enclave than as an infrastructure in which material survival, spatial practice, and symbolic belonging are continuously generated. In this paper, it is argued that, rather than confirming a duality between commodification and authenticity, everyday interactions within DXC demonstrate how migrant entrepreneurs actively constitute a relational sense of place through their embodied presence. In this light, the center’s significance lies not only in its economic role but in its capacity to generate a lived spatial ethic that foregrounds the ongoing production of social ties within the constraints of contemporary urban governance in Berlin.
+
+---
+
+<em>Individual research for Global Connections, NYU Berlin, December 2025.</em>
+
+## Use of AI
+
+For the use of AI, I used ChatGPT to help me translate and explain the document “Entwurf Zentren- und Einzelhandelskonzept für den Bezirk Lichtenberg von Berlin – Fortschreibung 2025” published on “mein.berlin.de.” I used Grammarly to fix my language.
+
+## Citation
+
+Geschichte, Arbeit und Alltag vietnamesischer Migrant_innen. In K. N. Ha (Hrsg.), Asiatische Deutsche. Vietnamese Diaspora and Beyond (Pp 99–117). Hamburg, Berlin: Assoziation A. (o.D.). -.
+
+Gieseking, J. J. (2015). Crossing over into neighbourhoods of the body: urban territories, borders and lesbian‐queer bodies in New York City. Area, 48(3), 262–270. https://doi.org/10.1111/area.12147
+
+Kreichauf, R., Rosenberger, O. & Strobel, P. (2020). The Transformative Power of Urban Arrival Infrastructures: Berlin’s Refugio and Dong Xuan Center. Urban Planning, 5(3), 44–54. https://doi.org/10.17645/up.v5i3.2897
+
+Lee, D. O. (1992). Commodification of Ethnicity. Urban Affairs Quarterly, 28(2), 258–275. https://doi.org/10.1177/004208169202800204
+
+Massey, D. (1991). A Global Sense of Place. -, 146–156. https://doi.org/10.4324/9780203931950-45
+
+Nguyễn, N. H. C. (2024). Routledge Handbook of the Vietnamese Diaspora. In Routledge eBooks. https://doi.org/10.4324/9781003036104
+
+Schmiz, A. & Kitzmann, R. (2017). Negotiating an Asiatown in Berlin: Ethnic diversity in urban planning. Cities, 70, 1–10. https://doi.org/10.1016/j.cities.2017.06.001
+
+Tuan, Y. (2014). Romantic Geography: In Search of the Sublime Landscape. https://muse.jhu.edu/chapter/992344/pdf
+
+Veronis, L. (2007). Strategic spatial essentialism: Latin Americans’ real and imagined geographies of belonging in Toronto. Social & Cultural Geography, 8(3), 455–473. https://doi.org/10.1080/14649360701488997
+
+Xiang, B. (2021). The nearby: A scope of seeing. Journal Of Contemporary Chinese Art, 8(2), 147–165. https://doi.org/10.1386/jcca_00042_1
+
+Bezirksamt Lichtenberg von Berlin. (2025). Entwurf des Zentren- und Einzelhandelskonzepts für den Bezirk Lichtenberg in Berlin – Fortschreibung 2025 [Draft centers-and-retail concept for the district of Lichtenberg, Berlin – 2025 update]. https://www.berlin.de/`,
+  }),
   essay("Eavesdrop", "2026-09-08T00:00", {
     dek: "An afternoon on a Washington Square Park bench, a phone left recording, and a conversation about eggs.",
     tags: ["Prose"],
@@ -1324,14 +1601,28 @@ function readMins(body) {
   const words = body.replace(/<[^>]+>/g, " ").replace(/[\u3400-\u9fff]/g, " ").split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.round(words / 230 + cjk / 450));
 }
-const essayMeta = (e) => [...e.tags, e.body.trim() && `${readMins(e.body)} min read`].filter(Boolean).join(" · ");
-function essayBodyHtml(body) {
-  return body.trim().split(/\n\s*\n/).map(b => {
+const essayMeta = (e) => [...e.tags, e.body.trim() && `${readMins(e.body.split(/\n---\n/)[0])} min read`].filter(Boolean).join(" · ");
+const linkify = (t) => t.replace(/https?:\/\/[^\s<]+[^\s<.,;)]/g, u => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
+function essayBlocksHtml(text, notes) {
+  return text.trim().split(/\n\s*\n/).map(b => {
     const t = b.trim();
     if (t.startsWith("## ")) return `<h2 class="es-h">${t.slice(3)}</h2>`;
+    if (t.startsWith("### ")) return `<h3 class="es-h3">${t.slice(4)}</h3>`;
     if (t.startsWith("> ")) return `<blockquote class="es-quote">${t.replace(/^>\s?/gm, "")}</blockquote>`;
-    return `<p>${t.replace(/\n/g, "<br>")}</p>`;
+    // one image per line; several lines in one block sit side by side
+    const figs = t.split("\n").map(l => l.match(/^!\[(.*)\]\((.+)\)$/));
+    if (figs.every(Boolean)) {
+      const html = figs.map(([, cap, src]) =>
+        `<figure class="es-fig"><img src="${src}" alt="" loading="lazy">${cap ? `<figcaption>${cap}</figcaption>` : ""}</figure>`).join("");
+      return figs.length > 1 ? `<div class="es-fig-row">${html}</div>` : html;
+    }
+    if (t.startsWith("• ")) return `<ul class="es-list">${t.split("\n").map(li => `<li>${li.replace(/^•\s*/, "")}</li>`).join("")}</ul>`;
+    return `<p>${notes ? linkify(t) : t.replace(/\n/g, "<br>")}</p>`;
   }).join("");
+}
+function essayBodyHtml(body) {
+  const [text, notes] = body.split(/\n---\n/);
+  return essayBlocksHtml(text, false) + (notes ? `<div class="es-notes">${essayBlocksHtml(notes, true)}</div>` : "");
 }
 function renderWritings(list) {
   const tags = [...new Set(list.flatMap(e => e.tags))];
@@ -1391,6 +1682,7 @@ function renderEssay(node) {
         <div class="es-kicker"><time>${essayDate(node.at)}</time>${essayMeta(node) ? ` · ${essayMeta(node)}` : ""}</div>
         <h1 class="es-title">${node.name}</h1>
         ${node.dek ? `<p class="es-dek">${node.dek}</p>` : ""}
+        ${node.pdf ? `<a class="es-pdf" href="${node.pdf}" target="_blank" rel="noopener">Original PDF ↗</a>` : ""}
       </header>
       ${node.cover ? `<figure class="es-cover"><img src="${node.cover}" alt=""></figure>` : ""}
       <div class="es-body">${essayBodyHtml(node.body)}</div>
@@ -1398,6 +1690,8 @@ function renderEssay(node) {
       <nav class="es-pager">${pager(newer, "Newer", "es-newer")}${pager(older, "Older", "es-older")}</nav>` : ""}
     </article>`;
   els.essayView.querySelector(".es-back").addEventListener("click", () => navigate(node.parent));
+  const figs = [...els.essayView.querySelectorAll(".es-fig img")];
+  figs.forEach((img, i) => img.addEventListener("click", () => openStillLightbox(figs.map(f => f.getAttribute("src")), i)));
   els.essayView.querySelectorAll("button.es-page").forEach(btn => {
     btn.addEventListener("click", () => navigate(INDEX.get(btn.dataset.id)));
   });
