@@ -1334,7 +1334,7 @@ const HOME_SKIP = new Set(["Rock‘n’Roll"]);
 const homeDeck = (() => {
   const piles = new Map();          // film id → that film's stills not yet dealt this pass
   let round = [], last = null;
-  return function draw() {
+  function draw() {
     if (!round.length) {
       round = shuffled(FILM_PROJECTS.filter(p => p.stills.length && !HOME_SKIP.has(p.name)));
       if (!round.length) return null;
@@ -1346,7 +1346,18 @@ const homeDeck = (() => {
     if (!pile || !pile.length) piles.set(film.id, pile = shuffled([...film.stills]));
     last = film;
     return { film, src: pile.shift() };
+  }
+  // one more still from this film's own pile, skipping any in `taken`
+  draw.more = (film, taken) => {
+    for (let tries = 0; tries < film.stills.length * 2; tries++) {
+      let pile = piles.get(film.id);
+      if (!pile || !pile.length) piles.set(film.id, pile = shuffled([...film.stills]));
+      const src = pile.shift();
+      if (!taken.includes(src)) return src;
+    }
+    return null;
   };
+  return draw;
 })();
 
 // what has been shown, so ‹ retraces it exactly; › past the end deals anew
@@ -1501,16 +1512,20 @@ function showHomeFrame(entry, first = false) {
   if (incoming.complete && incoming.naturalWidth) setTimeout(go, 250);   // already cached: load won't fire again
 }
 
-/* ---- HOME on a phone: three stills, stacked tight ----
-   The same deal as the big frame, three at a time: a set never repeats a
-   film, the whole set turns together (each tile a beat after the one above)
-   when the dwell runs out, and a sideways swipe turns it by hand. */
+/* ---- HOME on a phone: one film, three of its stills, stacked tight ----
+   Films come in the same rounds as the big frame; each set is three
+   different stills from one film, in that film's own aspect ratio, with
+   the caption once underneath. The whole set turns together (each tile a
+   beat after the one above) when the dwell runs out, or on a sideways swipe. */
 let stackSets = [], stackPos = -1;
 function dealStackSet() {
-  const set = [];
-  for (let tries = 0; set.length < 3 && tries < 12; tries++) {
-    const e = homeDeck(); if (!e) break;
-    if (!set.some(x => x.film === e.film)) set.push(e);
+  const first = homeDeck();
+  if (!first) return [];
+  const set = [first];
+  while (set.length < 3) {
+    const src = homeDeck.more(first.film, set.map(e => e.src));
+    if (!src) break;
+    set.push({ film: first.film, src });
   }
   return set;
 }
@@ -1519,10 +1534,8 @@ function renderHomeStack() {
   els.homeView.innerHTML = `
     <section class="home-stack">
       ${[0, 1, 2].map(() => `
-      <a class="hs-tile">
-        <img class="hf-img" alt=""><img class="hf-img" alt="">
-        <span class="hs-cap"><span class="hs-title"></span><span class="hs-meta"></span></span>
-      </a>`).join("")}
+      <a class="hs-tile"><img class="hf-img" alt=""><img class="hf-img" alt=""></a>`).join("")}
+      <a class="hs-caption"><span class="hc-title"></span><span class="hc-meta"></span></a>
       <div class="home-progress" aria-hidden="true"><i></i></div>
     </section>
     <section class="home-intro${intro.length ? "" : " is-empty"}">
@@ -1540,10 +1553,10 @@ function renderHomeStack() {
     const dx = e.clientX - sx, dy = e.clientY - sy; sx = null;
     if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { swiped = true; stackStep(dx < 0 ? 1 : -1); }
   });
-  stack.querySelectorAll(".hs-tile").forEach((tile, i) => tile.addEventListener("click", e => {
+  stack.querySelectorAll(".hs-tile, .hs-caption").forEach(el => el.addEventListener("click", e => {
     e.preventDefault();
     if (swiped) { swiped = false; return; }
-    const entry = stackSets[stackPos] && stackSets[stackPos][i], node = entry && INDEX.get(entry.film.id);
+    const entry = stackSets[stackPos] && stackSets[stackPos][0], node = entry && INDEX.get(entry.film.id);
     if (node) navigate(node);
   }));
   els.homeView.querySelectorAll(".hl-link").forEach(b =>
@@ -1565,6 +1578,21 @@ function showStackSet(set, first = false) {
   if (!stack || !set) return;
   const token = ++homeToken;
   const bar = stack.querySelector(".home-progress i");
+  const film = set[0].film, node = INDEX.get(film.id);
+  const href = node ? pathForNode(node) : "#";
+  const ar = film.stillRatio || 16 / 9;
+  const caption = stack.querySelector(".hs-caption");
+  const paint = () => {
+    stack.style.setProperty("--still-ar", ar);
+    caption.querySelector(".hc-title").textContent = film.name;
+    caption.querySelector(".hc-meta").innerHTML = homeMeta(film);
+    caption.href = href;
+  };
+  if (first) paint();
+  else {
+    caption.classList.add("swap");
+    setTimeout(() => { if (token !== homeToken) return; paint(); caption.classList.remove("swap"); }, 320);
+  }
   stack.querySelectorAll(".hs-tile").forEach((tile, i) => {
     const entry = set[i];
     tile.hidden = !entry;
@@ -1578,14 +1606,14 @@ function showStackSet(set, first = false) {
       settled = true;
       setTimeout(() => {
         if (token !== homeToken) return;
+        // a frame shot in another shape (BURNING STAGE's portraits) is shown whole
+        const own = incoming.naturalWidth / incoming.naturalHeight;
+        incoming.classList.toggle("fit-whole", Boolean(own) && Math.abs(own - ar) / ar > 0.15);
         incoming.classList.add("on"); outgoing.classList.remove("on");
         tile.dataset.layer = 1 - layer;
-        const node = INDEX.get(entry.film.id);
-        tile.href = node ? pathForNode(node) : "#";
-        tile.setAttribute("aria-label", `${entry.film.name} — open the film`);
-        tile.querySelector(".hs-title").textContent = entry.film.name;
-        tile.querySelector(".hs-meta").innerHTML = homeMeta(entry.film);
-      }, first ? 0 : i * 160);
+        tile.href = href;
+        tile.setAttribute("aria-label", `${film.name} — open the film`);
+      }, first ? 0 : 320 + i * 160);
     };
     incoming.onload = () => setTimeout(reveal, 120);
     incoming.onerror = reveal;
@@ -3084,12 +3112,18 @@ function tickClock() {
 tickClock(); setInterval(tickClock, 15000);
 TIGHT_BAR.addEventListener("change", tickClock);
 
-/* the sidebar starts open. Its own collapse button (top of the sidebar) and
+/* the sidebar starts open (folded away on phones). Its own collapse button (top of the sidebar) and
    the toolbar's toggle both fold it away; on narrow screens it then sits on
    top of the content (see CSS), so it has to get out of the way once it has
    been used — the scrim is the way back out. */
 const narrowMQ = matchMedia("(max-width: 740px)");
 const closeSidebarIfNarrow = () => { if (narrowMQ.matches) els.sidebar.classList.add("collapsed"); };
+if (narrowMQ.matches) {
+  els.sidebar.style.transition = "none";
+  els.sidebar.classList.add("collapsed");
+  void els.sidebar.offsetWidth;
+  els.sidebar.style.transition = "";
+}
 $("side-scrim").addEventListener("click", closeSidebarIfNarrow);
 els.sideNav.addEventListener("click", e => { if (e.target.closest(".side-item")) closeSidebarIfNarrow(); });
 

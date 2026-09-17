@@ -1012,32 +1012,25 @@ button.es-page:hover .es-page-title { opacity: .72; }
   .hi-body p { font-size: 17px; }
 }
 
-/* HOME on a phone: three stills in a tight column (see renderHomeStack) */
+/* HOME on a phone: one film's stills in a tight column (see renderHomeStack) */
 .home-stack { display: flex; flex-direction: column; gap: 3px; padding: 3px 0 0; }
 .hs-tile {
   position: relative; display: block; overflow: hidden;
-  aspect-ratio: 16 / 9; background: #0b0b0c;
+  aspect-ratio: var(--still-ar, 1.7778); background: #0b0b0c;
   color: #fff; text-decoration: none; cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
 .hs-tile .hf-img { object-fit: cover; }
-.hs-cap {
-  position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
-  display: flex; flex-direction: column; gap: 3px;
-  padding: 26px 12px 9px;
-  background: linear-gradient(to top, rgba(0,0,0,.62), rgba(0,0,0,0));
-  pointer-events: none;
+.hs-tile .hf-img.fit-whole { object-fit: contain; }
+.hs-caption {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  padding: 20px 18px 0; text-align: center; text-decoration: none; color: inherit; cursor: pointer;
+  transition: opacity .32s ease-out;
 }
-.hs-title {
-  font-family: var(--font-display); font-weight: 400; font-size: 13px; letter-spacing: .14em; text-transform: uppercase;
-  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.hs-meta {
-  font-family: var(--font-display); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase;
-  color: rgba(255,255,255,.72); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-}
-.hs-meta strong { font-weight: 600; color: #fff; }
-.home-stack .home-progress { margin: 18px auto 0; }
+.hs-caption.swap { opacity: 0; }
+.hs-caption .hc-title { font-size: 18px; letter-spacing: .12em; padding-left: .12em; }
+.hs-caption .hc-meta { font-size: 10px; letter-spacing: .16em; line-height: 1.6; }
+.home-stack .home-progress { margin: 16px auto 0; }
 
 /* ================= guest book mode =================
    The desktop itself becomes the page. */
@@ -1555,7 +1548,10 @@ body.admin-on .icon-item .fadmin { display: flex; }
 
 
   /* 12px traffic lights are far under the 44px touch target — pad the hit area out */
-  .traffic { gap: 18px; padding: 0 0 0 22px; }
+  .traffic { gap: 18px; padding: 0 16px 0 22px; }
+  .side-collapse { width: 36px; height: 36px; margin-right: -4px; }
+  .side-expand { left: 18px; top: 8px; width: 36px; height: 36px; }
+  .win-body:has(.sidebar.collapsed) .toolbar { padding-left: 60px; }
   .tl { position: relative; }
   .tl::after { content: ""; position: absolute; inset: -13px; }
 
