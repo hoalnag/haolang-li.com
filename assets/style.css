@@ -202,9 +202,8 @@ svg { display: block; }
   display: flex; align-items: center; justify-content: center;
   color: var(--sidebar-sec);
 }
-.side-collapse svg { width: 15px; height: 15px; }
-.side-collapse:hover { color: var(--sidebar-fg); background: rgba(255, 255, 255, .07); }
-[data-theme="light"] .side-collapse:hover { background: rgba(0, 0, 0, .06); }
+.side-collapse svg { width: 17px; height: 17px; }
+.side-collapse:hover { color: var(--sidebar-fg); }
 
 /* the one way back in once the sidebar's collapsed — hidden the rest of the time */
 .side-expand {
@@ -212,17 +211,15 @@ svg { display: block; }
   width: 26px; height: 26px; border-radius: 6px;
   align-items: center; justify-content: center;
   color: var(--text-dim);
-  background: var(--sidebar-bg);
-  border: 1px solid var(--hairline);
+  background: none; border: 0;
 }
-.side-expand svg { width: 15px; height: 15px; transform: scaleX(-1); }
+.side-expand svg { width: 17px; height: 17px; }
 .win-body:has(.sidebar.collapsed) .side-expand { display: flex; }
 /* it sits where the toolbar starts, so the toolbar steps right to clear it
    instead of letting Back/Forward slide underneath */
 .toolbar { transition: padding-left .22s ease; }
 .win-body:has(.sidebar.collapsed) .toolbar { padding-left: 48px; }
-.side-expand:hover { color: var(--text); background: rgba(255, 255, 255, .07); }
-[data-theme="light"] .side-expand:hover { background: rgba(0, 0, 0, .05); }
+.side-expand:hover { color: var(--text); }
 
 .side-scroll { flex: 1; overflow-y: auto; padding: 0 10px 14px; }
 
@@ -1014,6 +1011,33 @@ button.es-page:hover .es-page-title { opacity: .72; }
   .home-intro { padding: 56px 22px 48px; }
   .hi-body p { font-size: 17px; }
 }
+
+/* HOME on a phone: three stills in a tight column (see renderHomeStack) */
+.home-stack { display: flex; flex-direction: column; gap: 3px; padding: 3px 0 0; }
+.hs-tile {
+  position: relative; display: block; overflow: hidden;
+  aspect-ratio: 16 / 9; background: #0b0b0c;
+  color: #fff; text-decoration: none; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.hs-tile .hf-img { object-fit: cover; }
+.hs-cap {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+  display: flex; flex-direction: column; gap: 3px;
+  padding: 26px 12px 9px;
+  background: linear-gradient(to top, rgba(0,0,0,.62), rgba(0,0,0,0));
+  pointer-events: none;
+}
+.hs-title {
+  font-family: var(--font-display); font-weight: 400; font-size: 13px; letter-spacing: .14em; text-transform: uppercase;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.hs-meta {
+  font-family: var(--font-display); font-size: 9.5px; letter-spacing: .14em; text-transform: uppercase;
+  color: rgba(255,255,255,.72); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.hs-meta strong { font-weight: 600; color: #fff; }
+.home-stack .home-progress { margin: 18px auto 0; }
 
 /* ================= guest book mode =================
    The desktop itself becomes the page. */

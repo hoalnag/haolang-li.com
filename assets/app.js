@@ -1361,7 +1361,14 @@ const homeMeta = (p) => {
 };
 const CHEVRON = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
 
+// On a phone HOME is a column of three stills instead of one frame
+const homePhone = matchMedia("(max-width: 740px)");
+homePhone.addEventListener("change", () => { if (cwd === ROOT && !els.homeView.hidden) { stopHome(); renderHome(); } });
+const homePapersHtml = () => ROOT.children.filter(n => !n.children).map(n =>
+  `<button class="hl-link" data-id="${n.id}">${n.name.replace(/\.[^.]+$/, "").replace(/_/g, " ")}</button>`).join("");
+
 function renderHome() {
+  if (homePhone.matches) { renderHomeStack(); return; }
   const intro = HOME_INTRO.paragraphs.filter(t => t && String(t).trim());
   const papers = ROOT.children.filter(n => !n.children);   // CV, self intro, reel — still one tap away
   els.homeView.innerHTML = `
@@ -1423,6 +1430,7 @@ function renderHome() {
 }
 
 function homeStep(d) {
+  if (homePhone.matches) { stackStep(d); return; }
   if (!homeHist.length) return;
   if (d > 0) {
     if (homePos < homeHist.length - 1) homePos++;
@@ -1491,6 +1499,107 @@ function showHomeFrame(entry, first = false) {
   incoming.src = entry.src;
   if (incoming.decode) incoming.decode().then(go, () => {});
   if (incoming.complete && incoming.naturalWidth) setTimeout(go, 250);   // already cached: load won't fire again
+}
+
+/* ---- HOME on a phone: three stills, stacked tight ----
+   The same deal as the big frame, three at a time: a set never repeats a
+   film, the whole set turns together (each tile a beat after the one above)
+   when the dwell runs out, and a sideways swipe turns it by hand. */
+let stackSets = [], stackPos = -1;
+function dealStackSet() {
+  const set = [];
+  for (let tries = 0; set.length < 3 && tries < 12; tries++) {
+    const e = homeDeck(); if (!e) break;
+    if (!set.some(x => x.film === e.film)) set.push(e);
+  }
+  return set;
+}
+function renderHomeStack() {
+  const intro = HOME_INTRO.paragraphs.filter(t => t && String(t).trim());
+  els.homeView.innerHTML = `
+    <section class="home-stack">
+      ${[0, 1, 2].map(() => `
+      <a class="hs-tile">
+        <img class="hf-img" alt=""><img class="hf-img" alt="">
+        <span class="hs-cap"><span class="hs-title"></span><span class="hs-meta"></span></span>
+      </a>`).join("")}
+      <div class="home-progress" aria-hidden="true"><i></i></div>
+    </section>
+    <section class="home-intro${intro.length ? "" : " is-empty"}">
+      ${intro.length ? `
+        <h2 class="hi-label">${HOME_INTRO.label}</h2>
+        <div class="hi-body">${intro.map(t => `<p>${t}</p>`).join("")}</div>` : ""}
+      <nav class="home-links">${homePapersHtml()}</nav>
+    </section>`;
+  const stack = els.homeView.querySelector(".home-stack");
+  stack.querySelector(".home-progress i").addEventListener("animationend", () => stackStep(1));
+  let sx = null, sy = null, swiped = false;
+  stack.addEventListener("pointerdown", e => { sx = e.clientX; sy = e.clientY; });
+  stack.addEventListener("pointerup", e => {
+    if (sx === null) return;
+    const dx = e.clientX - sx, dy = e.clientY - sy; sx = null;
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) { swiped = true; stackStep(dx < 0 ? 1 : -1); }
+  });
+  stack.querySelectorAll(".hs-tile").forEach((tile, i) => tile.addEventListener("click", e => {
+    e.preventDefault();
+    if (swiped) { swiped = false; return; }
+    const entry = stackSets[stackPos] && stackSets[stackPos][i], node = entry && INDEX.get(entry.film.id);
+    if (node) navigate(node);
+  }));
+  els.homeView.querySelectorAll(".hl-link").forEach(b =>
+    b.addEventListener("click", () => openNode(INDEX.get(b.dataset.id))));
+  if (stackPos < 0) { const first = dealStackSet(); if (!first.length) return; stackSets.push(first); stackPos = 0; }
+  showStackSet(stackSets[stackPos], true);
+}
+function stackStep(d) {
+  if (!stackSets.length) return;
+  if (d > 0) {
+    if (stackPos === stackSets.length - 1) { const next = dealStackSet(); if (!next.length) return; stackSets.push(next); }
+    stackPos++;
+  } else if (stackPos > 0) stackPos--;
+  else { const prev = dealStackSet(); if (!prev.length) return; stackSets.unshift(prev); }
+  showStackSet(stackSets[stackPos]);
+}
+function showStackSet(set, first = false) {
+  const stack = els.homeView.querySelector(".home-stack");
+  if (!stack || !set) return;
+  const token = ++homeToken;
+  const bar = stack.querySelector(".home-progress i");
+  stack.querySelectorAll(".hs-tile").forEach((tile, i) => {
+    const entry = set[i];
+    tile.hidden = !entry;
+    if (!entry) return;
+    const imgs = tile.querySelectorAll(".hf-img");
+    const layer = +(tile.dataset.layer || 0);
+    const incoming = imgs[1 - layer], outgoing = imgs[layer];
+    let settled = false;
+    const reveal = () => {
+      if (settled || token !== homeToken) return;
+      settled = true;
+      setTimeout(() => {
+        if (token !== homeToken) return;
+        incoming.classList.add("on"); outgoing.classList.remove("on");
+        tile.dataset.layer = 1 - layer;
+        const node = INDEX.get(entry.film.id);
+        tile.href = node ? pathForNode(node) : "#";
+        tile.setAttribute("aria-label", `${entry.film.name} — open the film`);
+        tile.querySelector(".hs-title").textContent = entry.film.name;
+        tile.querySelector(".hs-meta").innerHTML = homeMeta(entry.film);
+      }, first ? 0 : i * 160);
+    };
+    incoming.onload = () => setTimeout(reveal, 120);
+    incoming.onerror = reveal;
+    incoming.src = entry.src;
+    if (incoming.decode) incoming.decode().then(reveal, () => {});
+    if (incoming.complete && incoming.naturalWidth) setTimeout(reveal, 120);
+  });
+  bar.style.animation = "none"; void bar.offsetWidth; bar.style.animation = "";
+  // the next set, decoded ahead of time
+  if (stackPos === stackSets.length - 1) {
+    const ahead = dealStackSet();
+    if (ahead.length) { stackSets.push(ahead); ahead.forEach(e => { new Image().src = e.src; }); }
+    if (stackSets.length > 120) { stackSets.shift(); stackPos--; }
+  } else stackSets[stackPos + 1].forEach(e => { new Image().src = e.src; });
 }
 
 // leaving HOME: drop any frame still decoding so it can't land on another page
