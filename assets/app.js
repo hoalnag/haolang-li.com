@@ -424,6 +424,30 @@ function foldersFromRows(rows) {
   return tops;
 }
 
+// WORK EXPERIENCE — one entry per position, newest first as listed (from
+// the CV). `start`/`end` are "YYYY-MM"; end: null means ongoing, and a
+// one-month job has end === start. `points` are the CV's bullet lines.
+const WORK = [
+  { company: "Ava Studio", aka: "Hologram Labs", role: "AI Producer Intern", start: "2026-06", end: null, points: [
+    "Designed and optimized AI video generation pipelines, building reusable workflows in tools such as ComfyUI and the Runninghub AI workflow panel to standardize production from prompt to final render.",
+    "Created and maintained prompt and parameter template libraries across projects, improving output consistency and cutting iteration time for the production team.",
+    "Partnered with producers and creatives to integrate AI-generated assets into existing pipelines, troubleshooting model settings and running quality control on deliverables.",
+  ] },
+  { company: "Dogme23 International Film Sales", role: "Intern, Project Management", start: "2026-02", end: null, points: [
+    "Conduct short film festival research and develop submission strategies, identifying suitable festivals and sections while assessing fit and priority.",
+    "Communicate and follow up with film festivals via email, handling supplementary materials, confirmations, and schedule updates.",
+    "Coordinate the full submission process, tracking deadlines, fees, rules, and submission status updates.",
+  ] },
+  { company: "Berlin NewGen Chinese Film Festival", role: "On-site Operations", start: "2025-09", end: "2025-09", points: [
+    "Introduced screenings, presented film information, and explained the selection.",
+    "Managed ticket checking and audience reception.",
+  ] },
+  { company: "NORTH VFX", role: "Intern, VFX Producing Assistant", start: "2025-04", end: "2025-08", points: [
+    "Assisted the VFX producer in communicating with clients.",
+    "Made simple revisions to VFX shots as preliminary references.",
+  ] },
+];
+
 // WRITINGS — one entry per piece; the feed sorts newest first by `at`, so a
 // new piece only needs its date. `body` is plain text: a blank line starts a
 // new paragraph, a line starting "## " is a subheading, "> " a pull quote
@@ -967,7 +991,7 @@ const els = {
   columnsView: $("columns-view"), galleryView: $("gallery-view"), digitalView: $("digital-view"),
   filmsView: $("films-view"), filmsSectionView: $("films-section-view"),
   filmDetailView: $("film-detail-view"),
-  writingsView: $("writings-view"), essayView: $("essay-view"), stillLightbox: $("still-lightbox"),
+  writingsView: $("writings-view"), workView: $("work-view"), essayView: $("essay-view"), stillLightbox: $("still-lightbox"),
 
   rubber: $("rubber-band"),
   menuLayer: $("menu-layer"), overlayLayer: $("overlay-layer"),
@@ -1181,7 +1205,8 @@ function render() {
   const onFilmsSection = cwd !== ROOT && cwd.parent === ROOT && (cwd.children || []).some(c => c.kind === "Folder");
   const onWritings = cwd.name === "WRITINGS" && cwd.parent === ROOT;
   const onEssay = cwd.kind === "Essay";
-  const custom = onDigital || onFilms || onFilmDetail || onFilmsSection || onWritings || onEssay;
+  const onWork = cwd.name === "WORK EXPERIENCE" && cwd.parent === ROOT;
+  const custom = onDigital || onFilms || onFilmDetail || onFilmsSection || onWritings || onEssay || onWork;
   stopHome();
   els.homeView.hidden = !onDesk;
   els.digitalView.hidden = !onDigital;
@@ -1190,6 +1215,7 @@ function render() {
   els.filmDetailView.hidden = !onFilmDetail;
   els.writingsView.hidden = !onWritings;
   els.essayView.hidden = !onEssay;
+  els.workView.hidden = !onWork;
   els.iconView.hidden = custom || view !== "icon" || onDesk;
   els.listView.hidden = custom || view !== "list";
   els.columnsView.hidden = custom || view !== "columns";
@@ -1209,6 +1235,8 @@ function render() {
     renderWritings(list);
   } else if (onEssay) {
     renderEssay(cwd);
+  } else if (onWork) {
+    renderWork();
   } else if (view === "icon") {
     els.iconView.innerHTML = list.map((n, i) => `
       <div class="icon-item ${selection.has(n) ? "selected" : ""}" data-i="${i}">
@@ -1246,7 +1274,7 @@ function render() {
     els.content.scrollTop = 0;
     arrive(onDesk ? els.homeView : onDigital ? els.digitalView : onFilms ? els.filmsView
       : onFilmsSection ? els.filmsSectionView : onFilmDetail ? els.filmDetailView
-      : onWritings ? els.writingsView : onEssay ? els.essayView
+      : onWritings ? els.writingsView : onEssay ? els.essayView : onWork ? els.workView
       : view === "list" ? els.listView : view === "columns" ? els.columnsView
       : view === "gallery" ? els.galleryView : els.iconView);
   }
@@ -1258,7 +1286,7 @@ let lastArrivalId = null;
    one after another (see .is-arriving in the stylesheet) */
 function arrive(el) {
   if (!el) return;
-  el.querySelectorAll(".film-row, .fd-still, .dg-item, .fs-credit-item, .wr-item").forEach((c, i) =>
+  el.querySelectorAll(".film-row, .fd-still, .dg-item, .fs-credit-item, .wr-item, .wk-item").forEach((c, i) =>
     c.style.setProperty("--i", Math.min(i, 12)));
   el.classList.remove("is-arriving");
   void el.offsetWidth;
@@ -1586,6 +1614,34 @@ function filmStillsRow(p, list) {
         ${filmCredits(p)}
       </div>
     </button>`;
+}
+
+/* ================= WORK EXPERIENCE =================
+   The CV's work section as a quiet ledger: dates in the left margin, the
+   company set large, the role in small caps beneath, then what the job was.
+   Ongoing positions carry a small live dot. */
+const workMonth = (ym) => { const [y, m] = ym.split("-"); return `${MONTHS[+m - 1]} ${y}`; };
+const workDates = (w) => !w.end ? `${workMonth(w.start)} — Present`
+  : w.end === w.start ? workMonth(w.start) : `${workMonth(w.start)} — ${workMonth(w.end)}`;
+function renderWork() {
+  els.workView.innerHTML = `
+    <div class="wk-wrap">
+      <div class="wk-list">
+        ${WORK.map(w => `
+        <section class="wk-item">
+          <div class="wk-when">
+            <span class="wk-dates">${workDates(w)}</span>
+            ${w.end ? "" : '<span class="wk-now"><i></i>Current</span>'}
+          </div>
+          <div class="wk-main">
+            <h2 class="wk-company">${w.company}${w.aka ? ` <span class="wk-aka">${w.aka}</span>` : ""}</h2>
+            <div class="wk-role">${w.role}</div>
+            <ul class="wk-points">${w.points.map(p => `<li>${p}</li>`).join("")}</ul>
+          </div>
+        </section>`).join("")}
+      </div>
+      <a class="wk-cv" href="assets/files/CV.pdf" target="_blank" rel="noopener">Full CV ↗</a>
+    </div>`;
 }
 
 /* ================= WRITINGS: a quiet feed =================
@@ -2159,6 +2215,7 @@ function curView() {
   if (cwd.parent && cwd.parent.name === "Film Projects" && !els.filmDetailView.hidden) return "film-detail";
   if (cwd.name === "WRITINGS" && !els.writingsView.hidden) return "writings";
   if (cwd.kind === "Essay" && !els.essayView.hidden) return "essay";
+  if (cwd.name === "WORK EXPERIENCE" && !els.workView.hidden) return "work";
   return view;
 }
 function elementsForItems() {
@@ -2213,7 +2270,7 @@ els.content.addEventListener("mousedown", e => {
   }
   if (e.target.closest(".lv-head")) return;
   // columns and gallery wire their own clicks; only icon/list/digital drag-select
-  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay"].includes(curView())) { els.content.focus(); return; }
+  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay", "work"].includes(curView())) { els.content.focus(); return; }
   const hit = handleItemMousedown(e);
   if (!hit) startRubberBand(e);
   els.content.focus();
@@ -2222,7 +2279,7 @@ els.content.addEventListener("mousedown", e => {
    handling) already behaved; mouse and touch now agree. A modified click
    (⌘/Ctrl/Shift) stays selection-only, since that's how multi-select works. */
 els.content.addEventListener("click", e => {
-  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay"].includes(curView())) return;
+  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay", "work"].includes(curView())) return;
   if (e.target.tagName === "INPUT") return;          // don't hijack an inline rename
   if (e.metaKey || e.ctrlKey || e.shiftKey) return;   // modified click: selection only
   const el = e.target.closest(ITEM_SEL[curView()]);

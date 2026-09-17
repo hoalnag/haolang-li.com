@@ -454,6 +454,66 @@ svg { display: block; }
   .dg-caption { padding: 22px 14px 18px; }
 }
 
+/* Any picture that opens something shows the pointing hand; the rest of
+   the Finder keeps its arrow. */
+.home-frame, .film-poster, .film-still, .fd-still, .dg-item, .gal-thumb, .es-fig img { cursor: pointer; }
+
+/* ================= WORK EXPERIENCE =================
+   Same ledger as the writings feed: a date margin and a hairline per entry. */
+.work-view { min-height: 100%; padding: 28px 32px 64px; }
+.wk-wrap { max-width: 900px; margin: 0 auto; }
+.wk-list { border-top: 1px solid var(--hairline); }
+.wk-item {
+  display: grid; grid-template-columns: 170px 1fr; gap: 28px;
+  padding: 34px 0 36px; border-bottom: 1px solid var(--hairline);
+}
+.wk-when { display: flex; flex-direction: column; gap: 10px; padding-top: 7px; }
+.wk-dates {
+  font-family: var(--font-display); font-size: 11px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--text-dim); white-space: nowrap;
+}
+.wk-now {
+  display: inline-flex; align-items: center; gap: 7px;
+  font-family: var(--font-display); font-size: 10px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--text);
+}
+.wk-now i {
+  width: 6px; height: 6px; border-radius: 50%; background: var(--accent);
+  animation: wk-pulse 2.4s ease-in-out infinite;
+}
+@keyframes wk-pulse { 50% { opacity: .35; } }
+.wk-company {
+  font-family: var(--font-display); font-weight: 300; font-size: 27px; line-height: 1.2;
+  color: var(--text); text-wrap: balance;
+}
+.wk-aka { font-size: .62em; letter-spacing: .02em; color: var(--text-dim); white-space: nowrap; }
+.wk-aka::before { content: "("; } .wk-aka::after { content: ")"; }
+.wk-role {
+  margin-top: 10px;
+  font-family: var(--font-display); font-size: 11.5px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--text);
+}
+.wk-points {
+  margin-top: 18px; padding: 0; list-style: none; max-width: 64ch;
+  display: flex; flex-direction: column; gap: 9px;
+  font-size: 14px; line-height: 1.6; color: var(--text-dim);
+}
+.wk-points li { position: relative; padding-left: 18px; }
+.wk-points li::before { content: "—"; position: absolute; left: 0; color: var(--hairline); color: color-mix(in srgb, var(--text-dim) 55%, transparent); }
+.wk-cv {
+  display: inline-block; margin-top: 28px;
+  font-family: var(--font-display); font-size: 11px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--text-dim); text-decoration: none; transition: color .3s ease-out;
+}
+.wk-cv:hover { color: var(--text); }
+@media (max-width: 740px) {
+  .work-view { padding: 20px 18px 48px; }
+  .wk-item { grid-template-columns: 1fr; gap: 12px; padding: 26px 0 28px; }
+  .wk-when { flex-direction: row; align-items: center; gap: 14px; padding-top: 0; }
+  .wk-company { font-size: 23px; }
+}
+@media (prefers-reduced-motion: reduce) { .wk-now i { animation: none; } }
+
 /* ================= WRITINGS: feed + reading page =================
    A single column, like a contents page: date | title + standfirst, hairlines
    between. The reading page is a narrow measure set in a book face, with the
@@ -544,7 +604,7 @@ svg { display: block; }
   color: var(--text-dim);
 }
 .es-fig { margin: 2em 0; }
-.es-fig img { display: block; max-width: 100%; max-height: 72vh; height: auto; margin: 0 auto; cursor: zoom-in; }
+.es-fig img { display: block; max-width: 100%; max-height: 72vh; height: auto; margin: 0 auto; cursor: pointer; }
 .es-fig figcaption {
   margin-top: 10px; text-align: center;
   font-family: var(--font-display); font-size: 11px; letter-spacing: .08em; color: var(--text-dim);
@@ -1471,7 +1531,7 @@ body.admin-on .icon-item .fadmin { display: flex; }
    photos, the credits list) follow one after another rather than all at
    once. JS sets --i on each row and restarts .is-arriving (see arrive()). */
 .is-arriving { animation: arrive-view .55s var(--ease-out) both; }
-.is-arriving :is(.film-row, .fd-still, .fs-credit-item, .wr-item),
+.is-arriving :is(.film-row, .fd-still, .fs-credit-item, .wr-item, .wk-item),
 .is-arriving.wr-list > .wr-item,
 .is-arriving.film-list > .film-row {
   animation: arrive-row .9s var(--ease-out) both;
