@@ -512,7 +512,34 @@ svg { display: block; }
   .wk-when { flex-direction: row; align-items: center; gap: 14px; padding-top: 0; }
   .wk-company { font-size: 23px; }
 }
-@media (prefers-reduced-motion: reduce) { .wk-now i { animation: none; } }
+.wk-lock {
+  max-width: 320px; margin: 16vh auto 0; text-align: center;
+}
+.wk-lock-title {
+  font-family: var(--font-display); font-weight: 300; font-size: 13px; letter-spacing: .3em; text-transform: uppercase;
+  color: var(--text);
+}
+.wk-lock-note { margin-top: 12px; font-size: 13px; color: var(--text-dim); }
+.wk-lock-field {
+  display: flex; align-items: center; margin-top: 28px;
+  border-bottom: 1px solid var(--hairline); transition: border-color .3s ease-out;
+}
+.wk-lock-field:focus-within { border-bottom-color: var(--text-dim); }
+.wk-lock-input {
+  flex: 1; min-width: 0; padding: 8px 0; background: none; border: 0; outline: none;
+  font: inherit; font-size: 15px; letter-spacing: .08em; color: var(--text); text-align: center;
+  user-select: text; -webkit-user-select: text;
+}
+.wk-lock-input::placeholder {
+  font-family: var(--font-display); font-size: 11px; letter-spacing: .2em; text-transform: uppercase; color: var(--text-dim);
+}
+.wk-lock-go { padding: 6px 2px 6px 10px; font-size: 15px; color: var(--text-dim); cursor: pointer; transition: color .3s ease-out; }
+.wk-lock-go:hover { color: var(--text); }
+.wk-lock.busy .wk-lock-go { opacity: .4; }
+.wk-lock-err { min-height: 1.4em; margin-top: 12px; font-size: 12px; color: #FF6961; }
+.wk-lock.shake { animation: wk-shake .4s ease-in-out; }
+@keyframes wk-shake { 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+@media (prefers-reduced-motion: reduce) { .wk-now i { animation: none; } .wk-lock.shake { animation: none; } }
 
 /* ================= WRITINGS: feed + reading page =================
    A single column, like a contents page: date | title + standfirst, hairlines

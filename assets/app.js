@@ -424,29 +424,47 @@ function foldersFromRows(rows) {
   return tops;
 }
 
-// WORK EXPERIENCE — one entry per position, newest first as listed (from
-// the CV). `start`/`end` are "YYYY-MM"; end: null means ongoing, and a
-// one-month job has end === start. `points` are the CV's bullet lines.
-const WORK = [
-  { company: "Ava Studio", aka: "Hologram Labs", role: "AI Producer Intern", start: "2026-06", end: null, points: [
-    "Designed and optimized AI video generation pipelines, building reusable workflows in tools such as ComfyUI and the Runninghub AI workflow panel to standardize production from prompt to final render.",
-    "Created and maintained prompt and parameter template libraries across projects, improving output consistency and cutting iteration time for the production team.",
-    "Partnered with producers and creatives to integrate AI-generated assets into existing pipelines, troubleshooting model settings and running quality control on deliverables.",
-  ] },
-  { company: "Dogme23 International Film Sales", role: "Intern, Project Management", start: "2026-02", end: null, points: [
-    "Conduct short film festival research and develop submission strategies, identifying suitable festivals and sections while assessing fit and priority.",
-    "Communicate and follow up with film festivals via email, handling supplementary materials, confirmations, and schedule updates.",
-    "Coordinate the full submission process, tracking deadlines, fees, rules, and submission status updates.",
-  ] },
-  { company: "Berlin NewGen Chinese Film Festival", role: "On-site Operations", start: "2025-09", end: "2025-09", points: [
-    "Introduced screenings, presented film information, and explained the selection.",
-    "Managed ticket checking and audience reception.",
-  ] },
-  { company: "NORTH VFX", role: "Intern, VFX Producing Assistant", start: "2025-04", end: "2025-08", points: [
-    "Assisted the VFX producer in communicating with clients.",
-    "Made simple revisions to VFX shots as preliminary references.",
-  ] },
-];
+// WORK EXPERIENCE is behind a password. The entries (company, aka, role,
+// start/end as "YYYY-MM", end === start for a one-month job, points) live
+// in git-ignored private/work.json and ship only encrypted: AES-GCM with a
+// PBKDF2-SHA256 key from the password. To change them, edit that file and
+// run scripts/work-lock.mjs, then paste its output here.
+const WORK_LOCKED = {"iter":250000,"salt":"K0GRE2JlhUDms7POoKnj8Q==","iv":"C8K0vKl93W+M7B2D","data":"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"};
+let WORK = null;
+const WORK_KEY_SLOT = "hl-work-key";
+const b64bytes = (b) => Uint8Array.from(atob(b), c => c.charCodeAt(0));
+async function workKey(password) {
+  const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]);
+  return crypto.subtle.deriveKey(
+    { name: "PBKDF2", salt: b64bytes(WORK_LOCKED.salt), iterations: WORK_LOCKED.iter, hash: "SHA-256" },
+    base, { name: "AES-GCM", length: 256 }, true, ["decrypt"]);
+}
+// resolves to true when the key opens the entries; a wrong one throws inside
+async function openWork(key) {
+  try {
+    const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64bytes(WORK_LOCKED.iv) }, key, b64bytes(WORK_LOCKED.data));
+    WORK = JSON.parse(new TextDecoder().decode(plain));
+    return true;
+  } catch { return false; }
+}
+// an unlocked visitor stays unlocked for the rest of the browser session
+async function restoreWorkKey() {
+  try {
+    const raw = sessionStorage.getItem(WORK_KEY_SLOT);
+    if (!raw) return false;
+    const key = await crypto.subtle.importKey("raw", b64bytes(raw), "AES-GCM", false, ["decrypt"]);
+    return openWork(key);
+  } catch { return false; }
+}
+async function unlockWork(password) {
+  const key = await workKey(password);
+  if (!(await openWork(key))) return false;
+  try {
+    const raw = new Uint8Array(await crypto.subtle.exportKey("raw", key));
+    sessionStorage.setItem(WORK_KEY_SLOT, btoa(String.fromCharCode(...raw)));
+  } catch {}
+  return true;
+}
 
 // WRITINGS — one entry per piece; the feed sorts newest first by `at`, so a
 // new piece only needs its date. `body` is plain text: a blank line starts a
@@ -1624,6 +1642,7 @@ const workMonth = (ym) => { const [y, m] = ym.split("-"); return `${MONTHS[+m - 
 const workDates = (w) => !w.end ? `${workMonth(w.start)} — Present`
   : w.end === w.start ? workMonth(w.start) : `${workMonth(w.start)} — ${workMonth(w.end)}`;
 function renderWork() {
+  if (!WORK) { renderWorkLock(); return; }
   els.workView.innerHTML = `
     <div class="wk-wrap">
       <div class="wk-list">
@@ -1642,6 +1661,37 @@ function renderWork() {
       </div>
       <a class="wk-cv" href="assets/files/CV.pdf" target="_blank" rel="noopener">Full CV ↗</a>
     </div>`;
+}
+
+function renderWorkLock() {
+  els.workView.innerHTML = `
+    <form class="wk-lock" autocomplete="off">
+      <div class="wk-lock-title">Work Experience</div>
+      <p class="wk-lock-note">This page is password protected.</p>
+      <div class="wk-lock-field">
+        <input type="password" class="wk-lock-input" placeholder="Password" aria-label="Password" autocomplete="current-password">
+        <button type="submit" class="wk-lock-go" aria-label="Unlock">→</button>
+      </div>
+      <p class="wk-lock-err" aria-live="polite"></p>
+    </form>`;
+  const form = els.workView.querySelector(".wk-lock");
+  const input = form.querySelector("input"), err = form.querySelector(".wk-lock-err");
+  const onPage = cwd;
+  restoreWorkKey().then(ok => { if (ok && cwd === onPage) { renderWork(); arrive(els.workView); } });
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!input.value || form.classList.contains("busy")) return;
+    form.classList.add("busy"); err.textContent = "";
+    const ok = await unlockWork(input.value).catch(() => false);
+    form.classList.remove("busy");
+    if (ok) { if (cwd === onPage) { renderWork(); arrive(els.workView); } return; }
+    err.textContent = "Incorrect password.";
+    input.select();
+    form.classList.remove("shake"); void form.offsetWidth; form.classList.add("shake");
+  });
+  // typing must reach the field, not the Finder's keyboard shortcuts
+  input.addEventListener("keydown", e => e.stopPropagation());
+  setTimeout(() => input.focus({ preventScroll: true }), 60);
 }
 
 /* ================= WRITINGS: a quiet feed =================
