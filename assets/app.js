@@ -474,13 +474,140 @@ async function unlockWork(password) {
 // text: everything after it (notes, references) is set small, links live.
 // `dek` is the one-line standfirst under the title; `tags` build the filter
 // row on the feed; `cover` and `pdf` (the original file) are optional.
-const essay = (title, at, o) =>
-  ({ id: "essay-" + (++_fid), name: title, kind: "Essay", icon: "i-doc-mac", at, size: "--", children: [],
-     dek: o.dek, tags: o.tags || [], body: o.body || "", cover: o.cover, pdf: o.pdf });
+// A piece written in more than one language passes `versions` instead —
+// { en: { title, body }, zh: { title, body } } — and `lang`, the one it
+// opens in; its page gets a language switch. `aliases` are older titles
+// whose URLs should still land here.
+const essay = (title, at, o) => {
+  const v = o.versions && o.versions[o.lang];
+  return { id: "essay-" + (++_fid), name: v ? v.title : title, kind: "Essay", icon: "i-doc-mac", at, size: "--", children: [],
+    dek: o.dek, tags: o.tags || [], body: v ? v.body : (o.body || ""), cover: o.cover, pdf: o.pdf,
+    versions: o.versions, lang: o.lang, aliases: o.aliases || [] };
+};
+const LANG_LABEL = { en: "English", zh: "中文" };
+const LANG_ATTR = { en: "en", zh: "zh-CN" };
 const WRITINGS = [
-  essay("麻辣烫", "2026-09-20T00:00", {
+  essay("Drive His Car", "2026-09-21T00:00", {
     tags: ["Fiction"],
-    body: `出租车里可能会有很多气味，各式车载香薰味、汗臭味、皮革味、大麻味、前一个乘客的香水味…在那辆下午四点从肯尼迪机场开到曼哈顿中城的车上，我第一次闻到了麻酱香味。我坐在司机的正后方，斜眼望去，副驾驶座位上用塑料袋包着一碗满满当当的麻辣烫。
+    lang: "en",
+    aliases: ["他开他的车", "麻辣烫"],
+    versions: {
+      en: { title: "Drive His Car", body: `<em>(Conversations within are translated from Chinese)</em>
+
+A cab can hold a lot of smells: sweat, leather, weed, air-freshener, the perfume of whoever rode before you. In that car driving from JFK into Midtown Manhattan at four in the afternoon, I caught the smell of sesame paste for the first time. I was sitting directly behind the driver, and when I glanced sideways, there on the passenger seat was a full bowl of malatang, wrapped in a plastic bag.
+
+Malatang is a Chinese dish, though not the kind that gets a seat at the fancy table. It's a hodgepodge of assorted meats and vegetables all boiled together and drowned in sesame paste, and it tastes a lot like hotpot.
+
+"You taking the tunnel, kid? It's faster. Five bucks more." the driver asked.
+
+I'd just come off eighteen hours of flying, and all I wanted was to lie down.
+
+"Sure." I said.
+
+From his accent I could tell he was Fujianese. Almost all Fujianese know their food, and they're picky about it. I noticed the plastic bag containing malatang had beaded up with condensation from sitting there so long, which made me guess it probably wasn't his dinner.
+
+That afternoon it had snowed in downtown Flushing. He was at a car repairing shop by the roadside, brushing snow off the edge of a windshield with one hand while shouting into the phone in the other: "I've got to run to JFK, man, I don’t have time. And there's plenty of them out on the Island anyway…fine, just send me the list." On the other end was Da Dong, a regular of his who often called to have him pick up some Chinese delicacy from Flushing for dinner. Tonight he must have had another craving for malatang, and he was willing to pay a steep courier fee for that.
+
+"Looks like animal feces, and the layer of heat protection padding underneath got chewed up too. It should be some kitten got scared of the cold at night and made a nest out of your engine mount," a Chinese mechanic was explaining to him. "I’ve seen cases like this, just swapped out that layer of padding. It won't affect your driving."
+
+"Will insurance cover this?" he asked, hanging up the phone. The annual inspection of cars was supposed to be a formality. He hadn't expected it to turn up a problem.
+
+"Yeah, it's covered. Here's the bill. Just email the insurance company tomorrow." the mechanic said, handing him a pile of papers.
+
+He hated email most of all. The back-and-forth of it was such a hassle. But for him, time was money. Ten minutes of delay was one less fare earned. He thanked the mechanic and drove off toward the restaurant that sold malatang.
+
+In front of the mist covered case of ingredients, he picked out the various frozen ingredients along with the list his client had sent, unconsciously calculating the ideal cook time for each. The tripe strips only needed eight seconds in the broth, and past ten seconds they'd toughen up like chewing gum, same as the beef aorta. All the ingredients inside his bowl would nevertheless go into one big pot of stock together, then get fished out all at once with sesame paste above.
+
+Whatever, he thought, I'm not the one eating it.
+
+He preferred hotpot. Not the Sichuan kind you find everywhere in New York that are spiked with artificial chili extract, but the seafood hotpot particular to his hometown of Fuqing, in Fujian. He was especially fond of the hand-pounded fish balls and the fresh slices of fish. Malatang, to him, was like stripping away everything that made hotpot a hotpot. It cut out the part where you drop in your own ingredients and lift them out at exactly the right scalding degree of doneness, leaving only a pot of miscellaneous stuff boiled and seasoned together.
+
+***
+
+"So you go to school out here, kid?" he asked me abruptly as he drove.
+
+"Yeah. One more year and I graduate," I said.
+
+"You go out and party a lot at night, don't you?" he asked, grinning. In the rearview mirror I saw the wrinkles at the corners of his eyes.
+
+"Ah, there's a lot of coursework at school…I don't really do that stuff, ha." I forced a couple of laughs.
+
+"Don't lie to me. How many chicks you take out each time? Next time, how about you introduce me to a few?"
+
+"…"
+
+In that moment, more than offended, what I mostly felt was regret, that I hadn't turned on the voice recorder on my phone. What a vivid material for a script.
+
+He probably only asked because he could tell I was an international student. In Chinese there's a nickname for international students “liúzi” which sounds almost like liúzi meaning "tumor," sometimes this word is used specifically for the wealthy kind who have money to burn and have no interest in their studies. People like that do exist, maybe that was exactly why he'd asked and what he supposed me to be. It was late August, right when international students head back for the new term, so who knows, maybe he'd asked other passengers the same thing.
+
+Every start-of-term season, flocks of flights would arrive at JFK like wild birds returning from north, and the little gentrifiers come out and pile mostly into these Chinese gypsy cabs like the one I'm riding in now, nearly seventy percent cheaper than Uber, and, with bags and cases, head back to their high-rises in Jersey City, Long Island City, or Manhattan.
+
+That day I brought four suitcases altogether packed with several filmmaking gears, two badminton rackets, and a lot of everyday clothes. Just before I cleared customs, I contacted him, and he told me to grab my luggage and wait for him at Zone D of the arrivals level on the second floor. At the same time, he asked my name and said his was Li XXX. He happened to share my surname. And he asked me that if a cop on duty at the airport questioned us, I was to say he was my uncle.
+
+A black seven-seater muscled its way out of the crowded stream of traffic and stopped where I stood in Zone D. He must have recognized me by my skin color and big suitcases. He hurried out of the car and rushed over toward me and my bags. I helped him load the suitcases into the trunk. And it was right then that I glimpsed, tucked in a corner of the trunk, a blue badminton bag.
+
+According to him, getting caught by the TLC (Taxi and Limousine Commission) at the airport meant a five-hundred-dollar fine the first time, and two thousand the second. As luck would have it, the TLC happened to be in our vicinity that day. Later he even showed me the group chat where the drivers in his group tipped each other off, and the five-hundred-dollar ticket he himself had once received.
+
+***
+
+As the car came out of the tunnel, I explained: "Sir I really don't go out much, and I'm not the way you think I am." Then I added, "Don't you have a wife and kids?" Meanwhile I quietly angled the microphone side of my phone toward the driver's seat and pressed record.
+
+Without much hesitation, he said, "They're still back home. I'll bring them over eventually."
+
+I didn't argue with him over the ways his views on gender were out of joint, nor did I pick up the thread of what he'd said. I stopped the recording, and at the same time messaged a friend to complain on this driver and his utterly weird questions.
+
+Complaining made me feel good about myself, as if the contempt alone could prove I'd already left that old brotherhood of men behind. And at the same time, I realized I was gazing him from the height of a near-modern set of values.
+
+My friend's description of him: disgusting.
+
+Just then, his car happened to pull up beneath my building. He asked if he could be paid in RMB. I said sure and scanned the payment code he held out. I declined the cigarette he offered and hauled my exhausted body upstairs.
+
+I live on the 37th floor. Looking down, I could see the streams of traffic on the Manhattan streets after nightfall. Faintly I saw him stubbing out his cigarette butt beside the car, getting back in, and driving off toward Da Dong's place.
+
+The FDR is fast at night, and in under ten minutes he had reached the tallest building on the Lower East Side, a luxury tower called One Manhattan Square. The residents of the Lower East Side and Chinatown had long had grievances about it. Because of the grid of diagonal stripes across its façade, everyone had nicknamed it "the Cheese Grater." It has more than eighty floors, over eight hundred market-rate apartments, three basketball courts, two gaming room with bowling aisles, and one cigar room decorated with obsidian textures. Along the waterfront near the Two Bridges area, the developer had once planned five more spikes like such: besides the one before him, a seventy-nine-story one, a sixty-nine-story one, and a sixty-two-story one. The nearby residents and organizations had taken to the streets; gone to court to protest against the displacement and gentrification these buildings might bring. Margaret Chin, the Chinese American councilwoman representing the district, had publicly opposed the developer and co-signed a demand that the city reject all the applications. But in the eyes of many old neighbors, her opposition came too late. So, some filed ethics complaints against her. She stood on the side of opposition, yet the neighborhood counted her, too, as one of the collaborators. Through the residents' efforts, the developer's plans were halted, and along the Two Bridges waterfront only this one "Cheese Grater" remains, looking down in solitude over the Hudson River.
+
+He parked the car in the drop-off zone of One Manhattan Square and jogged the whole way, terrified of another parking ticket. He passed through a lobby filled with the sharp smell of scented candles, rode the elevator to the top floor, handed the malatang to Da Dong, and received a hundred dollars in cash covering both fare and tip.
+
+Back in the car, the day's work could finally be called done. Including these last two fares, he'd netted five hundred and forty dollars today, about forty-two hundred RMB. Half of it he planned to send to his family in Fuqing, and half to keep for himself to buy a new badminton racket. His daily earnings weren’t high compared to others in the fleet. He'd heard of one Northeasterner who pulled in over twelve hundred dollars on New Year's Eve, though in the end all that money went into the pocket of casinos. The thought of it made him grateful he'd never picked up a gambling habit.
+
+***
+
+At seven thirty he clocked out and headed back to Flushing, turning into the parking lot of NYBC (New York Badminton Center). He hadn't played in three weeks. That time he skipped a proper warm-up, and one lunging step had pulled a muscle right in his backside.
+
+He shouldered his racket bag, pushed through the doors into the hall, paid, and greeted the players on the courts. The people here came from all over. When he played, he could often hear Cantonese, Mandarin, English, Hindi, and Indonesian.
+
+Unlike tennis or golf that could be called high-priced in New York, badminton courts around the city usually didn't cost much. The one he was at ran only fifteen dollars for a whole evening. He walked over to Court 5 where he usually played, peeled off the sweater he worn all day, changed into the quick-dry shirt he'd just washed the day before, then started warming up.
+
+"Haven’t seen you in three weeks, learned your lesson now, huh? Ha," a middle-aged guy named Peter asked, laughing beside him.
+
+Peter was from Chaoshan and had once nearly died of a gallbladder infection. After that, he lived exceptionally clean: playing every day, cutting out sugary drinks.
+
+He gave Peter a look, waved his racket signaling for a few knock-up shots to warm up.
+
+He and Peter, as partners, won several games in a row. By the third game his back had broken into a sweat, and the leg he'd pulled earlier felt a little tight, but his body was gradually warming up.
+
+During a break, he looked up and glanced over to the side. A court belonging to some young guys happened to be empty. The players on both sides of the net were still standing at the edge drinking water. He sized them up for a while, picked up a fresh tube of shuttlecocks from against the wall, and walked over.
+
+"Want to play a few?"
+
+"Bit tired today…we'll pass for now."
+
+"Oh. Okay."
+
+He nodded and smiled too, hitched the tube of shuttlecocks up in his hand, turned, and walked away.
+
+Badminton has a rigid pecking order. When players of very different levels share a court, it's usually no fun for the stronger side. The crowd in this hall was also sorted out by skill. His own group was the middle tier. He is no longer at beginners’ level, but no match for the top players.
+
+He went back to his own court and played a few more points with Peter. But that flicker of enthusiasm had already passed.
+
+He glanced over to the side again. Those young guys clearly weren't the least bit tired. The court was full again with four people on it. The shouts on the smashes rose one after another.
+
+He stood there watching for a moment, then looked down at his own sweat-soaked jersey and felt the strength drain out of him too. He didn't go back to his court, and he didn't change his clothes. He tucked his racket back into the bag, shouldered it, waved goodbye to Peter, and pushed his way out the doors.
+
+The snow had stopped, but it was cold enough outside to chill him to the bone. He hurried to unlock the car, climbed in, and turned on the heat. After the warm air had blown over him for a while, he seemed to catch a whiff of some indescribable odor. Maybe it was the smell left behind by the malatang that had sat on the passenger seat that afternoon? He sniffed a few more times in every direction around the driver's seat and confirmed the air-conditioning was the source of the smell. Covering his nose, he got out, opened the hood, raised his phone's flashlight into the engine bay. He found, there in the corner, several browner animal leftovers of varying sizes had appeared.
+
+He heard a few cat cries in the distance caught his attention. He shone the flashlight toward the sound, and a black shape vanished into the night.` },
+      zh: { title: "他开他的车", body: `出租车里可能会有很多气味，各式车载香薰味、汗臭味、皮革味、大麻味、前一个乘客的香水味…在那辆下午四点从肯尼迪机场开到曼哈顿中城的车上，我第一次闻到了麻酱香味。我坐在司机的正后方，斜眼望去，副驾驶座位上用塑料袋包着一碗满满当当的麻辣烫。
 
 麻辣烫是一道中国美食，但不算能登上大雅之堂的那种。它是一种将各种荤素食材混在一起煮熟后浇上麻酱的大杂烩，吃起来很像火锅的味道。
 
@@ -520,13 +647,15 @@ const WRITINGS = [
 
 “少骗我啦，你平时出去一次带几个女生呀…下回出来能不能介绍我几个？”
 
+“…”
+
 那一刻，比起被冒犯，更多的是懊悔，懊悔刚刚没有打开手机上的录音机。多么生动的剧本素材。
 
-他大概听我是留学生才这样问。"留子"是中文里给留学生的一个专称,音近“瘤子，”有时特指那些有钱、却不好好读书的人。这样的人确实有，或许正因如此他才问我。现在临近八月底，正是留学生返校的时间段，说不定他也这么问过别的乘客。
+他大概听我是留学生才这样问。"留子"是中文里给留学生的一个专称，音近“瘤子，”有时特指那些有钱、却不好好读书的人。这样的人确实有，或许正因如此他才问我。现在临近八月底，正是留学生返校的时间段，说不定他也这么问过别的乘客。
 
 每到开学季，成群的长途飞机会像大雁北归那样到达肯尼迪机场，而那些成群结队的小绅士化推手们，大多会钻进像我此刻坐着的这种比Uber便宜将近百分之七十的华人黑车，带着大包小包，回到他们在泽西城、长岛城，或是曼岛上的高楼里。
 
-那天我一共随行带了四个箱子，里面装着从国内带过来在剧组上会用到的的三方通话，几颗电影镜头，三把羽毛球拍，和许多日常衣物。我在临近出海关的时候联系了他，他和我说拿完行李去二楼的到达层D区等他。他同时问起我的名字，并说他叫XXX，如果到时候机场的警察问起来，就说他是我的叔叔。
+那天我一共随行带了四个箱子，里面装着从国内带过来在剧组上会用到的的三方通话，几颗电影镜头，三把羽毛球拍，和许多日常衣物。我在临近出海关的时候联系了他，他和我说拿完行李去二楼的到达层D区等他。他同时问起我的名字，并说他叫李XX。他正好也姓李，如果到时候机场的执勤警察问起来，就说他是我的叔叔。
 
 一辆黑色的七座车从拥挤的车流里硬挤出来,停在我所在的D区。他大概是凭我那几个大箱子认出了我，连忙下车，朝我和箱子快步奔过来。我帮他把箱子往后备箱里塞。就在那时，我瞥见后备箱角落里躺着一个蓝色的羽毛球包。
 
@@ -548,9 +677,9 @@ const WRITINGS = [
 
 我住在37楼，向下能望见入夜后曼哈顿街头的车水马龙。我依稀看见他在车旁踩灭烟头，重新上车，朝大东的住处开去。
 
-夜间的FDR高速很快，不出十分钟他便开到了曼哈顿下东区最高的那栋叫做“One Manhattan Square” 的豪华大楼。关于这栋楼，下东区和中国城的居民早就积了一肚子怨气。因为立面那一格一格的斜纹,当地人给它起了个外号叫做“芝士刨。” 它一共有八十多层，共设有八百多套面向市场的公寓。沿着两桥一带的滨水地，开发商曾前后规划了整整五根这样的钉子：除了眼前这一栋，还有一栋七十九层的、六十九层的、六十二层的。附近的居民和组织曾一次次上街、一次次上法庭抗议这些建筑可能带来的逼迁于绅士化。代表这一区的华裔女议员陈倩雯曾公开反对开发商，联名要求市府否决所有申请。可在许多老街坊眼里,她的反对来得太迟，有人甚至递交了对她的操守投诉。她虽站在反对的一边，单同时也被街坊邻居算作共谋的一员。在居民的努力下，开发商的计划被暂停，两桥一带就只剩这一栋“芝士刨，” 孤零零的俯瞰着哈德逊河。
+夜间的FDR高速很快，不出十分钟他便开到了曼哈顿下东区最高的那栋叫做“One Manhattan Square” 的豪华大楼。关于这栋楼，下东区和中国城的居民早就积了一肚子怨气。因为立面那一格一格的斜纹，大家给它起了个外号叫做“芝士刨。” 它一共有八十多层，共设有八百多套面向市场的公寓。沿着两桥一带的滨水地，开发商曾前后规划了整整五根这样的钉子：除了眼前这一栋，还有一栋七十九层的、六十九层的、六十二层的。附近的居民和组织曾一次次上街、一次次上法庭抗议这些建筑可能带来的逼迁与绅士化。代表这一区的华裔女议员陈倩雯曾公开反对开发商，联名要求市府否决所有申请。可在许多老街坊眼里，她的反对来得太迟，有人甚至递交了对她的操守投诉。她虽站在反对的一边，但同时也被街坊邻居算作共谋的一员。在居民的努力下，开发商的计划被暂停，两桥一带就只剩这一栋“芝士刨，” 孤零零的俯瞰着哈德逊河。
 
-他把车停在One Manhattan Square接驳区，一路小跑，生怕从哪又冒出来一张停车罚单。他经过飘着熟悉的刺鼻香薰味的大堂，坐电梯到达顶楼，将麻辣烫递给大东，并收到了一张涵盖车费与小费的一百美元现金。
+他把车停在One Manhattan Square接驳区，一路小跑，生怕从哪又冒出来一张停车罚单。他经过飘着刺鼻香薰味的大堂，坐电梯到达顶楼，将麻辣烫递给大东，并收到了一张涵盖车费与小费的一百美元现金。
 
 回到车上，可算是结束了一天的工作。清点后，连算上刚才的两单，今天一共净收入六百四十美金，折合四千两百多人民币，这些钱他打算一半寄给福清老家，一半留着给自己买一把新的羽毛球拍。他的日工资和车队里的其他人相比不算高。他听说有一个东北汉子在除夕夜跑出了一千两百多美金，不过最后那些钱都进了赌场的腰包。想到这里，他庆幸自己没有染上赌瘾。
 
@@ -588,7 +717,8 @@ Peter 来自潮汕，曾经差点因为胆囊炎死掉。那之后，他把生�
 
 雪已经停了，但外面的温度足以让他感到冰凉彻骨。他赶忙解锁车门，爬进车里打开暖风。被暖风吹拂了一阵子后，他仿佛闻到了一股不可名状的异味。兴许是下午放在副驾驶位置上的麻辣烫遗留下的气味？他想，又向驾驶位的四面八方嗅了几下，确认了空调是异味的来源。他捂着鼻子下了车，打开机箱盖，举起手机的手电筒往机箱里照，竟然发现角落里又出现了几颗大小不一的棕色动物粪便。
 
-远处的几声猫叫吸引了他的注意力，他用手电筒照向远处，一团黑色身影随机消失在了夜色中……`,
+远处的几声猫叫吸引了他的注意力，他用手电筒照向远处，一团黑色身影随机消失在了夜色中……` },
+    },
   }),
   essay("In Search of Cinematic Sacredness", "2025-05-04T00:00", {
     dek: "A Comparative Analysis of mediated construction of Tibet in Martin Scorsese and Pema Tesden's Films",
@@ -958,7 +1088,9 @@ function nodeForPath(path) {
   let node = ROOT;
   for (const part of parts) {
     let seg = part; try { seg = decodeURIComponent(part); } catch {}
-    const next = (node.children || []).find(c => slugify(c.name) === seg.toLowerCase());
+    const want = seg.toLowerCase();
+    const next = (node.children || []).find(c => slugify(c.name) === want)
+      || (node.children || []).find(c => (c.aliases || []).some(t => slugify(t) === want));
     if (!next) return ROOT;   // unknown path — same fallback as before
     node = next;
   }
@@ -1980,7 +2112,10 @@ function readMins(body) {
   const words = body.replace(/<[^>]+>/g, " ").replace(/[\u3400-\u9fff]/g, " ").split(/\s+/).filter(Boolean).length;
   return Math.max(1, Math.round(words / 230 + cjk / 450));
 }
-const essayMeta = (e) => [...e.tags, e.body.trim() && `${readMins(e.body.split(/\n---\n/)[0])} min read`].filter(Boolean).join(" · ");
+const essayMeta = (e, body = e.body) => [...e.tags, body.trim() && `${readMins(body.split(/\n---\n/)[0])} min read`,
+  e.versions && Object.keys(e.versions).map(l => LANG_LABEL[l] || l).join(" / ")].filter(Boolean).join(" · ");
+// the language each bilingual piece is being read in (this visit only)
+const essayLang = new Map();
 const linkify = (t) => t.replace(/https?:\/\/[^\s<]+[^\s<.,;)]/g, u => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`);
 function essayBlocksHtml(text, notes) {
   return text.trim().split(/\n\s*\n/).map(b => {
@@ -2051,7 +2186,10 @@ function renderWritings(list) {
     });
   });
 }
-function renderEssay(node) {
+function renderEssay(node, keepPlace = false) {
+  const lang = node.versions ? (essayLang.get(node.id) || node.lang) : null;
+  const v = lang ? node.versions[lang] : { title: node.name, body: node.body };
+  const place = keepPlace ? els.content.scrollTop / Math.max(1, els.content.scrollHeight - els.content.clientHeight) : 0;
   const all = node.parent.children.filter(c => c.kind === "Essay");
   const i = all.indexOf(node);
   const newer = all[i - 1], older = all[i + 1];
@@ -2061,20 +2199,33 @@ function renderEssay(node) {
       <span class="es-page-title">${e.name}</span>
     </button>` : `<span class="es-page ${cls}"></span>`;
   els.essayView.innerHTML = `
-    <article class="es-wrap">
-      <button class="es-back">← All writings</button>
+    <article class="es-wrap"${lang ? ` lang="${LANG_ATTR[lang] || lang}"` : ""}>
+      <div class="es-top">
+        <button class="es-back">← All writings</button>
+        ${node.versions ? `
+        <div class="es-lang" role="group" aria-label="Language">
+          ${Object.keys(node.versions).map((l, i) => `${i ? '<span class="film-filter-sep">/</span>' : ""}<button class="film-chip ${l === lang ? "on" : ""}" data-lang="${l}" lang="${LANG_ATTR[l] || l}">${LANG_LABEL[l] || l}</button>`).join("")}
+        </div>` : ""}
+      </div>
       <header class="es-head">
-        <div class="es-kicker"><time>${essayDate(node.at)}</time>${essayMeta(node) ? ` · ${essayMeta(node)}` : ""}</div>
-        <h1 class="es-title">${node.name}</h1>
+        <div class="es-kicker"><time>${essayDate(node.at)}</time>${essayMeta(node, v.body) ? ` · ${essayMeta(node, v.body)}` : ""}</div>
+        <h1 class="es-title">${v.title}</h1>
         ${node.dek ? `<p class="es-dek">${node.dek}</p>` : ""}
         ${node.pdf ? `<a class="es-pdf" href="${node.pdf}" target="_blank" rel="noopener">Original PDF ↗</a>` : ""}
       </header>
       ${node.cover ? `<figure class="es-cover"><img src="${node.cover}" alt=""></figure>` : ""}
-      <div class="es-body">${essayBodyHtml(node.body)}</div>
+      <div class="es-body">${essayBodyHtml(v.body)}</div>
       ${all.length > 1 ? `
       <nav class="es-pager">${pager(newer, "Newer", "es-newer")}${pager(older, "Older", "es-older")}</nav>` : ""}
     </article>`;
   els.essayView.querySelector(".es-back").addEventListener("click", () => navigate(node.parent));
+  els.essayView.querySelectorAll(".es-lang .film-chip").forEach(chip => chip.addEventListener("click", () => {
+    if (chip.dataset.lang === lang) return;
+    essayLang.set(node.id, chip.dataset.lang);
+    track("writing-language", { title: node.name, lang: chip.dataset.lang });
+    renderEssay(node, true);
+  }));
+  if (keepPlace) els.content.scrollTop = place * (els.content.scrollHeight - els.content.clientHeight);
   els.essayView.querySelector(".es-pdf")?.addEventListener("click", () => track("pdf-open", { title: node.name }));
   // counted once: the end of the text scrolled into view
   const tail = els.essayView.querySelector(".es-body > :last-child");
