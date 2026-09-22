@@ -996,7 +996,7 @@ Bezirksamt Lichtenberg von Berlin. (2025). Entwurf des Zentren- und Einzelhandel
   }),
   essay("Eavesdrop", "2026-09-08T00:00", {
     dek: "An afternoon on a Washington Square Park bench, a phone left recording, and a conversation about eggs.",
-    tags: ["Prose"],
+    tags: ["Fiction"],
     body: `“Just a tiny bit closer…”  I dragged my body like a wriggling snail along the bench. I stopped as I sensed the smell of the baguette inside the old lady’s bag; That’s when I realized I’d reached the minimum social distance. I glimpsed their lips moving, but all I could hear was the sound of a contrabass from the other side of Washington Square Park. Till that day, I had never considered jazz cacophonous.
 
 I chose to stay nonetheless, for not often would I have such leisure of relaxing in a Park bench, bathing in early fall sunshine while inhaling second-hand marijuana.
