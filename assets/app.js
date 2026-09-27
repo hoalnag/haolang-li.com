@@ -1053,7 +1053,7 @@ setTree(defaultFolders());               // render immediately; Supabase refines
 
 const LINKS = [
   { id: "vimeo", name: "Vimeo", icon: "s-vimeo", href: "https://vimeo.com/haolangli" },
-  { id: "instagram", name: "Instagram", icon: "s-ig", href: "https://instagram.com/YOUR_IG" },
+  { id: "instagram", name: "Instagram", icon: "s-ig", href: "https://www.instagram.com/yipihaolang/" },
   { id: "spotify", name: "Spotify", icon: "s-spotify", href: "https://open.spotify.com/user/mws60vypvaj8xc6ldz50t98ky?si=12b56e912e50412c" },
   { id: "x", name: "X", icon: "s-x", href: "https://x.com/YIPIhaolang" },
   { id: "contact", name: "Contact Sheet", icon: "s-mail", contact: true },
