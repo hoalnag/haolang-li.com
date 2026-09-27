@@ -1605,6 +1605,20 @@ const homeDeck = (() => {
     last = film;
     return { film, src: pile.shift() };
   }
+  // a named film, dealt out of turn: it leaves this round, so it won't
+  // come round again until every other film has had its frame
+  draw.take = (name, src) => {
+    const film = FILM_PROJECTS.find(p => p.name === name && p.stills.length);
+    if (!film) return null;
+    if (!round.length) round = shuffled(FILM_PROJECTS.filter(p => p.stills.length && !HOME_SKIP.has(p.name)));
+    round = round.filter(p => p !== film);
+    let pile = piles.get(film.id);
+    if (!pile || !pile.length) piles.set(film.id, pile = shuffled([...film.stills]));
+    const pick = src && film.stills.includes(src) ? src : pile[0];
+    piles.set(film.id, pile.filter(x => x !== pick));
+    last = film;
+    return { film, src: pick };
+  };
   // one more still from this film's own pile, skipping any in `taken`
   draw.more = (film, taken) => {
     for (let tries = 0; tries < film.stills.length * 2; tries++) {
@@ -1617,6 +1631,16 @@ const homeDeck = (() => {
   };
   return draw;
 })();
+
+/* HOME always opens on the same two films — one frame each on a computer, a
+   set of three each on a phone — and only then hands over to the shuffled
+   rounds. Both films leave the opening round, so neither comes back before
+   every other film has had its turn. */
+const HOME_OPENING = [
+  { film: "Essence + Stone", src: "assets/photos/films/essence-and-stone/still-3.jpg" },
+  { film: "BURNING STAGE" },
+];
+const homeOpeningFrames = () => HOME_OPENING.map(o => homeDeck.take(o.film, o.src)).filter(Boolean);
 
 // what has been shown, so ‹ retraces it exactly; › past the end deals anew
 let homeHist = [], homePos = -1, homeLayer = 0, homeToken = 0;
@@ -1698,7 +1722,11 @@ function renderHome() {
     }));
 
   homeLayer = 0;
-  if (homePos < 0) { const first = homeDeck(); if (!first) return; homeHist.push(first); homePos = 0; }
+  if (homePos < 0) {
+    const opening = homeOpeningFrames();
+    if (!opening.length) { const first = homeDeck(); if (!first) return; opening.push(first); }
+    homeHist.push(...opening); homePos = 0;
+  }
   showHomeFrame(homeHist[homePos], true);
 }
 
@@ -1827,7 +1855,19 @@ function renderHomeStack() {
       track("file-open", { file: node ? node.name : b.dataset.id });
       openNode(node);
     }));
-  if (stackPos < 0) { const first = dealStackSet(); if (!first.length) return; stackSets.push(first); stackPos = 0; }
+  if (stackPos < 0) {
+    const opening = homeOpeningFrames().map(entry => {
+      const set = [entry];
+      while (set.length < 3) {
+        const src = homeDeck.more(entry.film, set.map(e => e.src));
+        if (!src) break;
+        set.push({ film: entry.film, src });
+      }
+      return set;
+    });
+    if (!opening.length) { const first = dealStackSet(); if (!first.length) return; opening.push(first); }
+    stackSets.push(...opening); stackPos = 0;
+  }
   showStackSet(stackSets[stackPos], true);
 }
 function stackStep(d) {
