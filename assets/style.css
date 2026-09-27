@@ -453,7 +453,7 @@ svg { display: block; }
   .dg-hero { padding: 14px 0 4px; }
   .dg-stage { padding: 0 34px; }
   .dg-frame { max-height: calc(100cqh - 200px); }
-  .dg-hero .home-nav { --nav-w: 34px; height: 34px; }
+  .dg-hero .home-nav { --nav-w: 34px; height: 34px; top: 50%; }
   .dg-hero .home-nav svg { width: 20px; height: 20px; }
 }
 

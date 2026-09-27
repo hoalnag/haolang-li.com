@@ -1993,6 +1993,7 @@ function renderDigitalHero(list) {
   hero.querySelector(".dg-next").addEventListener("click", () => dgStep(1, list));
   hero.querySelector(".home-progress i").addEventListener("animationend", () => dgStep(1, list));
   const frame = hero.querySelector(".dg-frame");
+  frame.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); frame.click(); } });
   frame.addEventListener("click", () => {
     const node = dgHist[dgPos];
     if (!node) return;
@@ -2063,7 +2064,7 @@ function renderDigital(list) {
     <section class="dg-hero">
       <div class="dg-stage">
         <button class="home-nav dg-prev" aria-label="Previous photo">${CHEVRON("M14.5 5 7.5 12l7 7")}</button>
-        <button class="dg-frame" aria-label="Open this photo"><img class="hf-img" alt=""><img class="hf-img" alt=""></button>
+        <a class="dg-frame" role="button" tabindex="0" aria-label="Open this photo"><img class="hf-img" alt=""><img class="hf-img" alt=""></a>
         <button class="home-nav dg-next" aria-label="Next photo">${CHEVRON("M9.5 5l7 7-7 7")}</button>
       </div>
       <div class="dg-date"></div>
@@ -2094,18 +2095,26 @@ function renderDigital(list) {
     digitalRelayout = false;
     return;
   }
+  digitalRowsW = Math.round(settledW);
   renderDigitalHero(list);
   armDigitalResize();
 }
-let digitalResizeArmed = false, digitalRelayout = false;
+let digitalResizeArmed = false, digitalRelayout = false, digitalRowsW = 0;
+/* Only a change of WIDTH means the rows have to be solved again. Watching
+   any size change turns into a loop: re-rendering nudges the view own
+   height, which fires the observer, which re-renders... (that loop also
+   restarted the showcase every frame, so its picture never faded in). */
 function armDigitalResize() {
   if (digitalResizeArmed) return;
   digitalResizeArmed = true;
   let raf = 0;
   new ResizeObserver(() => {
     if (els.digitalView.hidden) return;
+    const pad = parseFloat(getComputedStyle(els.digitalView).paddingLeft) || 0;
+    const w = Math.round(els.digitalView.clientWidth - pad * 2);
+    if (w === digitalRowsW) return;
     cancelAnimationFrame(raf);
-    raf = requestAnimationFrame(() => renderDigital(items()));
+    raf = requestAnimationFrame(() => { if (!els.digitalView.hidden) renderDigital(items()); });
   }).observe(els.digitalView);
 }
 
