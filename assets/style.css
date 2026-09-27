@@ -426,6 +426,37 @@ svg { display: block; }
    edges; only the last, partial row sits unstretched. One view only: no
    labels, no kind tags, no icon/list/columns fallback. */
 .digital-view { min-height: 100%; padding: 3px; background: #0b0b0c; }
+/* the showcase above the wall: one print at a time (see renderDigitalHero) */
+.dg-hero { display: flex; flex-direction: column; align-items: center; padding: 26px 0 8px; }
+.dg-stage {
+  position: relative; display: flex; align-items: center; justify-content: center;
+  width: 100%; padding: 0 clamp(48px, 6cqw, 88px);
+}
+.dg-frame {
+  position: relative; display: block; padding: 0; background: none;
+  width: min(100%, 940px); aspect-ratio: 3 / 2;
+  max-height: calc(100cqh - 260px); cursor: pointer;
+}
+.dg-hero .home-nav { color: rgba(255,255,255,.55); }
+.dg-hero .home-nav:hover { color: #fff; }
+.dg-prev { left: 0; }
+.dg-next { right: 0; }
+.dg-date {
+  margin-top: 16px;
+  font-family: var(--font-display); font-size: 10.5px; letter-spacing: .18em; text-transform: uppercase;
+  color: rgba(255,255,255,.5);
+}
+.dg-hero .home-progress { margin-top: 14px; background: rgba(255,255,255,.14); }
+.dg-hero .home-progress i { background: rgba(255,255,255,.5); }
+.dg-hero.paused .home-progress i { animation-play-state: paused; }
+@media (max-width: 740px) {
+  .dg-hero { padding: 14px 0 4px; }
+  .dg-stage { padding: 0 34px; }
+  .dg-frame { max-height: calc(100cqh - 200px); }
+  .dg-hero .home-nav { --nav-w: 34px; height: 34px; }
+  .dg-hero .home-nav svg { width: 20px; height: 20px; }
+}
+
 /* gallery-wall placard: room to breathe before the wall of prints starts */
 .dg-caption { padding: 34px 22px 26px; }
 .dg-caption-title {

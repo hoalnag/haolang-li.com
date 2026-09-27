@@ -1484,6 +1484,7 @@ function render() {
   const onWork = cwd.name === "WORK EXPERIENCE" && cwd.parent === ROOT;
   const custom = onDigital || onFilms || onFilmDetail || onFilmsSection || onWritings || onEssay || onWork;
   stopHome();
+  stopDigitalHero();
   els.homeView.hidden = !onDesk;
   els.digitalView.hidden = !onDigital;
   els.filmsView.hidden = !onFilms;
@@ -1967,12 +1968,107 @@ function layoutDigitalRows(list, containerW, targetH, gap) {
   if (row.length) finalize(row, targetH, false);
   return rows;
 }
+/* ---- Dazzcam's own showcase: one print at a time, above the wall ----
+   Same manners as HOME: photos are dealt in rounds, so every one has its
+   turn before any comes back; ‹ › step by hand, the dwell turns the page on
+   its own, and hovering holds it. Clicking opens the full-size viewer. */
+const dgDeck = (() => {
+  let round = [], last = null;
+  return function draw(list) {
+    if (!list.length) return null;
+    if (!round.length) {
+      round = shuffled([...list]);
+      if (round.length > 1 && round[0] === last) round.push(round.shift());
+    }
+    return (last = round.shift());
+  };
+})();
+let dgHist = [], dgPos = -1, dgLayer = 0, dgToken = 0;
+const dgDate = (n) => { const [y, m] = n.at.slice(0, 7).split("-"); return `${MONTHS[+m - 1]} ${y}`; };
+function stopDigitalHero() { dgToken++; }
+function renderDigitalHero(list) {
+  const hero = els.digitalView.querySelector(".dg-hero");
+  if (!hero) return;
+  hero.querySelector(".dg-prev").addEventListener("click", () => dgStep(-1, list));
+  hero.querySelector(".dg-next").addEventListener("click", () => dgStep(1, list));
+  hero.querySelector(".home-progress i").addEventListener("animationend", () => dgStep(1, list));
+  const frame = hero.querySelector(".dg-frame");
+  frame.addEventListener("click", () => {
+    const node = dgHist[dgPos];
+    if (!node) return;
+    track("photo-open", { photo: node.name, from: "hero" });
+    quickLook(node);
+  });
+  const stage = hero.querySelector(".dg-stage");
+  stage.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") hero.classList.add("paused"); });
+  stage.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") hero.classList.remove("paused"); });
+  let sx = null;
+  stage.addEventListener("pointerdown", e => { if (e.pointerType !== "mouse") sx = e.clientX; });
+  stage.addEventListener("pointerup", e => {
+    if (sx === null) return;
+    const dx = e.clientX - sx; sx = null;
+    if (Math.abs(dx) > 40) dgStep(dx < 0 ? 1 : -1, list);
+  });
+  dgLayer = 0;
+  if (dgPos < 0) { const first = dgDeck(list); if (!first) return; dgHist.push(first); dgPos = 0; }
+  showDgFrame(dgHist[dgPos], true);
+}
+function dgStep(d, list) {
+  if (!dgHist.length) return;
+  if (d > 0) {
+    if (dgPos < dgHist.length - 1) dgPos++;
+    else { const next = dgDeck(list); if (!next) return; dgHist.push(next); dgPos++; }
+  } else if (dgPos > 0) dgPos--;
+  else { const prev = dgDeck(list); if (!prev) return; dgHist.unshift(prev); }
+  showDgFrame(dgHist[dgPos]);
+}
+function showDgFrame(node, first = false) {
+  const hero = els.digitalView.querySelector(".dg-hero");
+  if (!hero || !node) return;
+  const imgs = hero.querySelectorAll(".hf-img");
+  const incoming = imgs[1 - dgLayer], outgoing = imgs[dgLayer];
+  const bar = hero.querySelector(".home-progress i");
+  const cap = hero.querySelector(".dg-date");
+  const token = ++dgToken;
+  let settled = false;
+  const reveal = () => {
+    if (settled || token !== dgToken) return;
+    settled = true;
+    incoming.classList.add("on"); outgoing.classList.remove("on");
+    dgLayer = 1 - dgLayer;
+    cap.textContent = dgDate(node);
+    bar.style.animation = "none"; void bar.offsetWidth; bar.style.animation = "";
+    const ahead = dgPos === dgHist.length - 1 ? dgDeck(listOfHero()) : dgHist[dgPos + 1];
+    if (ahead) {
+      if (dgPos === dgHist.length - 1) { dgHist.push(ahead); if (dgHist.length > 240) { dgHist.shift(); dgPos--; } }
+      new Image().src = ahead.href;
+    }
+  };
+  incoming.onload = () => setTimeout(reveal, first ? 0 : 120);
+  incoming.onerror = reveal;
+  incoming.src = node.href;
+  if (incoming.decode) incoming.decode().then(reveal, () => {});
+  if (incoming.complete && incoming.naturalWidth) setTimeout(reveal, first ? 0 : 120);
+}
+const listOfHero = () => items().filter(n => n.isPhoto);
+
 function renderDigital(list) {
-  const containerW = els.digitalView.clientWidth || els.content.clientWidth || 800;
+  // clientWidth counts the view own padding, which the rows must not use
+  const pad = parseFloat(getComputedStyle(els.digitalView).paddingLeft) || 0;
+  const containerW = (els.digitalView.clientWidth || els.content.clientWidth || 800) - pad * 2;
   const gap = containerW < 640 ? 2 : 3;
   const targetH = containerW < 640 ? 130 : 230;
   const rows = layoutDigitalRows(list, containerW, targetH, gap);
   els.digitalView.innerHTML = `
+    <section class="dg-hero">
+      <div class="dg-stage">
+        <button class="home-nav dg-prev" aria-label="Previous photo">${CHEVRON("M14.5 5 7.5 12l7 7")}</button>
+        <button class="dg-frame" aria-label="Open this photo"><img class="hf-img" alt=""><img class="hf-img" alt=""></button>
+        <button class="home-nav dg-next" aria-label="Next photo">${CHEVRON("M9.5 5l7 7-7 7")}</button>
+      </div>
+      <div class="dg-date"></div>
+      <div class="home-progress" aria-hidden="true"><i></i></div>
+    </section>
     <div class="dg-caption">
       <div class="dg-caption-title">Dazz Cam Photography</div>
       <div class="dg-caption-sub">Shot on iPhone. Film Emulation Type: FXN/FXN2</div>
@@ -1988,9 +2084,20 @@ function renderDigital(list) {
           }).join("")}
         </div>`).join("")}
     </div>`;
+  // the width was read before the wall existed: once it does, a vertical
+  // scrollbar may have taken 15px off, so solve the rows again against what
+  // is really left (once — the second pass has the scrollbar either way)
+  const settledW = (els.digitalView.clientWidth || containerW + pad * 2) - pad * 2;
+  if (!digitalRelayout && Math.abs(settledW - containerW) > 1) {
+    digitalRelayout = true;
+    renderDigital(list);
+    digitalRelayout = false;
+    return;
+  }
+  renderDigitalHero(list);
   armDigitalResize();
 }
-let digitalResizeArmed = false;
+let digitalResizeArmed = false, digitalRelayout = false;
 function armDigitalResize() {
   if (digitalResizeArmed) return;
   digitalResizeArmed = true;
@@ -2804,7 +2911,7 @@ function handleItemMousedown(e) {
 function openNode(node) {
   if (!node) return;
   if (node.children) navigate(node);
-  else if (node.isPhoto) quickLook(node);
+  else if (node.isPhoto) { track("photo-open", { photo: node.name, from: "grid" }); quickLook(node); }
   else if (node.external) window.open(node.href, "_blank", "noopener");
   else if (node.href) window.open(node.href, "_blank", "noopener");
 }
@@ -3182,7 +3289,7 @@ function materialize(box, anchorRect) {
   springTo(box, { x: 0, y: 0, scale: 1, opacity: 1 }, { response: 0.38 });
 }
 function quickLook(node) {
-  if (node.isPhoto) { track("photo-open", { photo: node.name }); photoViewer(node); return; }
+  if (node.isPhoto) { photoViewer(node); return; }
   closeOverlays();
   const box = document.createElement("div");
   box.className = "qlook";
