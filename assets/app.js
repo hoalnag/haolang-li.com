@@ -424,6 +424,41 @@ function foldersFromRows(rows) {
   return tops;
 }
 
+// EQUIPMENT — the kit list behind FILMS › Equipment, grouped in this order.
+// Every item links to its product page; `note` is what comes with it and
+// `qty` shows only when there is more than one. Prices stay off the site.
+const EQUIPMENT = [
+  { group: "Camera", items: [
+    { name: "DJI Ronin 4D 4-Axis Cinema Camera 6K", brand: "DJI",
+      note: "LiDAR range finder, X9 3.8 counterweight, 2TB DJI SSD, 3 batteries, charger",
+      href: "https://www.bhphotovideo.com/c/product/1667439-REG/dji_cp_rn_00000176_01_ronin_4d_4_axis_cinema.html" },
+    { name: "Nikon Z6 Full Kit", brand: "Nikon", note: "NIKKOR Z 24-70mm f/4",
+      href: "https://www.bhphotovideo.com/c/product/1431707-REG/nikon_1598_z6_mirrorless_digital_camera.html" },
+    { name: "7\" High-Bright Touchscreen Monitor", brand: "DJI",
+      note: "Tilta battery plate for the DJI remote monitor (V-mount)",
+      href: "https://www.bhphotovideo.com/c/product/1667443-REG/dji_cp_rn_00000183_01_high_bright_remote_monitor.html" },
+    { name: "DJI Wireless Video Transmitter", brand: "DJI", note: "SDI-D tap cable",
+      href: "https://www.bhphotovideo.com/c/product/1706770-REG/dji_cp_rn_00000180_01_wireless_video_transmitter.html" },
+    { name: "DJI Focus Pro Handwheel", brand: "DJI",
+      href: "https://store.dji.com/product/dji-focus-pro-hand-unit" },
+  ] },
+  { group: "Lens", items: [
+    { name: "NiSi ATHENA Tuned Prime T2.4/1.9 Full-Frame 5-Lens Kit", brand: "NiSi", qty: 5,
+      note: "Tuned 14, 25, 35, 50 and 85mm primes, PL mount, with case",
+      href: "https://www.bhphotovideo.com/c/product/1858782-REG/nisi_nic_athtuned_5kit_pl_athena_tuned_prime_limited.html" },
+  ] },
+  { group: "Support / Movement", items: [
+    { name: "Tilta Lightweight Shoulder Rig", brand: "Tilta",
+      href: "https://www.bhphotovideo.com/c/product/1721353-REG/tilta_ta_lsr_b_lightweight_shoulder_rig_black.html" },
+    { name: "SmallRig FreeBlazer Heavy-Duty Carbon Fiber Tripod System", brand: "SmallRig", note: "With plate",
+      href: "https://www.bhphotovideo.com/c/product/1756221-REG/smallrig_3989_ad_100_heavy_duty_carbon_fiber.html" },
+  ] },
+  { group: "Battery", items: [
+    { name: "SmallRig VB99 Pro Mini V-Mount Battery", brand: "SmallRig",
+      href: "https://www.bhphotovideo.com/c/product/1788046-REG/smallrig_4292_vb99_pro_mini_v_mount.html" },
+  ] },
+];
+
 // WORK EXPERIENCE is behind a password. The entries (company, aka, role,
 // start/end as "YYYY-MM", end === start for a one-month job, points) live
 // in git-ignored private/work.json and ship only encrypted: AES-GCM with a
@@ -1253,7 +1288,7 @@ const els = {
   columnsView: $("columns-view"), galleryView: $("gallery-view"), digitalView: $("digital-view"),
   filmsView: $("films-view"), filmsSectionView: $("films-section-view"),
   filmDetailView: $("film-detail-view"),
-  writingsView: $("writings-view"), workView: $("work-view"), essayView: $("essay-view"), stillLightbox: $("still-lightbox"),
+  writingsView: $("writings-view"), workView: $("work-view"), equipmentView: $("equipment-view"), essayView: $("essay-view"), stillLightbox: $("still-lightbox"),
 
   rubber: $("rubber-band"),
   menuLayer: $("menu-layer"), overlayLayer: $("overlay-layer"),
@@ -1482,7 +1517,8 @@ function render() {
   const onWritings = cwd.name === "WRITINGS" && cwd.parent === ROOT;
   const onEssay = cwd.kind === "Essay";
   const onWork = cwd.name === "WORK EXPERIENCE" && cwd.parent === ROOT;
-  const custom = onDigital || onFilms || onFilmDetail || onFilmsSection || onWritings || onEssay || onWork;
+  const onEquipment = cwd.name === "Equipment" && cwd.parent && cwd.parent.name === "FILMS";
+  const custom = onDigital || onFilms || onFilmDetail || onFilmsSection || onWritings || onEssay || onWork || onEquipment;
   stopHome();
   stopDigitalHero();
   els.homeView.hidden = !onDesk;
@@ -1493,6 +1529,7 @@ function render() {
   els.writingsView.hidden = !onWritings;
   els.essayView.hidden = !onEssay;
   els.workView.hidden = !onWork;
+  els.equipmentView.hidden = !onEquipment;
   els.iconView.hidden = custom || view !== "icon" || onDesk;
   els.listView.hidden = custom || view !== "list";
   els.columnsView.hidden = custom || view !== "columns";
@@ -1514,6 +1551,8 @@ function render() {
     renderEssay(cwd);
   } else if (onWork) {
     renderWork();
+  } else if (onEquipment) {
+    renderEquipment();
   } else if (view === "icon") {
     els.iconView.innerHTML = list.map((n, i) => `
       <div class="icon-item ${selection.has(n) ? "selected" : ""}" data-i="${i}">
@@ -1551,7 +1590,7 @@ function render() {
     els.content.scrollTop = 0;
     arrive(onDesk ? els.homeView : onDigital ? els.digitalView : onFilms ? els.filmsView
       : onFilmsSection ? els.filmsSectionView : onFilmDetail ? els.filmDetailView
-      : onWritings ? els.writingsView : onEssay ? els.essayView : onWork ? els.workView
+      : onWritings ? els.writingsView : onEssay ? els.essayView : onWork ? els.workView : onEquipment ? els.equipmentView
       : view === "list" ? els.listView : view === "columns" ? els.columnsView
       : view === "gallery" ? els.galleryView : els.iconView);
   }
@@ -1563,7 +1602,7 @@ let lastArrivalId = null;
    one after another (see .is-arriving in the stylesheet) */
 function arrive(el) {
   if (!el) return;
-  el.querySelectorAll(".film-row, .fd-still, .dg-item, .fs-credit-item, .wr-item, .wk-item").forEach((c, i) =>
+  el.querySelectorAll(".film-row, .fd-still, .dg-item, .fs-credit-item, .wr-item, .wk-item, .eq-item").forEach((c, i) =>
     c.style.setProperty("--i", Math.min(i, 12)));
   el.classList.remove("is-arriving");
   void el.offsetWidth;
@@ -2184,6 +2223,37 @@ function filmStillsRow(p, list) {
         ${filmCredits(p)}
       </div>
     </button>`;
+}
+
+/* ================= EQUIPMENT =================
+   The rental list as a plain, readable inventory: one line per item, its
+   brand and what comes with it underneath, grouped by what the thing is.
+   Every row opens the product page. No prices — that is a conversation. */
+function renderEquipment() {
+  els.equipmentView.innerHTML = `
+    <div class="eq-wrap">
+      <header class="eq-head">
+        <h1 class="eq-title">Equipment</h1>
+        <p class="eq-sub">Owned and available for rental. Each item links to its specifications.</p>
+      </header>
+      ${EQUIPMENT.map(sec => `
+      <section class="eq-group">
+        <h2 class="eq-group-name">${sec.group}</h2>
+        <div class="eq-list">
+          ${sec.items.map(it => `
+          <a class="eq-item" href="${it.href}" target="_blank" rel="noopener" data-name="${it.name}">
+            <span class="eq-main">
+              <span class="eq-name">${it.name}${it.qty > 1 ? ` <span class="eq-qty">×${it.qty}</span>` : ""}</span>
+              ${it.note ? `<span class="eq-note">${it.note}</span>` : ""}
+            </span>
+            <span class="eq-brand">${it.brand}</span>
+            <span class="eq-arrow" aria-hidden="true">↗</span>
+          </a>`).join("")}
+        </div>
+      </section>`).join("")}
+    </div>`;
+  els.equipmentView.querySelectorAll(".eq-item").forEach(el =>
+    el.addEventListener("click", () => track("equipment-open", { item: el.dataset.name })));
 }
 
 /* ================= WORK EXPERIENCE =================
@@ -2876,6 +2946,7 @@ function curView() {
   if (cwd.name === "WRITINGS" && !els.writingsView.hidden) return "writings";
   if (cwd.kind === "Essay" && !els.essayView.hidden) return "essay";
   if (cwd.name === "WORK EXPERIENCE" && !els.workView.hidden) return "work";
+  if (cwd.name === "Equipment" && !els.equipmentView.hidden) return "equipment";
   return view;
 }
 function elementsForItems() {
@@ -2930,7 +3001,7 @@ els.content.addEventListener("mousedown", e => {
   }
   if (e.target.closest(".lv-head")) return;
   // columns and gallery wire their own clicks; only icon/list/digital drag-select
-  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay", "work"].includes(curView())) { els.content.focus(); return; }
+  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay", "work", "equipment"].includes(curView())) { els.content.focus(); return; }
   const hit = handleItemMousedown(e);
   if (!hit) startRubberBand(e);
   els.content.focus();
@@ -2939,7 +3010,7 @@ els.content.addEventListener("mousedown", e => {
    handling) already behaved; mouse and touch now agree. A modified click
    (⌘/Ctrl/Shift) stays selection-only, since that's how multi-select works. */
 els.content.addEventListener("click", e => {
-  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay", "work"].includes(curView())) return;
+  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay", "work", "equipment"].includes(curView())) return;
   if (e.target.tagName === "INPUT") return;          // don't hijack an inline rename
   if (e.metaKey || e.ctrlKey || e.shiftKey) return;   // modified click: selection only
   const el = e.target.closest(ITEM_SEL[curView()]);
