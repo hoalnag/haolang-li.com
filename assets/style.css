@@ -448,7 +448,6 @@ svg { display: block; }
 }
 .dg-hero .home-progress { margin-top: 14px; background: rgba(255,255,255,.14); }
 .dg-hero .home-progress i { background: rgba(255,255,255,.5); }
-.dg-hero.paused .home-progress i { animation-play-state: paused; }
 @media (max-width: 740px) {
   .dg-hero { padding: 14px 0 4px; }
   .dg-stage { padding: 0 34px; }
@@ -996,7 +995,6 @@ button.es-page:hover .es-page-title { opacity: .72; }
   transform-origin: left; transform: scaleX(0);
   animation: home-dwell 4.5s linear forwards;
 }
-.home-hero.paused .home-progress i { animation-play-state: paused; }
 @keyframes home-dwell { to { transform: scaleX(1); } }
 
 /* the self-introduction goes here — laid out now, filled in later */

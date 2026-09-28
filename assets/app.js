@@ -1702,11 +1702,6 @@ function renderHome() {
     const entry = homeHist[homePos], node = entry && INDEX.get(entry.film.id);
     if (node) { track("film-open", { film: node.name, from: "home" }); navigate(node); }
   }));
-  // the frame holds still while you're looking at it
-  [stage, caption].forEach(el => {
-    el.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") hero.classList.add("paused"); });
-    el.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") hero.classList.remove("paused"); });
-  });
   // a sideways swipe turns the page on touch screens
   let sx = null;
   stage.addEventListener("pointerdown", e => { if (e.pointerType !== "mouse") sx = e.clientX; });
@@ -2001,8 +1996,6 @@ function renderDigitalHero(list) {
     quickLook(node);
   });
   const stage = hero.querySelector(".dg-stage");
-  stage.addEventListener("pointerenter", e => { if (e.pointerType === "mouse") hero.classList.add("paused"); });
-  stage.addEventListener("pointerleave", e => { if (e.pointerType === "mouse") hero.classList.remove("paused"); });
   let sx = null;
   stage.addEventListener("pointerdown", e => { if (e.pointerType !== "mouse") sx = e.clientX; });
   stage.addEventListener("pointerup", e => {
