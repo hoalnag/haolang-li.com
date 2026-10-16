@@ -405,6 +405,7 @@ function defaultFolders() {
     ]),
     folder("WORK EXPERIENCE", "2026-08-29T09:00", []),
     folder("WRITINGS", "2026-07-17T23:10", []),
+    folder("JFK, JFK", "2026-10-16T09:00", []),
     folder("PHOTOGRAPHY", "2026-09-12T02:31", [
       folder("Dazzcam", "2026-09-12T02:31", []),
     ]),
@@ -425,6 +426,13 @@ function foldersFromRows(rows) {
   sortRec(tops);
   return tops;
 }
+
+// JFK, JFK — the film's own page, behind the same password gate as WORK
+// EXPERIENCE. Its content (the private Vimeo link, the screenplays, the
+// copy) lives in git-ignored private/jfk.json and ships only encrypted;
+// edit that file and re-run scripts/lock.mjs to change it.
+const JFK_LOCKED = {"iter":250000,"salt":"8jhCvwbCt9dVhx1EAfq2eA==","iv":"YIvPHDJARZiQ5NBN","data":"snC5ve3ZtqS1p99pt57hKdlRQPtH6UuVcqg2e5w6AvqADeHpfyeKfQy7uAdEuO+ZNXONotQUbND1fbz5GsN1nccRAYWjmotcRqacu5tsSmpZSNNLzDWkw1TNrWdNm4r0eZe3lZIPrxl1B0AL/gfGVjUvFlN3cDZ+6ZCZFDGEoUeIKNpf70LqL+7Pmu56Xv8kxuUedibWuMGkckQJAfQgPz6eUpwFdkJonFy1t3jQ+cofy9X0nJDtwi0y74u4cQ6G1pBSaj3ISAIXfXxSjVu3YuCmaZFbzK6WblSg9a0mZK1vlmGQo/Oy17rmW173hACRS2vpZQLgiMIwzqyssZfwjeWNibTU9++WXQuPd6CwtbP2imrxOZY+xXuKEBokHQFh6FpimBCY63wpu3D0DYEVlGCtDdzIQAQhLd41VwVm08dlvxT0CKh2JbTDpbw4w/qywHJlWdJBBLTiD0ic532nkAI7wz21Ert3ery+6CqLRAVZ4hwmCZZRYDpAWaiOIxu6XQ+b0L2+zfiSAWmceAHCFniC6SeOCoR9HJ98O1ThhBhqIECDmcPqKWYX0yh7yFZw7D2FiUf3I5Vu0slQ/r4phrZR1opf7PlG+weR/Q2iUcBNx47sKPACnJIHPtZUpNXzDUmjZFZNaA81AXhFbD9PG9/qd28uRfLwIDp7DK8vdXdN0wWOHhQLna8zU59fUYxEziYTvTeTrK6KLWsfqn19Mg1qu+gAjcHmpJKPcA6Y4KqDhTv4qtBJjCrKPKctkmAiGWXgCS56sS+XtAjDs59zO7nXXa/omzH0CwKJAacBYLhWCjQeJxFkKgMrKD2Zs1Ydy3SfI0B0iEDa61k0bDUXDwMuHvOvLD4NfSMstT9gRF/MqrYaa/STuzetcz3QKrZsKxgxEF47jZdLzDLStMrM8odCjU5/I/8+gq0EUxB3+C9Raw2TSnNqRb8ZjRYDjPXSxC4b8NjowZmrdOvVKu1ia3pRmdhm5XF5VxcOtaMnCTdfIICDjlyb2gB4E6CEGs9lu+vW8nkQKZKD9QJro7aF"};
+let JFK = null;
 
 // EQUIPMENT — the kit list behind FILMS › Equipment, grouped in this order.
 // Every item links to its product page; `note` is what comes with it and
@@ -468,39 +476,71 @@ const EQUIPMENT = [
 // run scripts/work-lock.mjs, then paste its output here.
 const WORK_LOCKED = {"iter":250000,"salt":"K0GRE2JlhUDms7POoKnj8Q==","iv":"C8K0vKl93W+M7B2D","data":"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"};
 let WORK = null;
-const WORK_KEY_SLOT = "hl-work-key";
+/* A locked page ships its content AES-GCM encrypted; the password derives
+   the key (PBKDF2-SHA256), so nothing readable is in the file until someone
+   opens it. Unlocking is remembered for the rest of the browser session. */
 const b64bytes = (b) => Uint8Array.from(atob(b), c => c.charCodeAt(0));
-async function workKey(password) {
+async function lockKey(blob, password) {
   const base = await crypto.subtle.importKey("raw", new TextEncoder().encode(password), "PBKDF2", false, ["deriveKey"]);
   return crypto.subtle.deriveKey(
-    { name: "PBKDF2", salt: b64bytes(WORK_LOCKED.salt), iterations: WORK_LOCKED.iter, hash: "SHA-256" },
+    { name: "PBKDF2", salt: b64bytes(blob.salt), iterations: blob.iter, hash: "SHA-256" },
     base, { name: "AES-GCM", length: 256 }, true, ["decrypt"]);
 }
-// resolves to true when the key opens the entries; a wrong one throws inside
-async function openWork(key) {
+async function lockOpen(blob, key) {
   try {
-    const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64bytes(WORK_LOCKED.iv) }, key, b64bytes(WORK_LOCKED.data));
-    WORK = JSON.parse(new TextDecoder().decode(plain));
-    return true;
-  } catch { return false; }
+    const plain = await crypto.subtle.decrypt({ name: "AES-GCM", iv: b64bytes(blob.iv) }, key, b64bytes(blob.data));
+    return JSON.parse(new TextDecoder().decode(plain));
+  } catch { return null; }
 }
-// an unlocked visitor stays unlocked for the rest of the browser session
-async function restoreWorkKey() {
+async function lockRestore(blob, slot) {
   try {
-    const raw = sessionStorage.getItem(WORK_KEY_SLOT);
-    if (!raw) return false;
+    const raw = sessionStorage.getItem(slot);
+    if (!raw) return null;
     const key = await crypto.subtle.importKey("raw", b64bytes(raw), "AES-GCM", false, ["decrypt"]);
-    return openWork(key);
-  } catch { return false; }
+    return lockOpen(blob, key);
+  } catch { return null; }
 }
-async function unlockWork(password) {
-  const key = await workKey(password);
-  if (!(await openWork(key))) return false;
+async function lockUnlock(blob, slot, password) {
+  const key = await lockKey(blob, password);
+  const data = await lockOpen(blob, key);
+  if (!data) return null;
   try {
     const raw = new Uint8Array(await crypto.subtle.exportKey("raw", key));
-    sessionStorage.setItem(WORK_KEY_SLOT, btoa(String.fromCharCode(...raw)));
+    sessionStorage.setItem(slot, btoa(String.fromCharCode(...raw)));
   } catch {}
-  return true;
+  return data;
+}
+/* the gate itself: the same quiet field on every locked page */
+function renderLockScreen(view, opts, onOpen) {
+  view.innerHTML = `
+    <form class="wk-lock" autocomplete="off">
+      <div class="wk-lock-title">${opts.title}</div>
+      <p class="wk-lock-note">${opts.note || "This page is password protected."}</p>
+      <div class="wk-lock-field">
+        <input type="password" class="wk-lock-input" placeholder="Password" aria-label="Password" autocomplete="current-password">
+        <button type="submit" class="wk-lock-go" aria-label="Unlock">→</button>
+      </div>
+      <p class="wk-lock-err" aria-live="polite"></p>
+    </form>`;
+  const form = view.querySelector(".wk-lock");
+  const input = form.querySelector("input"), err = form.querySelector(".wk-lock-err");
+  const onPage = cwd;
+  lockRestore(opts.blob, opts.slot).then(data => { if (data && cwd === onPage) onOpen(data, false); });
+  form.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!input.value || form.classList.contains("busy")) return;
+    form.classList.add("busy"); err.textContent = "";
+    const data = await lockUnlock(opts.blob, opts.slot, input.value).catch(() => null);
+    form.classList.remove("busy");
+    if (data) { if (cwd === onPage) onOpen(data, true); return; }
+    track(opts.event + "-failed");
+    err.textContent = "Incorrect password.";
+    input.select();
+    form.classList.remove("shake"); void form.offsetWidth; form.classList.add("shake");
+  });
+  // typing must reach the field, not the Finder's keyboard shortcuts
+  input.addEventListener("keydown", e => e.stopPropagation());
+  setTimeout(() => input.focus({ preventScroll: true }), 60);
 }
 
 // WRITINGS — one entry per piece; the feed sorts newest first by `at`, so a
@@ -1290,7 +1330,7 @@ const els = {
   columnsView: $("columns-view"), galleryView: $("gallery-view"), digitalView: $("digital-view"),
   filmsView: $("films-view"), filmsSectionView: $("films-section-view"),
   filmDetailView: $("film-detail-view"),
-  writingsView: $("writings-view"), workView: $("work-view"), equipmentView: $("equipment-view"), essayView: $("essay-view"), stillLightbox: $("still-lightbox"),
+  writingsView: $("writings-view"), workView: $("work-view"), equipmentView: $("equipment-view"), jfkView: $("jfk-view"), essayView: $("essay-view"), stillLightbox: $("still-lightbox"),
 
   rubber: $("rubber-band"),
   menuLayer: $("menu-layer"), overlayLayer: $("overlay-layer"),
@@ -1520,7 +1560,8 @@ function render() {
   const onEssay = cwd.kind === "Essay";
   const onWork = cwd.name === "WORK EXPERIENCE" && cwd.parent === ROOT;
   const onEquipment = cwd.name === "Equipment" && cwd.parent && cwd.parent.name === "FILMS";
-  const custom = onDigital || onFilms || onFilmDetail || onFilmsSection || onWritings || onEssay || onWork || onEquipment;
+  const onJfk = cwd.name === "JFK, JFK" && cwd.parent === ROOT;
+  const custom = onDigital || onFilms || onFilmDetail || onFilmsSection || onWritings || onEssay || onWork || onEquipment || onJfk;
   stopHome();
   stopDigitalHero();
   els.homeView.hidden = !onDesk;
@@ -1532,6 +1573,7 @@ function render() {
   els.essayView.hidden = !onEssay;
   els.workView.hidden = !onWork;
   els.equipmentView.hidden = !onEquipment;
+  els.jfkView.hidden = !onJfk;
   els.iconView.hidden = custom || view !== "icon" || onDesk;
   els.listView.hidden = custom || view !== "list";
   els.columnsView.hidden = custom || view !== "columns";
@@ -1555,6 +1597,8 @@ function render() {
     renderWork();
   } else if (onEquipment) {
     renderEquipment();
+  } else if (onJfk) {
+    renderJfk();
   } else if (view === "icon") {
     els.iconView.innerHTML = list.map((n, i) => `
       <div class="icon-item ${selection.has(n) ? "selected" : ""}" data-i="${i}">
@@ -1592,7 +1636,7 @@ function render() {
     els.content.scrollTop = 0;
     arrive(onDesk ? els.homeView : onDigital ? els.digitalView : onFilms ? els.filmsView
       : onFilmsSection ? els.filmsSectionView : onFilmDetail ? els.filmDetailView
-      : onWritings ? els.writingsView : onEssay ? els.essayView : onWork ? els.workView : onEquipment ? els.equipmentView
+      : onWritings ? els.writingsView : onEssay ? els.essayView : onWork ? els.workView : onEquipment ? els.equipmentView : onJfk ? els.jfkView
       : view === "list" ? els.listView : view === "columns" ? els.columnsView
       : view === "gallery" ? els.galleryView : els.iconView);
   }
@@ -2227,6 +2271,60 @@ function filmStillsRow(p, list) {
     </button>`;
 }
 
+/* ================= JFK, JFK =================
+   The film's page while it is still a concept: the proof-of-concept reel,
+   what it was shot on, the joke, the short story it came from and the two
+   screenplays. Everything here comes out of the encrypted blob above, so
+   the page is blank until someone has the password. */
+function renderJfk() {
+  if (!JFK) {
+    renderLockScreen(els.jfkView, { title: "JFK, JFK", blob: JFK_LOCKED, slot: "hl-jfk-key", event: "jfk-unlock" },
+      (data, typed) => { JFK = data; if (typed) track("jfk-unlock"); renderJfk(); arrive(els.jfkView); });
+    return;
+  }
+  const v = JFK.vimeo;
+  els.jfkView.innerHTML = `
+    <article class="jfk-wrap">
+      <header class="jfk-head">
+        <h1 class="jfk-title">${JFK.title}</h1>
+        <div class="jfk-sub">${JFK.subtitle}</div>
+        <div class="jfk-status">${JFK.status}</div>
+      </header>
+      <div class="jfk-frame">
+        <iframe src="https://player.vimeo.com/video/${v.id}?${v.h ? `h=${v.h}&` : ""}title=0&byline=0&portrait=0&dnt=1"
+          allow="fullscreen; picture-in-picture" allowfullscreen title="${JFK.title}"></iframe>
+      </div>
+      <p class="jfk-note">${JFK.note}</p>
+      <div class="jfk-lines">${JFK.lines.map(l => `<span>${l}</span>`).join("")}</div>
+      <section class="jfk-files">
+        ${JFK.scripts.map(sc => `
+        <a class="jfk-file" href="${sc.file}" download data-label="${sc.label}">
+          <span class="jfk-file-label">${sc.label}</span>
+          <span class="jfk-file-meta">${sc.meta}</span>
+          <span class="jfk-file-get">Download ↓</span>
+        </a>`).join("")}
+      </section>
+      <nav class="jfk-foot">
+        <button class="jfk-story">
+          <span class="jfk-story-label">${JFK.story.label}</span>
+          <span class="jfk-story-note">${JFK.story.note}</span>
+        </button>
+        <a class="jfk-ig" href="${JFK.instagram}" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 20 20"><use href="#s-ig"/></svg><span>@yipihaolang</span>
+        </a>
+      </nav>
+    </article>`;
+  vimeoWatched = JFK.title;
+  els.jfkView.querySelector(".jfk-story").addEventListener("click", () => {
+    const node = nodeForPath(JFK.story.path);
+    track("jfk-story");
+    if (node && node !== ROOT) navigate(node);
+  });
+  els.jfkView.querySelector(".jfk-ig").addEventListener("click", () => track("link-out", { to: "instagram", from: "jfk" }));
+  els.jfkView.querySelectorAll(".jfk-file").forEach(a =>
+    a.addEventListener("click", () => track("jfk-script", { script: a.dataset.label })));
+}
+
 /* ================= EQUIPMENT =================
    The rental list as a plain, readable inventory: one line per item, its
    brand and what comes with it underneath, grouped by what the thing is.
@@ -2289,37 +2387,9 @@ function renderWork() {
 }
 
 function renderWorkLock() {
-  els.workView.innerHTML = `
-    <form class="wk-lock" autocomplete="off">
-      <div class="wk-lock-title">Work Experience</div>
-      <p class="wk-lock-note">This page is password protected.</p>
-      <div class="wk-lock-field">
-        <input type="password" class="wk-lock-input" placeholder="Password" aria-label="Password" autocomplete="current-password">
-        <button type="submit" class="wk-lock-go" aria-label="Unlock">→</button>
-      </div>
-      <p class="wk-lock-err" aria-live="polite"></p>
-    </form>`;
-  const form = els.workView.querySelector(".wk-lock");
-  const input = form.querySelector("input"), err = form.querySelector(".wk-lock-err");
-  const onPage = cwd;
-  restoreWorkKey().then(ok => { if (ok && cwd === onPage) { renderWork(); arrive(els.workView); } });
-  form.addEventListener("submit", async (e) => {
-    e.preventDefault();
-    if (!input.value || form.classList.contains("busy")) return;
-    form.classList.add("busy"); err.textContent = "";
-    const ok = await unlockWork(input.value).catch(() => false);
-    form.classList.remove("busy");
-    if (ok) { track("work-unlock"); if (cwd === onPage) { renderWork(); arrive(els.workView); } return; }
-    track("work-unlock-failed");
-    err.textContent = "Incorrect password.";
-    input.select();
-    form.classList.remove("shake"); void form.offsetWidth; form.classList.add("shake");
-  });
-  // typing must reach the field, not the Finder's keyboard shortcuts
-  input.addEventListener("keydown", e => e.stopPropagation());
-  setTimeout(() => input.focus({ preventScroll: true }), 60);
+  renderLockScreen(els.workView, { title: "Work Experience", blob: WORK_LOCKED, slot: "hl-work-key", event: "work-unlock" },
+    (data, typed) => { WORK = data; if (typed) track("work-unlock"); renderWork(); arrive(els.workView); });
 }
-
 /* ================= WRITINGS: a quiet feed =================
    One column, newest first: date on the left, title + standfirst on the
    right, hairlines between. Tags (when pieces carry any) filter the feed —
@@ -2949,6 +3019,7 @@ function curView() {
   if (cwd.kind === "Essay" && !els.essayView.hidden) return "essay";
   if (cwd.name === "WORK EXPERIENCE" && !els.workView.hidden) return "work";
   if (cwd.name === "Equipment" && !els.equipmentView.hidden) return "equipment";
+  if (cwd.name === "JFK, JFK" && !els.jfkView.hidden) return "jfk";
   return view;
 }
 function elementsForItems() {
@@ -3003,7 +3074,7 @@ els.content.addEventListener("mousedown", e => {
   }
   if (e.target.closest(".lv-head")) return;
   // columns and gallery wire their own clicks; only icon/list/digital drag-select
-  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay", "work", "equipment"].includes(curView())) { els.content.focus(); return; }
+  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay", "work", "equipment", "jfk"].includes(curView())) { els.content.focus(); return; }
   const hit = handleItemMousedown(e);
   if (!hit) startRubberBand(e);
   els.content.focus();
@@ -3012,7 +3083,7 @@ els.content.addEventListener("mousedown", e => {
    handling) already behaved; mouse and touch now agree. A modified click
    (⌘/Ctrl/Shift) stays selection-only, since that's how multi-select works. */
 els.content.addEventListener("click", e => {
-  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay", "work", "equipment"].includes(curView())) return;
+  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay", "work", "equipment", "jfk"].includes(curView())) return;
   if (e.target.tagName === "INPUT") return;          // don't hijack an inline rename
   if (e.metaKey || e.ctrlKey || e.shiftKey) return;   // modified click: selection only
   const el = e.target.closest(ITEM_SEL[curView()]);

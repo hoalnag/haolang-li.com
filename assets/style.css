@@ -491,6 +491,73 @@ svg { display: block; }
    the Finder keeps its arrow. */
 .home-frame, .film-poster, .film-still, .fd-still, .dg-item, .gal-thumb, .es-fig img { cursor: pointer; }
 
+/* ================= JFK, JFK ================= */
+.jfk-view { min-height: 100%; padding: 28px 32px 72px; }
+.jfk-wrap { max-width: 860px; margin: 0 auto; }
+.jfk-head { text-align: center; margin-bottom: 34px; }
+.jfk-title {
+  font-family: var(--font-display); font-weight: 300; font-size: 38px; letter-spacing: .16em; text-transform: uppercase;
+  color: var(--text);
+}
+.jfk-sub { margin-top: 10px; font-family: var(--font-display); font-size: 16px; letter-spacing: .3em; color: var(--text-dim); }
+.jfk-status {
+  margin-top: 18px;
+  font-family: var(--font-display); font-size: 10px; letter-spacing: .28em; text-transform: uppercase;
+  color: var(--text-dim);
+}
+.jfk-frame { position: relative; width: 100%; aspect-ratio: 16 / 9; background: #0b0b0c; }
+.jfk-frame iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.jfk-note {
+  margin: 20px auto 0; max-width: 62ch; text-align: center;
+  font-size: 13.5px; line-height: 1.65; color: var(--text-dim);
+}
+.jfk-lines {
+  display: flex; flex-direction: column; align-items: center; gap: 10px;
+  margin: 46px 0 44px;
+  font-family: var(--font-display); font-weight: 300; font-size: 25px; letter-spacing: .08em;
+  color: var(--text);
+}
+.jfk-lines span:nth-child(2) { letter-spacing: .18em; }
+.jfk-lines span:last-child { color: var(--text-dim); }
+.jfk-files { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.jfk-file {
+  display: flex; flex-direction: column; gap: 7px;
+  padding: 20px 20px 22px; border: 1px solid var(--hairline);
+  text-decoration: none; color: inherit; cursor: pointer;
+  transition: border-color .3s ease-out, background .3s ease-out;
+}
+.jfk-file:hover { border-color: var(--text-dim); background: rgba(255,255,255,.03); }
+[data-theme="light"] .jfk-file:hover { background: rgba(0,0,0,.03); }
+.jfk-file-label { font-family: var(--font-display); font-size: 15px; letter-spacing: .04em; color: var(--text); }
+.jfk-file-meta { font-size: 12px; color: var(--text-dim); }
+.jfk-file-get {
+  margin-top: 6px;
+  font-family: var(--font-display); font-size: 10px; letter-spacing: .2em; text-transform: uppercase; color: var(--text-dim);
+}
+.jfk-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap;
+  margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--hairline);
+}
+.jfk-story { display: flex; flex-direction: column; gap: 5px; text-align: left; cursor: pointer; }
+.jfk-story-label { font-family: var(--font-display); font-size: 14px; letter-spacing: .04em; color: var(--text); transition: opacity .3s ease-out; }
+.jfk-story:hover .jfk-story-label { opacity: .7; }
+.jfk-story-note { font-size: 12px; color: var(--text-dim); }
+.jfk-ig {
+  display: inline-flex; align-items: center; gap: 8px;
+  text-decoration: none; color: var(--text-dim); cursor: pointer;
+  font-family: var(--font-display); font-size: 11px; letter-spacing: .16em; text-transform: lowercase;
+  transition: color .3s ease-out;
+}
+.jfk-ig svg { width: 17px; height: 17px; }
+.jfk-ig:hover { color: var(--text); }
+@media (max-width: 740px) {
+  .jfk-view { padding: 20px 18px 56px; }
+  .jfk-title { font-size: 27px; }
+  .jfk-sub { font-size: 13px; }
+  .jfk-lines { font-size: 20px; margin: 34px 0 32px; }
+  .jfk-files { grid-template-columns: 1fr; }
+}
+
 /* ================= EQUIPMENT =================
    An inventory list: group heading, then one line per item. */
 .equipment-view { min-height: 100%; padding: 28px 32px 64px; }
