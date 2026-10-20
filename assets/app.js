@@ -406,7 +406,6 @@ function defaultFolders() {
     folder("WORK EXPERIENCE", "2026-08-29T09:00", []),
     folder("WRITINGS", "2026-07-17T23:10", []),
     folder("JFK, JFK", "2026-10-16T09:00", []),
-    folder("TESTS", "2026-10-19T19:00", []),
     folder("PHOTOGRAPHY", "2026-09-12T02:31", [
       folder("Dazzcam", "2026-09-12T02:31", []),
     ]),
@@ -427,16 +426,6 @@ function foldersFromRows(rows) {
   sortRec(tops);
   return tops;
 }
-
-// TESTS — short clips shown on their own page, newest first. `tag` is what
-// the clip is (Live Action, AI Transition); the poster is a frame from the
-// clip itself, so nothing downloads until someone presses play.
-const TESTS = [
-  { id: "live-action", tag: "Live Action", meta: "10s · 1920×1080 · 30 fps",
-    src: "assets/video/tests/live-action.mp4", poster: "assets/video/tests/live-action.jpg" },
-  { id: "ai-transition", tag: "AI Transition", meta: "10s · 1920×1076 · 24 fps",
-    src: "assets/video/tests/ai-transition.mp4", poster: "assets/video/tests/ai-transition.jpg" },
-];
 
 // JFK, JFK — the film's own page, behind the same password gate as WORK
 // EXPERIENCE. Its content (the private Vimeo link, the screenplays, the
@@ -1341,7 +1330,7 @@ const els = {
   columnsView: $("columns-view"), galleryView: $("gallery-view"), digitalView: $("digital-view"),
   filmsView: $("films-view"), filmsSectionView: $("films-section-view"),
   filmDetailView: $("film-detail-view"),
-  writingsView: $("writings-view"), workView: $("work-view"), equipmentView: $("equipment-view"), jfkView: $("jfk-view"), testsView: $("tests-view"), essayView: $("essay-view"), stillLightbox: $("still-lightbox"),
+  writingsView: $("writings-view"), workView: $("work-view"), equipmentView: $("equipment-view"), jfkView: $("jfk-view"), essayView: $("essay-view"), stillLightbox: $("still-lightbox"),
 
   rubber: $("rubber-band"),
   menuLayer: $("menu-layer"), overlayLayer: $("overlay-layer"),
@@ -1572,8 +1561,7 @@ function render() {
   const onWork = cwd.name === "WORK EXPERIENCE" && cwd.parent === ROOT;
   const onEquipment = cwd.name === "Equipment" && cwd.parent && cwd.parent.name === "FILMS";
   const onJfk = cwd.name === "JFK, JFK" && cwd.parent === ROOT;
-  const onTests = cwd.name === "TESTS" && cwd.parent === ROOT;
-  const custom = onDigital || onFilms || onFilmDetail || onFilmsSection || onWritings || onEssay || onWork || onEquipment || onJfk || onTests;
+  const custom = onDigital || onFilms || onFilmDetail || onFilmsSection || onWritings || onEssay || onWork || onEquipment || onJfk;
   stopHome();
   stopDigitalHero();
   els.homeView.hidden = !onDesk;
@@ -1586,7 +1574,6 @@ function render() {
   els.workView.hidden = !onWork;
   els.equipmentView.hidden = !onEquipment;
   els.jfkView.hidden = !onJfk;
-  els.testsView.hidden = !onTests;
   els.iconView.hidden = custom || view !== "icon" || onDesk;
   els.listView.hidden = custom || view !== "list";
   els.columnsView.hidden = custom || view !== "columns";
@@ -1612,8 +1599,6 @@ function render() {
     renderEquipment();
   } else if (onJfk) {
     renderJfk();
-  } else if (onTests) {
-    renderTests();
   } else if (view === "icon") {
     els.iconView.innerHTML = list.map((n, i) => `
       <div class="icon-item ${selection.has(n) ? "selected" : ""}" data-i="${i}">
@@ -1651,7 +1636,7 @@ function render() {
     els.content.scrollTop = 0;
     arrive(onDesk ? els.homeView : onDigital ? els.digitalView : onFilms ? els.filmsView
       : onFilmsSection ? els.filmsSectionView : onFilmDetail ? els.filmDetailView
-      : onWritings ? els.writingsView : onEssay ? els.essayView : onWork ? els.workView : onEquipment ? els.equipmentView : onJfk ? els.jfkView : onTests ? els.testsView
+      : onWritings ? els.writingsView : onEssay ? els.essayView : onWork ? els.workView : onEquipment ? els.equipmentView : onJfk ? els.jfkView
       : view === "list" ? els.listView : view === "columns" ? els.columnsView
       : view === "gallery" ? els.galleryView : els.iconView);
   }
@@ -1663,7 +1648,7 @@ let lastArrivalId = null;
    one after another (see .is-arriving in the stylesheet) */
 function arrive(el) {
   if (!el) return;
-  el.querySelectorAll(".film-row, .fd-still, .dg-item, .fs-credit-item, .wr-item, .wk-item, .eq-item, .ts-item").forEach((c, i) =>
+  el.querySelectorAll(".film-row, .fd-still, .dg-item, .fs-credit-item, .wr-item, .wk-item, .eq-item").forEach((c, i) =>
     c.style.setProperty("--i", Math.min(i, 12)));
   el.classList.remove("is-arriving");
   void el.offsetWidth;
@@ -2284,33 +2269,6 @@ function filmStillsRow(p, list) {
         ${filmCredits(p)}
       </div>
     </button>`;
-}
-
-/* ================= TESTS =================
-   Short clips, one per row, each labelled with what it is. Nothing loads
-   until play is pressed — the poster is a frame of the clip itself. */
-function renderTests() {
-  els.testsView.innerHTML = `
-    <div class="ts-wrap">
-      <header class="ts-head">
-        <h1 class="ts-title">Tests</h1>
-        <p class="ts-sub">Short pieces made while trying something out.</p>
-      </header>
-      ${TESTS.map(t => `
-      <figure class="ts-item">
-        <video class="ts-video" src="${t.src}" poster="${t.poster}" preload="none"
-               controls playsinline data-id="${t.id}"></video>
-        <figcaption class="ts-cap">
-          <span class="ts-tag">${t.tag}</span>
-          <span class="ts-meta">${t.meta}</span>
-        </figcaption>
-      </figure>`).join("")}
-    </div>`;
-  els.testsView.querySelectorAll(".ts-video").forEach(v => {
-    v.addEventListener("play", () => track("test-play", { clip: v.dataset.id }), { once: true });
-    // one at a time: starting a clip stops the others
-    v.addEventListener("play", () => els.testsView.querySelectorAll(".ts-video").forEach(o => { if (o !== v) o.pause(); }));
-  });
 }
 
 /* ================= JFK, JFK =================
@@ -3062,7 +3020,6 @@ function curView() {
   if (cwd.name === "WORK EXPERIENCE" && !els.workView.hidden) return "work";
   if (cwd.name === "Equipment" && !els.equipmentView.hidden) return "equipment";
   if (cwd.name === "JFK, JFK" && !els.jfkView.hidden) return "jfk";
-  if (cwd.name === "TESTS" && !els.testsView.hidden) return "tests";
   return view;
 }
 function elementsForItems() {
@@ -3117,7 +3074,7 @@ els.content.addEventListener("mousedown", e => {
   }
   if (e.target.closest(".lv-head")) return;
   // columns and gallery wire their own clicks; only icon/list/digital drag-select
-  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay", "work", "equipment", "jfk", "tests"].includes(curView())) { els.content.focus(); return; }
+  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay", "work", "equipment", "jfk"].includes(curView())) { els.content.focus(); return; }
   const hit = handleItemMousedown(e);
   if (!hit) startRubberBand(e);
   els.content.focus();
@@ -3126,7 +3083,7 @@ els.content.addEventListener("mousedown", e => {
    handling) already behaved; mouse and touch now agree. A modified click
    (⌘/Ctrl/Shift) stays selection-only, since that's how multi-select works. */
 els.content.addEventListener("click", e => {
-  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay", "work", "equipment", "jfk", "tests"].includes(curView())) return;
+  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay", "work", "equipment", "jfk"].includes(curView())) return;
   if (e.target.tagName === "INPUT") return;          // don't hijack an inline rename
   if (e.metaKey || e.ctrlKey || e.shiftKey) return;   // modified click: selection only
   const el = e.target.closest(ITEM_SEL[curView()]);
