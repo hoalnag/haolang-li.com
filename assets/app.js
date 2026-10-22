@@ -398,6 +398,7 @@ function folderContent() {
 function defaultFolders() {
   return [
     folder("FILMS", "2026-09-14T14:20", [
+      folder("JFK, JFK", "2026-10-16T09:00", []),
       folder("Film Projects", "2026-07-16T11:40", []),
       folder("Generative Projects", "2026-07-16T11:40", []),
       folder("Reviews", "2026-07-16T11:40", []),
@@ -405,7 +406,6 @@ function defaultFolders() {
     ]),
     folder("WORK EXPERIENCE", "2026-08-29T09:00", []),
     folder("WRITINGS", "2026-07-17T23:10", []),
-    folder("JFK, JFK", "2026-10-16T09:00", []),
     folder("PHOTOGRAPHY", "2026-09-12T02:31", [
       folder("Dazzcam", "2026-09-12T02:31", []),
     ]),
@@ -431,7 +431,7 @@ function foldersFromRows(rows) {
 // EXPERIENCE. Its content (the private Vimeo link, the screenplays, the
 // copy) lives in git-ignored private/jfk.json and ships only encrypted;
 // edit that file and re-run scripts/lock.mjs to change it.
-const JFK_LOCKED = {"iter":250000,"salt":"mLd+tT7ixO+wcE1dRLvPaw==","iv":"PpUyM5flrOZGkx2x","data":"io97RjTOpPgNyht0dYkZavzjgCBd38E2GszjRHaDWxIW5bUWqzBIOrpw0QBSjsjAejh4F+n2obeV6qg544SoqlJO+0fFOh5GSbmxS0GtI20KuK/PoAaZlfPJ5AHtUNHjebH6ZhG08FchfLzCS8DYssevH0NLsa0SgvMHB/UZoQpTWeuk1A/o34Q/op73IHUOx/VZ239Eb5fTSmQ6ABQnDB+pZaazxbvbwilBUQeA64KtuFlZxNJka2m1H0ETon54y7Akojo/8xZQ+3bwXbFnFkuIEL67IpIv/OXxpFj63MwPeZXaWaR7d78YZ7wVCuETdhzGbCp4FFv4nflCnHVANxuNPQvrpKSyfDOAbYViGHaoZBV80a+ypX0IchvSwPIkphycsdjoEkybF2Ns2fYqO0xqVHfA0PlEEVNhR6/w1I0Tcx+7jehNFKry1dCM4CFmsiy1HHpMmJhtHyQLwNZdMLGpX7dQ0XQjgHXoVxwajW9lAO/It3ZqwlImyoGViYRyQjMLMVlj5goCGcgPtpQ618do8aGOumtb1L95/JFrKeyqb1bulRU+Mu2Eh35aG7XcO+TnJFVlE/QU9ybloKMlkTSR9oryacKreRdYywsDCo23UWp/fl8yOk4KQGNf0jDoRAL3hoIJUt08YlSgwci7hHWH76RlnxtfmmlpTfgJmHIVAOBeUwY5OyHcHlhOpu947S6FL+dTantDMFEld5QuAj/8jKTwbvvBfZCh5h1r0RtfXBn3aoKtPt+i+IlYEaTnVCe+RcpBV7c7gQjQPf4taxZ0b+OO6ufan+n9KUxhJwNZQy2B7OrVZIh+PNMgqZ8bxg1sqgRMGkCk9LG6SEok1xz0M1RbYw8q7e/bekqQtLtbZnmTht5UPnKRoOB5SplUe3EPAoQHzTRgjLDiG9zaj429ujIQ8ACYD2pfQuQRoj/n8XAprzcTDZv7tlj/ynHt7StOkRU6VHr1CKD5TuYQx9iBF0f21UuBG+xXh34B4DeWih+2ZjQOAoXqLioiLbBgjVaxqvn9CY6BRl2OLst6RpQW2oZEQS6te6eQlrisB2z3f6wxDiMbhKvxa452d6jzLsIPzdP+Cf5ObDJQNzm+jblQthc74em7c0WcpSMQj9jLwfmYb69kMz0cf7UySFFKvT4AMWj7c752vNZKshtDAuGm7s7qdHKQdbVWgxJu2H/pI+Qd7aPxBaPS/JM8ziXeP7rrn/omyIcxWWCB2hEJQnTi++vuY07VBq7tlANRj+edz3Vtv1pIgyGjgLMThwP0SFovt09UzDdjDW4x5htglibg6Uu0c+otQfHTPyUcEPaKDLU31gZulN9vNd53AYW5pwnQKWnfD7ZI4hRUNZp6iwPZWJUc/hmYvZTfxyIdJAbH9d/cUCYrZE/DHqm08i4bZNzVesZEnvJmlnWHnm9dhioWST3BHCZL"};
+const JFK_LOCKED = {"iter":250000,"salt":"fGHCnn+2QJESblSrJ3t7og==","iv":"Gld4tx6OJvWhHWAZ","data":"bA6msvxWefYlZav7xotqMDOcntm607k8aAz0TFwKfeVVIItMbihzp30bJQGbzdQtE+AqxmE5c9Jo2qAgWCQSxcLrUmpGzX4s+eQTd58GiLvHisoQtaugPOM8Qhb3K4HxWNW7O4HYqZN0R5e2SuyK73rGKnHq/9+9VS0oZxiPw7fesdTYspGodX6cU6D1LHPZNGeASjbv1KUlwkfZBRfnXiQey/AxJFJuDPtngRfKKC8EFfDRkjvokV1C+EztzSwr+Ds5k6mGRa4ZNI06xeOeia+rFjYq6iWiaxyPBKGqz6C6kzYzJlYeiDK7UQXbLXa3zwe86DixKYVW4lryumLonb17BgHTDORfA4YaS5//VS5hO2TD0KRw09QOVt7jG61j6OMYNvHS5nhR15cw/NbOuqOIsjhz7CxBzWxsAZ4icRzSWOuixMoNmpGCiFLu0kwVhDS9A+tW2eikvwgFVSmaSs9FOJdontiYQ+g89zYlFr4anwGNCWomEfC8QAO7FdPa8XWxntBL3RSOlm3jJn/d0qzo+PSuDtyQfSNiiqENdET79jBOy4HHLmujNVIC5Akm9a5zQBv1oZ2TrZ9XeUTQJ+o7TAm5tW4ZgN19nuE69vTQbQBu7RD6kLsYckUjplE/cIxH+tRF4o9x0/Cf94tOpcVKfwFwG3ryjG9xOBQJIvXNfILDxP5lZ8dEVIFY2UmR6gYYjIXAEOJpfUzyUWFhErMQQaR2+AH+f3iPtOC7Cu/oU5D3EzpzEf4euYqImMo1rlEuowaUSl9WhtLU/5MLyOkPvLjvNiXxAAdG1/x1H+xIg7grtFGd9vVYpoyzj2Y+IkyV6yUWTmnc8CBhF4oUjS/QqGrw9D9SSoYAuo3mNEivXyuSLZ0f0JvqGwtS+sHFnd4k1OtAPJ+GLUGInkpHGfRxvcHRWg4M5b7pSJAP1DqGoiIeO7pIny6HOEOFGoqrVkNX6l5+7kCHqr4JPRYmkd7X2oC8G4ntgmR8b8n62aNqB7HV3uTlR/wFfD9HOD0lqN07njevmlqfMwhIVNdvUHfW4htXpuk7Dq/bbVqvpUzfIgboOUQQofFWi5HOgJnWYJcbg9qfRyuRupAm/TM/oQ+36tJhCQb/8sBXVBKOpXRmxpwLfYhW9/2n9CJmtq3znaLOTWESWqXV3ZqkqYeysHq/z4xrxY3MaxRhNA0441khwYgeGzdWDbSAGV5XIz3wO1EoHH8mEiyqo2yst810/BCKgSew3ESnrvaY4Muc4q4aeYJx3AFypqr/+/Cy9PXa9Nk2o+QmQlNc5DU89sIU4DHqM5z3xm0qYomzh2us0yPNe0w+6MRgMVKBp88zZ+CViUHBZ+P/BhUQJZ2TGuTEulxZ6oEMGKQuF5d4rIWDaHVapjAapSay5/T7Pw=="};
 let JFK = null;
 
 // EQUIPMENT — the kit list behind FILMS › Equipment, grouped in this order.
@@ -1560,7 +1560,7 @@ function render() {
   const onEssay = cwd.kind === "Essay";
   const onWork = cwd.name === "WORK EXPERIENCE" && cwd.parent === ROOT;
   const onEquipment = cwd.name === "Equipment" && cwd.parent && cwd.parent.name === "FILMS";
-  const onJfk = cwd.name === "JFK, JFK" && cwd.parent === ROOT;
+  const onJfk = cwd.name === "JFK, JFK" && cwd.parent && cwd.parent.name === "FILMS";
   const custom = onDigital || onFilms || onFilmDetail || onFilmsSection || onWritings || onEssay || onWork || onEquipment || onJfk;
   stopHome();
   stopDigitalHero();
