@@ -431,7 +431,7 @@ function foldersFromRows(rows) {
 // EXPERIENCE. Its content (the private Vimeo link, the screenplays, the
 // copy) lives in git-ignored private/jfk.json and ships only encrypted;
 // edit that file and re-run scripts/lock.mjs to change it.
-const JFK_LOCKED = {"iter":250000,"salt":"3Cil28kQUbZdgj+S5vabBA==","iv":"TqkK8QKVNDOL5eMt","data":"Fl4FDMgAij6Fh3fZwLQOKIgOeFSgjzannW4KN7Nwx4qZ5/n7WFwJLpNJNrzqvmbEkfwCyPnGtQtT1MoI4fieD29AncFtsihFnl66EewEPDzf1Qae8aERUYMCdNUSGTQyj5vRmO6g3KmDJ2s+Qj0fxVid2z6q4IKKhFzPoIbjVgHjN6fqILet8XAKnZs7t+TUj+Yp9zR4dRPyre5GQm6+QmJ3GEDAuGW6+aXn8a3ziHDE1lyUgnW6gJpWuKVtxZugNrWxhD2QRacOfR/F0oosA0IaPM79/GFbDzOWRD8hyk1pXQCQsqu7nn+Vn0+JKTksLy8B9uFnPNDGetfDM8E5/ju+G66RCRw5OGAsXDzaexO0JYtRuaIxIPEABMEJ97pqyXR3PvyFiVIxGEzBx+duSTBGYD5yATM127eeUYC/D/T0BBNnTw6lOdkd+m0hqGu9ZsMo6p4xY906ZGFy3fgA+sWML066fa3LiBJto3XSD2uaSjrsfwB2tw2IG8/fd9y+jefbYF5tqNr1RanK8bmHXNXQXgCVm5pshUamL0+r83fRM0+fvEDQ5p1eQ57W6gFd2k8b0HY4HQPTozTk4LnANJ/cO+ouzPRJISMf887tJu+yp1mx1n6wthWFdxdxmb61852Ucnj5ShDFqCevorWY6hJQUUDtfTfGkNiwAyfLrKwtCkOYyqm7vbn2Sfv22UpR9tEkAdq2aVxEkAP76T3EcNor0Jx+YuqRyQaAyT586SQmNfLXl/KW166p51Wi28K2JMx1zFzlBDHZJENOyYzklHgiSXEujUTHl2/hOnqAzTXCyxbZt7mykA/LrWNDrlLd0yb4tnM2R3uVxw3xeh6dowha2rs8WuPVrRjzKXgBO1z3E1Z+1pM7xdyqK+Ext2MoVxbZLMG41w+XpTGSyXWel+qkNEbZKpCpa/UsDrs7H/W5ipIfWK6dh/yMc63kIVUaDfoSFVdMcJ3XkNdnhNCAY5eetN6+c/bC1JBgict+moCbaSJpCHam2bU5TM3O/luEtBaSmPb6E5GijzvP98D2wdUwitxOrug="};
+const JFK_LOCKED = {"iter":250000,"salt":"mLd+tT7ixO+wcE1dRLvPaw==","iv":"PpUyM5flrOZGkx2x","data":"io97RjTOpPgNyht0dYkZavzjgCBd38E2GszjRHaDWxIW5bUWqzBIOrpw0QBSjsjAejh4F+n2obeV6qg544SoqlJO+0fFOh5GSbmxS0GtI20KuK/PoAaZlfPJ5AHtUNHjebH6ZhG08FchfLzCS8DYssevH0NLsa0SgvMHB/UZoQpTWeuk1A/o34Q/op73IHUOx/VZ239Eb5fTSmQ6ABQnDB+pZaazxbvbwilBUQeA64KtuFlZxNJka2m1H0ETon54y7Akojo/8xZQ+3bwXbFnFkuIEL67IpIv/OXxpFj63MwPeZXaWaR7d78YZ7wVCuETdhzGbCp4FFv4nflCnHVANxuNPQvrpKSyfDOAbYViGHaoZBV80a+ypX0IchvSwPIkphycsdjoEkybF2Ns2fYqO0xqVHfA0PlEEVNhR6/w1I0Tcx+7jehNFKry1dCM4CFmsiy1HHpMmJhtHyQLwNZdMLGpX7dQ0XQjgHXoVxwajW9lAO/It3ZqwlImyoGViYRyQjMLMVlj5goCGcgPtpQ618do8aGOumtb1L95/JFrKeyqb1bulRU+Mu2Eh35aG7XcO+TnJFVlE/QU9ybloKMlkTSR9oryacKreRdYywsDCo23UWp/fl8yOk4KQGNf0jDoRAL3hoIJUt08YlSgwci7hHWH76RlnxtfmmlpTfgJmHIVAOBeUwY5OyHcHlhOpu947S6FL+dTantDMFEld5QuAj/8jKTwbvvBfZCh5h1r0RtfXBn3aoKtPt+i+IlYEaTnVCe+RcpBV7c7gQjQPf4taxZ0b+OO6ufan+n9KUxhJwNZQy2B7OrVZIh+PNMgqZ8bxg1sqgRMGkCk9LG6SEok1xz0M1RbYw8q7e/bekqQtLtbZnmTht5UPnKRoOB5SplUe3EPAoQHzTRgjLDiG9zaj429ujIQ8ACYD2pfQuQRoj/n8XAprzcTDZv7tlj/ynHt7StOkRU6VHr1CKD5TuYQx9iBF0f21UuBG+xXh34B4DeWih+2ZjQOAoXqLioiLbBgjVaxqvn9CY6BRl2OLst6RpQW2oZEQS6te6eQlrisB2z3f6wxDiMbhKvxa452d6jzLsIPzdP+Cf5ObDJQNzm+jblQthc74em7c0WcpSMQj9jLwfmYb69kMz0cf7UySFFKvT4AMWj7c752vNZKshtDAuGm7s7qdHKQdbVWgxJu2H/pI+Qd7aPxBaPS/JM8ziXeP7rrn/omyIcxWWCB2hEJQnTi++vuY07VBq7tlANRj+edz3Vtv1pIgyGjgLMThwP0SFovt09UzDdjDW4x5htglibg6Uu0c+otQfHTPyUcEPaKDLU31gZulN9vNd53AYW5pwnQKWnfD7ZI4hRUNZp6iwPZWJUc/hmYvZTfxyIdJAbH9d/cUCYrZE/DHqm08i4bZNzVesZEnvJmlnWHnm9dhioWST3BHCZL"};
 let JFK = null;
 
 // EQUIPMENT — the kit list behind FILMS › Equipment, grouped in this order.
@@ -2295,7 +2295,10 @@ function renderJfk() {
           allow="fullscreen; picture-in-picture" allowfullscreen title="${JFK.title}"></iframe>
       </div>
       <p class="jfk-note">${JFK.note}</p>
-      <div class="jfk-lines">${JFK.lines.map(l => `<span>${l}</span>`).join("")}</div>
+      <dl class="jfk-info">
+        ${(JFK.info || []).map(f => `
+        <div class="jfk-fact"><dt>${f.label}</dt><dd>${f.value}</dd></div>`).join("")}
+      </dl>
       <section class="jfk-files">
         ${JFK.scripts.map(sc => `
         <a class="jfk-file" href="${sc.file}" download data-label="${sc.label}">
