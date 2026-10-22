@@ -549,13 +549,14 @@ svg { display: block; }
 .jfk-story-label { font-family: var(--font-display); font-size: 14px; letter-spacing: .04em; color: var(--text); transition: opacity .3s ease-out; }
 .jfk-story:hover .jfk-story-label { opacity: .7; }
 .jfk-story-note { font-size: 12px; color: var(--text-dim); }
+.jfk-head .jfk-ig { margin-top: 14px; }
 .jfk-ig {
   display: inline-flex; align-items: center; gap: 8px;
   text-decoration: none; color: var(--text-dim); cursor: pointer;
   font-family: var(--font-display); font-size: 11px; letter-spacing: .16em; text-transform: lowercase;
   transition: color .3s ease-out;
 }
-.jfk-ig svg { width: 17px; height: 17px; }
+.jfk-ig svg { width: 15px; height: 15px; }
 .jfk-ig:hover { color: var(--text); }
 @media (max-width: 740px) {
   .jfk-view { padding: 20px 18px 56px; }

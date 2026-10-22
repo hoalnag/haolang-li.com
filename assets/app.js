@@ -431,7 +431,7 @@ function foldersFromRows(rows) {
 // EXPERIENCE. Its content (the private Vimeo link, the screenplays, the
 // copy) lives in git-ignored private/jfk.json and ships only encrypted;
 // edit that file and re-run scripts/lock.mjs to change it.
-const JFK_LOCKED = {"iter":250000,"salt":"fGHCnn+2QJESblSrJ3t7og==","iv":"Gld4tx6OJvWhHWAZ","data":"bA6msvxWefYlZav7xotqMDOcntm607k8aAz0TFwKfeVVIItMbihzp30bJQGbzdQtE+AqxmE5c9Jo2qAgWCQSxcLrUmpGzX4s+eQTd58GiLvHisoQtaugPOM8Qhb3K4HxWNW7O4HYqZN0R5e2SuyK73rGKnHq/9+9VS0oZxiPw7fesdTYspGodX6cU6D1LHPZNGeASjbv1KUlwkfZBRfnXiQey/AxJFJuDPtngRfKKC8EFfDRkjvokV1C+EztzSwr+Ds5k6mGRa4ZNI06xeOeia+rFjYq6iWiaxyPBKGqz6C6kzYzJlYeiDK7UQXbLXa3zwe86DixKYVW4lryumLonb17BgHTDORfA4YaS5//VS5hO2TD0KRw09QOVt7jG61j6OMYNvHS5nhR15cw/NbOuqOIsjhz7CxBzWxsAZ4icRzSWOuixMoNmpGCiFLu0kwVhDS9A+tW2eikvwgFVSmaSs9FOJdontiYQ+g89zYlFr4anwGNCWomEfC8QAO7FdPa8XWxntBL3RSOlm3jJn/d0qzo+PSuDtyQfSNiiqENdET79jBOy4HHLmujNVIC5Akm9a5zQBv1oZ2TrZ9XeUTQJ+o7TAm5tW4ZgN19nuE69vTQbQBu7RD6kLsYckUjplE/cIxH+tRF4o9x0/Cf94tOpcVKfwFwG3ryjG9xOBQJIvXNfILDxP5lZ8dEVIFY2UmR6gYYjIXAEOJpfUzyUWFhErMQQaR2+AH+f3iPtOC7Cu/oU5D3EzpzEf4euYqImMo1rlEuowaUSl9WhtLU/5MLyOkPvLjvNiXxAAdG1/x1H+xIg7grtFGd9vVYpoyzj2Y+IkyV6yUWTmnc8CBhF4oUjS/QqGrw9D9SSoYAuo3mNEivXyuSLZ0f0JvqGwtS+sHFnd4k1OtAPJ+GLUGInkpHGfRxvcHRWg4M5b7pSJAP1DqGoiIeO7pIny6HOEOFGoqrVkNX6l5+7kCHqr4JPRYmkd7X2oC8G4ntgmR8b8n62aNqB7HV3uTlR/wFfD9HOD0lqN07njevmlqfMwhIVNdvUHfW4htXpuk7Dq/bbVqvpUzfIgboOUQQofFWi5HOgJnWYJcbg9qfRyuRupAm/TM/oQ+36tJhCQb/8sBXVBKOpXRmxpwLfYhW9/2n9CJmtq3znaLOTWESWqXV3ZqkqYeysHq/z4xrxY3MaxRhNA0441khwYgeGzdWDbSAGV5XIz3wO1EoHH8mEiyqo2yst810/BCKgSew3ESnrvaY4Muc4q4aeYJx3AFypqr/+/Cy9PXa9Nk2o+QmQlNc5DU89sIU4DHqM5z3xm0qYomzh2us0yPNe0w+6MRgMVKBp88zZ+CViUHBZ+P/BhUQJZ2TGuTEulxZ6oEMGKQuF5d4rIWDaHVapjAapSay5/T7Pw=="};
+const JFK_LOCKED = {"iter":250000,"salt":"fzpSMQ4yeK3KntRSvnFmcg==","iv":"e4h1B9F34DTroZ0u","data":"uMeq2NYzKDpGFfMn57AjKAu8a5CgovoIOBfNMXYUcSpazIyUs3qqglbjmtRV5W6/o1iMiz8tHpbToBtJr5NViNPae+j3DLMxzdjzUxTzjCx0qlw7ofazsHNAmXHUPFGFovY3tDRpbZX69ubKMjAhDMugFc+WL6rfSZPTxfAOMjmWhFbmfoiC/rRdDjZvG1V8FLSXkZGexThLrxkPd4R9oJ0Yki8ff+7z0n/gqWySlMRKCTOrdY7mRzRqnF/QCtNZabQ8rzT6QwC10LjysriUIdYcVIyOYk3jDPZI5XCoR2raOfpkRvPtxxYCb2x2d2302/3ks1tZrpHDOgwCcaIIZnNrObq0rM8ZWEdfW+soMBRxDD6Awa3MqK0KvMXTCHhcKeEUT8I5r5Cjl/CLb9n1TMe0oXGBF+fQ67NKCrZIBkn1sCfSP3RAMCmJUCx/4YuCcNlyj+i9H824DaDhhg98QiGm4QMhnTzONQ9HxGMiZ5Vwn1tOr9EeV2/roEljQSsd34+YJxvViVWtjnDKyiLrYpb7Q/LvsvN5lsV8ln1QyjJSY8nzXLvB4jh9v1HuIEybMOiemWjQ4WHg/ZRicZg8T8FydwBnYdz7eC2OrqTp3TPt87rSOf8iCod9cw4/zb80UcxyI1oG4ipASJY8N0Ef/PNKEmgBCvUjN9pbv1AofrLojTx7hmcgzKBV+3YHHyRfpVdUgj3G5Gc3eJJYyP4zDO9V8u/aaV2djUdDX6D2XRXWlOWmUPGjV00yluAWV/uxmZW06p78eiYjlryktCj5i4ZovGOjdF3ySa4IxnafyD6ZihFMCzbDuQ/iju40pMQuh1hXOXi4MfhErxOhq/6n5yvfxd2KOlRClmo4jKNRqKVLpv4qPwdHkkRCX5cqS/LbUYgldkOEATofhwoeVBhC4RBhT9XSvWcwfzP9bqyeItCRvBXQIdqOmDwBI8saYYHp1pybxksVmsSPn3TR2/G0u5XtU5SdZrMwZuTFFvsySpeGe+PjKbJkzUve580TBm4EH1yAHE3LEPBR7uH/r5T5uRvG7jVLQQQATLKFgX5JpyF2YONWmgL7Dl8nPC7s9zxZ4v7+fKW7Q4tY7JdSFoq4Y9lpek7M1nVyH+RYbwJaKbrbI/IjUE9PjxhIzwBMAGH91sUX1CHrGvSp6MicauqXHz13G9jHr0S//MA8D2kG4PUKmT8JMy50KPwgRS7bW/hThtcncybEnaFGqhUmWTziYI/GQuAvj+MTyv46+LZhj24WB3jcR/m8eHl5CoOTFNKqLLkGk5x15u4uwPSsHimxy7m7ZPCNHXjgK/hkDBqjRCV4hzisuCr+5Kr7k5rKuyBjhw4vA8f+Pvo4OeWtKZvXfHISbaJatZW7k/QCBExUAnI3gcVMODUj2mgqVvpJCzYFBV7/9Ik="};
 let JFK = null;
 
 // EQUIPMENT — the kit list behind FILMS › Equipment, grouped in this order.
@@ -2283,12 +2283,16 @@ function renderJfk() {
     return;
   }
   const v = JFK.vimeo;
+  const igHandle = "@" + JFK.instagram.replace(/\/+$/, "").split("/").pop();
   els.jfkView.innerHTML = `
     <article class="jfk-wrap">
       <header class="jfk-head">
         <h1 class="jfk-title">${JFK.title}</h1>
         <div class="jfk-sub">${JFK.subtitle}</div>
         <div class="jfk-status">${JFK.status}</div>
+        <a class="jfk-ig" href="${JFK.instagram}" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 20 20"><use href="#s-ig"/></svg><span>${igHandle}</span>
+        </a>
       </header>
       <div class="jfk-frame">
         <iframe src="https://player.vimeo.com/video/${v.id}?${v.h ? `h=${v.h}&` : ""}title=0&byline=0&portrait=0&dnt=1"
@@ -2312,9 +2316,6 @@ function renderJfk() {
           <span class="jfk-story-label">${JFK.story.label}</span>
           <span class="jfk-story-note">${JFK.story.note}</span>
         </button>
-        <a class="jfk-ig" href="${JFK.instagram}" target="_blank" rel="noopener" aria-label="Instagram">
-          <svg viewBox="0 0 20 20"><use href="#s-ig"/></svg><span>@yipihaolang</span>
-        </a>
       </nav>
     </article>`;
   vimeoWatched = JFK.title;
