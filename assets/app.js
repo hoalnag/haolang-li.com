@@ -369,7 +369,25 @@ const FILM_PROJECTS = [
   film("One Way Street", null, { roles: ["Director"] }),
   film("Sunset Hunter", null, { roles: ["Director", "DP"] }),
   film("Rosy's Project", null, { roles: ["DP"] }),
-  film("Denali", null, { roles: ["Producer"] }),
+  film("Denali", "2025-04-01T00:00", {
+    poster: "assets/photos/films/denali/poster.jpg",
+    meta: "2025",
+    type: "Music Video",
+    director: "Jiafan Hydro Lin",
+    description: "Denali means \u201cof where\u201d in Mandarin; the song moves between Mandarin, English and Cantonese, naming the ordinary moments its writer spent with his partner.\n\nA man struck by Cupid\u2019s arrow meets a woman wearing the same mark in the middle of the city. Rather than give in to a love that arrives already written, he tries to pull the arrow out — and the two meet again anyway, by coincidence rather than fate. Shot in New York, with a Super 8 montage and the old subway running through it.",
+    festivals: ["Director / Writer: Jiafan Hydro Lin", "Director of Photography: Jinjie Jack Wang", "Cast: Silas, Raegan Parker", "Song: \u65b0\u9bae\u592a\u5b50"],
+    roles: ["Producer"],
+    stills: [
+      "assets/photos/films/denali/still-1.jpg",
+      "assets/photos/films/denali/still-2.jpg",
+      "assets/photos/films/denali/still-3.jpg",
+      "assets/photos/films/denali/still-4.jpg",
+      "assets/photos/films/denali/still-5.jpg",
+      "assets/photos/films/denali/still-6.jpg",
+      "assets/photos/films/denali/still-7.jpg",
+      "assets/photos/films/denali/still-8.jpg",
+    ],
+  }),
 ];
 // the FILMS list reads newest first — order comes from each project's own
 // date, so adding one is just a matter of giving it the right `at`.
