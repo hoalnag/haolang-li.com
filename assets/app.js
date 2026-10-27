@@ -164,7 +164,6 @@ const FILM_PROJECTS = [
       "assets/photos/films/rooted/still-8.jpg",
       "assets/photos/films/rooted/still-9.jpg",
       "assets/photos/films/rooted/still-10.jpg",
-      "assets/photos/films/rooted/still-11.jpg",
       "assets/photos/films/rooted/still-12.jpg",
       "assets/photos/films/rooted/still-13.jpg",
     ],
