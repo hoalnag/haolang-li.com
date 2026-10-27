@@ -445,6 +445,39 @@ function foldersFromRows(rows) {
   return tops;
 }
 
+/* GENERATIVE PROJECTS — the page behind FILMS › Generative Projects: two
+   clips running as a banner, the Rooted material underneath, and the AI
+   tests with the prompt that made each one. The clips are Vimeo embeds;
+   each carries a poster frame so the banner still reads while they load. */
+const GENERATIVE = {
+  "banner": [
+    {
+      "id": "1239669720",
+      "poster": "assets/video/generative/banner-1.jpg"
+    },
+    {
+      "id": "1239669721",
+      "poster": "assets/video/generative/banner-2.jpg"
+    }
+  ],
+  "tests": [
+    {
+      "id": "1207942084",
+      "title": "TechHalla",
+      "meta": "15s · Seedance",
+      "poster": "assets/video/generative/techhalla.jpg",
+      "prompt": "[STYLE + CAMERA + ATMOSPHERE]\nUltra-photorealistic cinematic 15-second action sequence from a grounded action thriller film. Nighttime at an abandoned industrial train yard. Old trains, rusted tracks, broken platforms and warehouses. Strong moonlight and industrial lighting. The visual language is gritty and realistic with hyper-realistic practical destruction. Camera is handheld-dynamic with urgent moves.\n\n[IMAGE REFERENCES]\nNo reference images provided. Generate a fully consistent lead character: a male fugitive in his mid-30s, short hair, intense expression. He wears a dark jacket, jeans and boots. Maintain exact same appearance and clothing throughout the clip.\n\n[TIMELINE SECOND BY SECOND]\n0-3s: [Dynamic handheld tracking shot from side-rear] The man runs across the train yard as a freight train derails violently after hitting a collapsed section of track. Massive train cars tip over and crash into the ground, sending metal, wood and cargo flying. The camera tracks him urgently as the destruction spreads.\n\n3-7s: [Slow continuous orbiting camera moving around the frozen destruction] At the peak of the derailment, everything freezes in perfect realistic physics. Huge train cars, twisted metal, wooden debris and clouds of dust hang motionless in the air with accurate weight and trajectories. The camera performs a smooth, continuous orbit through the frozen chaos, moving between large suspended train cars and passing close to sharp metal fragments while the man remains visible.\n\n7-15s: [Dynamic tracking shot as time resumes] At the 7-second mark time snaps back to forward motion with a slight realistic temporal residue. Some outer debris shows a very subtle reverse lag before continuing. The man has used the frozen moment to dive behind a concrete barrier. When motion resumes, several large pieces of metal miss him. He stays low and runs toward an open warehouse as debris finally crashes down. The camera tracks with him through the dust.\n\n[STYLE & QUALITY BOOSTERS]\nPhotorealistic 8K, hyper-realistic rigid body destruction with correct material properties (metal, wood, train parts), perfect frozen mid-air physics, seamless transition from freeze to resume, natural dust interaction, heavy cinematic motion blur on fast debris, stable character performance, movie-level practical destruction VFX quality."
+    },
+    {
+      "id": "1207922440",
+      "title": "Korean Rural",
+      "meta": "15s · Seedance 2.0",
+      "poster": "assets/video/generative/korean-rural.jpg",
+      "prompt": "Main subject: young Korean woman, early 20s, natural everyday appearance, faded charcoal-grey sleeveless crop top, loose high-waisted light-wash jeans, black canvas sneakers, black cord necklace, black wavy hair in a messy side ponytail with wispy bangs. Realistic skin texture, minimal makeup, warm and approachable personality. Maintain consistent identity, clothing, hairstyle, and appearance throughout the entire video.\nLocation: Authentic Korean residential neighborhood during a calm late morning. Narrow concrete alleys, low-rise homes, small terraces, potted plants, laundry lines, bicycles, utility poles, overhead wires, mature trees casting moving shadows, quiet residential atmosphere. No stores, advertisements, cafés, crowds, or commercial activity.\nVisual Style: Ultra-realistic documentary realism. Genuine candid behavior. Natural body language. Unscripted slice-of-life feeling. Strong environmental authenticity. Rich real-world details and believable human motion.\nCamera Style: Early-2000s consumer DV camcorder aesthetic. Friend casually recording everyday moments. Heavy handheld shake, imperfect framing, frequent autofocus hunting, lens breathing, exposure pumping when moving between sun and shade, occasional motion blur, subtle rolling shutter, mild digital compression artifacts, faded colors, soft contrast, slight sensor noise. No stabilization. No cinematic camera moves. No modern color grading.\n00:00–00:02\nOutside a small house entrance. She sits on a low concrete wall adjusting her ponytail with both hands raised. A light breeze moves loose strands of hair. She smiles naturally while the camera struggles to hold focus.\n00:02–00:04\nThe camera follows her into a narrow alley lined with potted plants and concrete walls. She notices a stray cat approaching and crouches down. Framing drifts off-center as the operator tries to keep up.\n00:04–00:06\nShe gently pets and feeds the cat. Autofocus repeatedly shifts between her face and the animal. Morning sunlight flickers through leaves overhead.\n00:06–00:08\nSmall front yard beside her house. She hangs laundry on a clothesline while fabrics sway in the breeze. Exposure changes as clouds briefly pass overhead.\n00:08–00:10\nOn a quiet terrace with a ceramic coffee cup. She sits comfortably watching the neighborhood, occasionally brushing hair behind her ear. Loose handheld side angle with natural camera drift.\n00:10–00:12\nClose side profile. Someone off-camera greets her. She turns, raises her hand, smiles warmly, and casually says, “Annyeong.” The camera catches the moment slightly late.\n00:12–00:15\nWalking slowly down a tree-lined residential lane holding her coffee cup. She notices the camera, gives a small genuine smile, then looks away and continues walking. Recording cuts abruptly to black mid-motion as if the camcorder was switched off.\nAudio: Natural ambient sound only — morning birds, distant motorcycles, light wind, leaves rustling, faint neighborhood chatter, cat sounds, footsteps on concrete, fabric moving on clotheslines, subtle residential ambience. No music. No sound design. No narration.\nGoal: Authentic Korean neighborhood life captured like a forgotten home video from the early 2000s — candid, imperfect, realistic, warm, and deeply believable."
+    }
+  ]
+};
+
 // JFK, JFK — the film's own page, behind the same password gate as WORK
 // EXPERIENCE. Its content (the private Vimeo link, the screenplays, the
 // copy) lives in git-ignored private/jfk.json and ships only encrypted;
@@ -1348,7 +1381,7 @@ const els = {
   columnsView: $("columns-view"), galleryView: $("gallery-view"), digitalView: $("digital-view"),
   filmsView: $("films-view"), filmsSectionView: $("films-section-view"),
   filmDetailView: $("film-detail-view"),
-  writingsView: $("writings-view"), workView: $("work-view"), equipmentView: $("equipment-view"), jfkView: $("jfk-view"), essayView: $("essay-view"), stillLightbox: $("still-lightbox"),
+  writingsView: $("writings-view"), workView: $("work-view"), equipmentView: $("equipment-view"), jfkView: $("jfk-view"), generativeView: $("generative-view"), essayView: $("essay-view"), stillLightbox: $("still-lightbox"),
 
   rubber: $("rubber-band"),
   menuLayer: $("menu-layer"), overlayLayer: $("overlay-layer"),
@@ -1579,7 +1612,8 @@ function render() {
   const onWork = cwd.name === "WORK EXPERIENCE" && cwd.parent === ROOT;
   const onEquipment = cwd.name === "Equipment" && cwd.parent && cwd.parent.name === "FILMS";
   const onJfk = cwd.name === "JFK, JFK" && cwd.parent && cwd.parent.name === "FILMS";
-  const custom = onDigital || onFilms || onFilmDetail || onFilmsSection || onWritings || onEssay || onWork || onEquipment || onJfk;
+  const onGenerative = cwd.name === "Generative Projects" && cwd.parent && cwd.parent.name === "FILMS";
+  const custom = onDigital || onFilms || onFilmDetail || onFilmsSection || onWritings || onEssay || onWork || onEquipment || onJfk || onGenerative;
   stopHome();
   stopDigitalHero();
   els.homeView.hidden = !onDesk;
@@ -1592,6 +1626,7 @@ function render() {
   els.workView.hidden = !onWork;
   els.equipmentView.hidden = !onEquipment;
   els.jfkView.hidden = !onJfk;
+  els.generativeView.hidden = !onGenerative;
   els.iconView.hidden = custom || view !== "icon" || onDesk;
   els.listView.hidden = custom || view !== "list";
   els.columnsView.hidden = custom || view !== "columns";
@@ -1617,6 +1652,8 @@ function render() {
     renderEquipment();
   } else if (onJfk) {
     renderJfk();
+  } else if (onGenerative) {
+    renderGenerative();
   } else if (view === "icon") {
     els.iconView.innerHTML = list.map((n, i) => `
       <div class="icon-item ${selection.has(n) ? "selected" : ""}" data-i="${i}">
@@ -1654,7 +1691,7 @@ function render() {
     els.content.scrollTop = 0;
     arrive(onDesk ? els.homeView : onDigital ? els.digitalView : onFilms ? els.filmsView
       : onFilmsSection ? els.filmsSectionView : onFilmDetail ? els.filmDetailView
-      : onWritings ? els.writingsView : onEssay ? els.essayView : onWork ? els.workView : onEquipment ? els.equipmentView : onJfk ? els.jfkView
+      : onWritings ? els.writingsView : onEssay ? els.essayView : onWork ? els.workView : onEquipment ? els.equipmentView : onJfk ? els.jfkView : onGenerative ? els.generativeView
       : view === "list" ? els.listView : view === "columns" ? els.columnsView
       : view === "gallery" ? els.galleryView : els.iconView);
   }
@@ -1666,7 +1703,7 @@ let lastArrivalId = null;
    one after another (see .is-arriving in the stylesheet) */
 function arrive(el) {
   if (!el) return;
-  el.querySelectorAll(".film-row, .fd-still, .dg-item, .fs-credit-item, .wr-item, .wk-item, .eq-item").forEach((c, i) =>
+  el.querySelectorAll(".film-row, .fd-still, .dg-item, .fs-credit-item, .wr-item, .wk-item, .eq-item, .gp-still").forEach((c, i) =>
     c.style.setProperty("--i", Math.min(i, 12)));
   el.classList.remove("is-arriving");
   void el.offsetWidth;
@@ -2287,6 +2324,70 @@ function filmStillsRow(p, list) {
         ${filmCredits(p)}
       </div>
     </button>`;
+}
+
+/* ================= GENERATIVE PROJECTS ================= */
+const ROOTED = () => FILM_PROJECTS.find(p => p.name === "Rooted");
+function renderGenerative() {
+  const r = ROOTED();
+  const frame = (v, cls, extra) => `
+    <div class="${cls}" style="background-image:url('${v.poster}')">
+      <iframe src="https://player.vimeo.com/video/${v.id}?${extra}dnt=1" title="${v.title || "Generative clip"}"
+        allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>
+    </div>`;
+  els.generativeView.innerHTML = `
+    <section class="gp-banner">
+      <div class="gp-banner-clips">
+        ${GENERATIVE.banner.map(v => frame(v, "gp-banner-clip", "background=1&autoplay=1&loop=1&muted=1&")).join("")}
+      </div>
+      <h1 class="gp-banner-title">Generative Projects</h1>
+    </section>
+    <div class="gp-wrap">
+      ${r ? `
+      <section class="gp-film">
+        <header class="gp-film-head">
+          <h2 class="gp-film-title">${r.name}</h2>
+          <div class="gp-film-meta">${[r.type, r.meta, r.director && "Dir. " + r.director].filter(Boolean).join(" · ")}</div>
+        </header>
+        ${filmDescHtml(r, "gp-film-desc")}
+        <div class="gp-stills" data-still-ar="${r.stillRatio}" style="--still-ar:${r.stillRatio}">
+          ${r.stills.map((src, i) => `<button class="gp-still" data-i="${i}"><img src="${src}" alt="" loading="lazy"></button>`).join("")}
+        </div>
+        <button class="gp-open">Open the film ↗</button>
+      </section>` : ""}
+      <section class="gp-tests">
+        <h2 class="gp-tests-head">Test footage</h2>
+        ${GENERATIVE.tests.map((t, i) => `
+        <article class="gp-test">
+          ${frame(t, "gp-test-frame", "")}
+          <div class="gp-test-bar">
+            <span class="gp-test-title">${t.title}</span>
+            <span class="gp-test-meta">${t.meta}</span>
+            <button class="gp-prompt-toggle" data-i="${i}" aria-expanded="false">Prompt ↓</button>
+          </div>
+          <pre class="gp-prompt" data-i="${i}" hidden>${t.prompt}</pre>
+        </article>`).join("")}
+      </section>
+    </div>`;
+  vimeoWatched = "Generative Projects";
+  const stills = r ? r.stills : [];
+  els.generativeView.querySelectorAll(".gp-still").forEach(btn => btn.addEventListener("click", () => {
+    track("still-open", { film: "Rooted", still: +btn.dataset.i + 1, from: "generative" });
+    openStillLightbox(stills, +btn.dataset.i);
+  }));
+  els.generativeView.querySelector(".gp-open")?.addEventListener("click", () => {
+    const node = r && INDEX.get(r.id);
+    if (node) { track("film-open", { film: r.name, from: "generative" }); navigate(node); }
+  });
+  els.generativeView.querySelectorAll(".gp-prompt-toggle").forEach(btn => btn.addEventListener("click", () => {
+    const pre = els.generativeView.querySelector(`.gp-prompt[data-i="${btn.dataset.i}"]`);
+    const open = pre.hidden;
+    pre.hidden = !open;
+    btn.setAttribute("aria-expanded", String(open));
+    btn.textContent = open ? "Prompt ↑" : "Prompt ↓";
+    if (open) track("prompt-open", { clip: GENERATIVE.tests[+btn.dataset.i].title });
+  }));
+  fitStills(els.generativeView);
 }
 
 /* ================= JFK, JFK =================
@@ -3042,6 +3143,7 @@ function curView() {
   if (cwd.name === "WORK EXPERIENCE" && !els.workView.hidden) return "work";
   if (cwd.name === "Equipment" && !els.equipmentView.hidden) return "equipment";
   if (cwd.name === "JFK, JFK" && !els.jfkView.hidden) return "jfk";
+  if (cwd.name === "Generative Projects" && !els.generativeView.hidden) return "generative";
   return view;
 }
 function elementsForItems() {
@@ -3096,7 +3198,7 @@ els.content.addEventListener("mousedown", e => {
   }
   if (e.target.closest(".lv-head")) return;
   // columns and gallery wire their own clicks; only icon/list/digital drag-select
-  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay", "work", "equipment", "jfk"].includes(curView())) { els.content.focus(); return; }
+  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay", "work", "equipment", "jfk", "generative"].includes(curView())) { els.content.focus(); return; }
   const hit = handleItemMousedown(e);
   if (!hit) startRubberBand(e);
   els.content.focus();
@@ -3105,7 +3207,7 @@ els.content.addEventListener("mousedown", e => {
    handling) already behaved; mouse and touch now agree. A modified click
    (⌘/Ctrl/Shift) stays selection-only, since that's how multi-select works. */
 els.content.addEventListener("click", e => {
-  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay", "work", "equipment", "jfk"].includes(curView())) return;
+  if (["home", "columns", "gallery", "films", "films-section", "film-detail", "writings", "essay", "work", "equipment", "jfk", "generative"].includes(curView())) return;
   if (e.target.tagName === "INPUT") return;          // don't hijack an inline rename
   if (e.metaKey || e.ctrlKey || e.shiftKey) return;   // modified click: selection only
   const el = e.target.closest(ITEM_SEL[curView()]);
