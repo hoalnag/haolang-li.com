@@ -1797,13 +1797,9 @@ const CHEVRON = (d) => `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d
 // On a phone HOME is a column of three stills instead of one frame
 const homePhone = matchMedia("(max-width: 740px)");
 homePhone.addEventListener("change", () => { if (cwd === ROOT && !els.homeView.hidden) { stopHome(); renderHome(); } });
-const homePapersHtml = () => ROOT.children.filter(n => !n.children).map(n =>
-  `<button class="hl-link" data-id="${n.id}">${n.name.replace(/\.[^.]+$/, "").replace(/_/g, " ")}</button>`).join("");
-
 function renderHome() {
   if (homePhone.matches) { renderHomeStack(); return; }
   const intro = HOME_INTRO.paragraphs.filter(t => t && String(t).trim());
-  const papers = ROOT.children.filter(n => !n.children);   // CV, self intro, reel — still one tap away
   els.homeView.innerHTML = `
     <section class="home-hero">
       <div class="home-stage">
@@ -1821,9 +1817,6 @@ function renderHome() {
       ${intro.length ? `
         <h2 class="hi-label">${HOME_INTRO.label}</h2>
         <div class="hi-body">${intro.map(t => `<p>${t}</p>`).join("")}</div>` : ""}
-      <nav class="home-links">
-        ${papers.map(n => `<button class="hl-link" data-id="${n.id}">${n.name.replace(/\.[^.]+$/, "").replace(/_/g, " ")}</button>`).join("")}
-      </nav>
     </section>`;
 
   const hero = els.homeView.querySelector(".home-hero");
@@ -1849,12 +1842,6 @@ function renderHome() {
     const dx = e.clientX - sx; sx = null;
     if (Math.abs(dx) > 40) { swiped = true; homeStep(dx < 0 ? 1 : -1); }
   });
-  els.homeView.querySelectorAll(".hl-link").forEach(b =>
-    b.addEventListener("click", () => {
-      const node = INDEX.get(b.dataset.id);
-      track("file-open", { file: node ? node.name : b.dataset.id });
-      openNode(node);
-    }));
 
   homeLayer = 0;
   if (homePos < 0) {
@@ -1967,7 +1954,6 @@ function renderHomeStack() {
       ${intro.length ? `
         <h2 class="hi-label">${HOME_INTRO.label}</h2>
         <div class="hi-body">${intro.map(t => `<p>${t}</p>`).join("")}</div>` : ""}
-      <nav class="home-links">${homePapersHtml()}</nav>
     </section>`;
   const stack = els.homeView.querySelector(".home-stack");
   stack.querySelector(".home-progress i").addEventListener("animationend", () => stackStep(1));
@@ -1984,12 +1970,6 @@ function renderHomeStack() {
     const entry = stackSets[stackPos] && stackSets[stackPos][0], node = entry && INDEX.get(entry.film.id);
     if (node) { track("film-open", { film: node.name, from: "home-phone" }); navigate(node); }
   }));
-  els.homeView.querySelectorAll(".hl-link").forEach(b =>
-    b.addEventListener("click", () => {
-      const node = INDEX.get(b.dataset.id);
-      track("file-open", { file: node ? node.name : b.dataset.id });
-      openNode(node);
-    }));
   if (stackPos < 0) {
     const opening = homeOpeningFrames().map(entry => {
       const set = [entry];
