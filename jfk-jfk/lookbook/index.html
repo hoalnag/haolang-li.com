@@ -8,7 +8,7 @@
 <meta name="description" content="Lookbook for JFK, JFK, a short film by Haolang Li.">
 <script type="module" src="https://cdn.jsdelivr.net/npm/@google/model-viewer@4.0.0/dist/model-viewer.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600&family=Barlow:wght@300;400;500;600&family=Courier+Prime:wght@400;700&family=Noto+Sans+SC:wght@300;400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600&family=Courier+Prime:wght@400;700&family=Noto+Sans+SC:wght@300;400;500&display=swap">
 <style>
 /* Layout: a fixed contents rail on the left, one long ordered document on the right, a 中/EN switch top right. Paper and ink only; image slots are the only grey. */
 :root {
@@ -24,15 +24,10 @@
   --sans: "Noto Sans SC", "PingFang SC", "Helvetica Neue", Arial, sans-serif;
   --rail-w: 248px;
 }
-:root[lang="en"] { --serif: "Barlow", "DIN Next", "DIN Pro", "D-DIN", "PingFang SC", "Helvetica Neue", Arial, sans-serif; --sans: "Barlow", "DIN Next", "DIN Pro", "D-DIN", "PingFang SC", "Helvetica Neue", Arial, sans-serif; }
+:root[lang="en"] { --serif: "IBM Plex Sans", "PingFang SC", "Helvetica Neue", Arial, sans-serif; --sans: "IBM Plex Sans", "PingFang SC", "Helvetica Neue", Arial, sans-serif; }
 :root[lang="en"] body { -webkit-font-smoothing: antialiased; }
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme="light"]) {
-    --paper: #111111; --ink: #EDEDEA; --ink-2: #C4C4C0; --ink-3: #86867F;
-    --rule: #2C2C2A; --slot: #1D1D1C; --slot-ink: #5E5E59; --rail: #0B0B0B; color-scheme: dark;
-  }
-}
-:root[data-theme="dark"] {
+/* dark by default; light only when asked for */
+:root:not([data-theme="light"]) {
   --paper: #111111; --ink: #EDEDEA; --ink-2: #C4C4C0; --ink-3: #86867F;
   --rule: #2C2C2A; --slot: #1D1D1C; --slot-ink: #5E5E59; --rail: #0B0B0B; color-scheme: dark;
 }
@@ -97,6 +92,7 @@ main { margin-left: var(--rail-w); }
 @media (max-width: 900px) { main { margin-left: 0; } }
 .page {
   max-width: 1120px;
+  margin-inline: auto;
   padding-block: 0 120px;
   padding-left: max(16px, env(safe-area-inset-left, 0px), 4vw);
   padding-right: max(16px, env(safe-area-inset-right, 0px), 4vw);
@@ -173,7 +169,7 @@ blockquote { margin: 32px 0 0; font-family: var(--serif); font-size: clamp(20px,
 .person p { margin: 0; font-size: 14px; line-height: 1.75; color: var(--ink-2); }
 
 /* story */
-.logline { font-family: "Barlow", "DIN Next", "DIN Pro", "D-DIN", "PingFang SC", "Helvetica Neue", Arial, sans-serif; font-weight: 300; font-size: clamp(24px, 3vw, 36px); line-height: 1.45; margin: 0; max-width: 26em; text-wrap: pretty; }
+.logline { font-family: "IBM Plex Sans", "PingFang SC", "Helvetica Neue", Arial, sans-serif; font-weight: 300; font-size: clamp(24px, 3vw, 36px); line-height: 1.45; margin: 0; max-width: 26em; text-wrap: pretty; }
 .syn { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 48px; }
 @media (max-width: 760px) { .syn { grid-template-columns: 1fr; } }
 .syn .prose { margin-top: 0; border-top: none; padding-top: 0; }
@@ -377,6 +373,21 @@ body.script-open .lang-fixed { right: calc(var(--sp-w) + 20px); }
 .pop p:last-child { margin: 0; }
 @media (max-width: 640px) { .plist { grid-template-columns: 1fr; } }
 
+
+/* director's notes */
+.dn { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--ink); max-width: 40em; }
+.dn li { padding: 12px 0 12px 26px; border-bottom: 1px solid var(--rule); position: relative; font-family: var(--serif); font-size: 16px; line-height: 1.75; color: var(--ink-2); }
+.dn li::before { content: ""; position: absolute; left: 4px; top: 1.45em; width: 10px; height: 1px; background: var(--ink-3); }
+.dn b { color: var(--ink); font-weight: 600; }
+:root[lang="en"] .dn li { font-size: 17px; line-height: 1.6; }
+.flow { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid var(--ink); }
+.flow li { position: relative; padding: 16px 22px 18px 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.6; color: var(--ink-3); }
+.flow li:not(:last-child)::after { content: "→"; position: absolute; right: 6px; top: 14px; color: var(--ink-3); font-size: 14px; }
+.flow i { font-style: normal; font-size: 11px; letter-spacing: .1em; }
+.flow b { font-family: var(--serif); font-weight: 500; font-size: 19px; color: var(--ink); }
+.flow-why { margin: 22px 0 0; font-family: var(--serif); font-size: 18px; color: var(--ink); max-width: 36em; }
+@media (max-width: 760px) { .flow { grid-template-columns: 1fr; } .flow li { padding-right: 0; border-bottom: 1px solid var(--rule); } .flow li::after { display: none; } }
+
 /* locations */
 .filters { display: flex; gap: 6px; flex-wrap: wrap; }
 .filters button { background: none; border: 1px solid var(--rule); padding: 5px 12px; font-size: 12px; cursor: pointer; }
@@ -433,6 +444,14 @@ footer.end { margin-top: 120px; padding-top: 16px; border-top: 1px solid var(--r
 :root[lang="en"] .pname { font-size: 20px; }
 :root[lang="en"] .toc .sec { font-size: 15px; }
 
+/* English: DIN Alternate for titles (on Macs; it only comes in bold), IBM Plex Sans as the fallback and for body text */
+:root[lang="en"] { --din: "DIN Alternate", "DIN Next", "DIN Pro", "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif; }
+:root[lang="en"] :is(.cover h1, .part h2, .head h3, .who h3, .film h4, .prop h4, .person h4, .folder-head h4, .crew h4, .pname, .flow b, .brand b, .bar b, .toc .sec, .feel, .fund dd.big) { font-family: var(--din); font-weight: 700; }
+:root[lang="en"] .cover h1 { letter-spacing: .01em; font-size: clamp(52px, 8.4vw, 116px); line-height: 1; }
+:root[lang="en"] .cover .sub { font-family: "Noto Serif SC", serif; letter-spacing: .3em; }
+:root[lang="en"] .brand b, :root[lang="en"] .bar b { letter-spacing: .04em; }
+.brand b span, .brand span span { font: inherit; letter-spacing: inherit; color: inherit; }
+
 /* when the script window narrows the page, the page reflows on its own width */
 main { container: lb / inline-size; }
 @container lb (max-width: 900px) {
@@ -446,6 +465,9 @@ main { container: lb / inline-size; }
   .film { grid-template-columns: 96px minmax(0, 1fr); gap: 16px; }
   .safety div { grid-template-columns: 1fr; gap: 4px; }
   .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .flow { grid-template-columns: 1fr; }
+  .flow li { border-bottom: 1px solid var(--rule); }
+  .flow li::after { display: none; }
   .props { grid-template-columns: 1fr; }
   .plist { grid-template-columns: 1fr; }
 }
@@ -459,13 +481,13 @@ main { container: lb / inline-size; }
 <div class="lang lang-fixed" role="group" aria-label="Language"><button type="button" data-set="zh" aria-pressed="true">中</button><button type="button" data-set="en" aria-pressed="false">EN</button></div>
 
 <div class="bar">
-  <b>肯尼迪，肯尼迪</b>
+  <b><span class="l-zh">肯尼迪，肯尼迪</span><span class="l-en">JFK, JFK</span></b>
   <div class="lang" role="group" aria-label="Language"><button type="button" data-set="zh" aria-pressed="true">中</button><button type="button" data-set="en" aria-pressed="false">EN</button></div>
   <button type="button" class="menu" id="menuBtn" aria-controls="rail" aria-expanded="false"><span class="l-zh">目录</span><span class="l-en">Contents</span></button>
 </div>
 
 <aside class="rail" id="rail">
-  <div class="brand"><a href="#cover"><b>肯尼迪，肯尼迪</b></a><span>JFK, JFK · LOOKBOOK</span></div>
+  <div class="brand"><a href="#cover"><b><span class="l-zh">肯尼迪，肯尼迪</span><span class="l-en">JFK, JFK</span></b></a><span><span class="l-zh">JFK, JFK</span><span class="l-en">肯尼迪，肯尼迪</span> · LOOKBOOK</span></div>
   <nav class="toc" aria-label="Contents">
     <ol>
       <li><a class="sec" href="#cover"><i>00</i><span class="l-zh">作品</span><span class="l-en">The film</span></a></li>
@@ -491,10 +513,11 @@ main { container: lb / inline-size; }
           <li><a href="#ref-films"><span class="l-zh">参考影片总表</span><span class="l-en">Reference films</span></a></li>
           <li><a href="#ref-stills"><span class="l-zh">剧照分类</span><span class="l-en">Stills by category</span></a><ol class="sub" id="foldNav"></ol></li>
           <li><a href="#ref-camera"><span class="l-zh">运镜</span><span class="l-en">Camera movement</span></a></li>
-          <li><a href="#ref-shots"><span class="l-zh">景别</span><span class="l-en">Shot sizes</span></a></li>
+          <li><a href="#ref-shots"><span class="l-zh">景别、镜头与构图</span><span class="l-en">Shots and composition</span></a></li>
           <li><a href="#ref-color"><span class="l-zh">色彩</span><span class="l-en">Color</span></a></li>
           <li><a href="#ref-light"><span class="l-zh">光线</span><span class="l-en">Lighting</span></a></li>
-          <li><a href="#ref-lens"><span class="l-zh">摄影机与镜头</span><span class="l-en">Camera and lenses</span></a></li>
+          <li><a href="#ref-lens"><span class="l-zh">摄影机</span><span class="l-en">Camera</span></a></li>
+          <li><a href="#ref-plan"><span class="l-zh">分镜计划</span><span class="l-en">Storyboard plan</span></a></li>
           <li><a href="#ref-feeling"><span class="l-zh">情绪与质感</span><span class="l-en">Mood and texture</span></a></li>
         </ol></li>
       <li><a class="sec" href="#props"><i>04</i><span class="l-zh">道具</span><span class="l-en">Props</span></a>
@@ -520,8 +543,8 @@ main { container: lb / inline-size; }
     <figure class="slot" data-slot="cover-key"><span class="lbl"><span class="l-zh">主视觉</span><span class="l-en">Key image</span></span></figure>
     <div>
       <p class="eyebrow">A short film by Haolang Li</p>
-      <h1>肯尼迪，肯尼迪</h1>
-      <p class="sub">JFK, JFK</p>
+      <h1><span class="l-zh">肯尼迪，肯尼迪</span><span class="l-en">JFK, JFK</span></h1>
+      <p class="sub"><span class="l-zh">JFK, JFK</span><span class="l-en">肯尼迪，肯尼迪</span></p>
     </div>
     <dl class="facts">
       <div><dt><span class="l-zh">类型</span><span class="l-en">Format</span></dt><dd><span class="l-zh">剧情短片</span><span class="l-en">Narrative short</span></dd></div>
@@ -808,100 +831,60 @@ main { container: lb / inline-size; }
   </section>
 
   <section class="block" id="ref-camera" data-nav>
-    <div class="head"><h3><span class="l-zh">运镜</span><span class="l-en">Camera movement</span></h3><span class="eyebrow"><span class="l-zh">草稿 · 待与摄影指导确认</span><span class="l-en">Draft · to confirm with the DP</span></span></div>
+    <div class="head"><h3><span class="l-zh">运镜</span><span class="l-en">Camera movement</span></h3><span class="eyebrow"><span class="l-zh">导演笔记</span><span class="l-en">Director&#x27;s notes</span></span></div>
+    
     <div class="essay">
-      <div class="prose l-zh">
-        <p>镜头跟着车走，不跟着人走。车内戏以固定在车上的机位为主（引擎盖、车门、副驾驶），让城市在窗外流动，人物在画内几乎不动。这是《驾驶我的车》和《完美的日子》处理车内的方式。</p>
-        <p>车外用两种距离：高处的远景，让一辆脏七座车被高架和车流吞没；和车平行的跟拍，只在赶路的段落使用（S14 去机场）。</p>
-        <p>小孩出场以后，手持可以更松，机位降到孩子的视线高度（S12 游乐场、S15 便利店、S18 趴在车头）。机场一场（S16）节奏最快，手持跟着王强搬箱子，直到警察敲窗，镜头停下来。</p>
-        <p>结尾 S23 用跟拍，父子背对或侧对镜头往前走，迎着逆光。全片避免没有理由的运动镜头。</p>
-      </div>
-      <div class="prose l-en" lang="en">
-        <p>The camera moves with the van, not with the people. Interior scenes mostly use rigs fixed to the car (hood, door, passenger seat), so the city slides past the window while the characters barely move in frame. That is how Drive My Car and Perfect Days handle their cars.</p>
-        <p>Outside the van we work at two distances: high wide shots where a dirty minivan gets swallowed by overpasses and traffic, and side-by-side tracking only when the story is in a hurry (S14, on the way to the airport).</p>
-        <p>Once the Kid is in the film, the handheld loosens and drops to his eye level (S12 playground, S15 store, S18 lying in front of the engine). The airport scene (S16) is the fastest: handheld follows Wang loading the bags until the officer knocks on the window, and then the camera stops.</p>
-        <p>The ending (S23) tracks father and son walking away or in profile, into the backlight. Nothing moves without a reason.</p>
-      </div>
+      <div><ul class="dn l-zh"><li><b>晃与静的对比</b>：手持的晃动和固定机位的静止相互对照，反映当下处境的情绪强度。</li><li><b>中景以内、人物在动</b>：用手持。摄影机是画面里的第三个角色，像一只眼睛一样参与。</li><li><b>中景以外</b>：以三脚架或稳定器为主，需要时摇镜头（横摇、俯仰），被动地跟随画面里的运动。</li><li>需要时也可以用手持拍远景。</li><li>留意主观镜头，以及它带来的视角切换。</li><li><b>不用</b>滑轨、轨道车和斯坦尼康。</li></ul><ul class="dn l-en" lang="en"><li><b>Shaky against still</b>: the contrast between handheld movement and stillness reflects the emotional intensity of each situation.</li><li><b>Closer than a medium shot, with characters moving</b>: handheld. The camera is the third character in the shot and performs as an eye.</li><li><b>Wider than a medium shot</b>: mainly tripod or gimbal, with pans and tilts as needed to follow the movement passively.</li><li>Handheld wide shots when needed.</li><li>Keep an eye on POV shots and the shift in perspective they create.</li><li><b>No</b> sliders, dollies or Steadicam.</li></ul></div>
       <div class="examples" data-ex="1.53.1 1.50.4 1.29.8 1.61.2 1.43.1"></div>
     </div>
   </section>
 
   <section class="block" id="ref-shots" data-nav>
-    <div class="head"><h3><span class="l-zh">景别</span><span class="l-en">Shot sizes</span></h3><span class="eyebrow"><span class="l-zh">草稿 · 待与摄影指导确认</span><span class="l-en">Draft · to confirm with the DP</span></span></div>
+    <div class="head"><h3><span class="l-zh">景别、镜头与构图</span><span class="l-en">Shot sizes, lenses and composition</span></h3><span class="eyebrow"><span class="l-zh">导演笔记</span><span class="l-en">Director&#x27;s notes</span></span></div>
+    
     <div class="essay">
-      <div class="prose l-zh">
-        <p>车内以近景和特写为主：后视镜里的眼睛、方向盘上的手、储物格里的零钱、中控台上的小花。车窗、后视镜和挡风玻璃天然形成框中框，用它们把人物关在车里。</p>
-        <p>父子尽量在同一个画面里。小孩常在前景或画面边缘，看着父亲；我们看见父亲，也看见孩子在看他（《偷自行车的人》）。S22 是这条线的终点：隔着玻璃门的远景，听不见声音。</p>
-        <p>车外的远景让人变小，城市比人大。画幅待定：《完美的日子》的 1.33 更贴近人脸和狭窄的车内，1.85 给城市留出位置。建议拍摄测试后决定。</p>
-      </div>
-      <div class="prose l-en" lang="en">
-        <p>Inside the van we stay close: eyes in the rearview mirror, hands on the wheel, small bills in the compartment, the little flower on the dashboard. Windows, mirrors and the windshield make frames within the frame and keep the characters boxed in.</p>
-        <p>Father and son share the frame whenever they can. The Kid is often in the foreground or at the edge, watching his father, so we see Wang and we see him being watched (Bicycle Thieves). S22 is where this line ends: a wide shot through a glass door, with no sound.</p>
-        <p>Outside, wide shots make people small and the city big. The aspect ratio is still open: 1.33, as in Perfect Days, stays close to faces and the cramped van; 1.85 leaves room for the city. Decide after camera tests.</p>
-      </div>
-      <div class="examples" data-ex="1.29.6 1.29.5 1.21.1 1.22.2 1.50.6"></div>
+      <div><ul class="dn l-zh"><li>以中长焦为主，<b>50mm 以上</b>。长焦压缩空间，把人和环境挤进同一个平面，给场面调度留出更多余地。</li><li>光圈<b>不开大过 T5.6</b>，保持大景深：人和城市一样清楚。</li><li>寻找框中框：车窗、后视镜、挡风玻璃、门框。</li><li>寻找剪影的机会。</li><li>首要目标不是把人物的脸曝光好。</li><li>车玻璃：反光、污渍和雾气都是画面的一部分。</li><li>200–800mm 超长焦段落，参考《一战再战》（待定）。</li></ul><ul class="dn l-en" lang="en"><li>Mostly mid-to-long focal lengths, <b>above 50mm</b>. Long lenses compress space, press people and their surroundings into one plane, and leave more room for mise-en-scène.</li><li>Never open up wider than <b>T5.6</b>. Deep focus: the people and the city equally sharp.</li><li>Look for frames within the frame: windows, mirrors, the windshield, doorways.</li><li>Look for chances to silhouette.</li><li>Exposing the characters' faces well is not the main objective.</li><li>Car glass: reflections, grime and fog are part of the image.</li><li>200–800mm extreme telephoto passages, after <i>One Battle After Another</i> (TBD).</li></ul></div>
+      <div class="examples" data-ex="1.29.6 1.17.1 1.21.1 1.3.1 1.50.4"></div>
     </div>
   </section>
 
   <section class="block" id="ref-color" data-nav>
-    <div class="head"><h3><span class="l-zh">色彩</span><span class="l-en">Color</span></h3><span class="eyebrow"><span class="l-zh">草稿 · 待与摄影指导确认</span><span class="l-en">Draft · to confirm with the DP</span></span></div>
+    <div class="head"><h3><span class="l-zh">色彩</span><span class="l-en">Color</span></h3><span class="eyebrow"><span class="l-zh">导演笔记</span><span class="l-en">Director&#x27;s notes</span></span></div>
+    
     <div class="essay">
-      <div class="prose l-zh">
-        <p>颜色跟着一天走。凌晨是冷的蓝灰，路灯和霓虹在车窗上留下暖色光点（《世界的主人》）；中午是平的、偏灰的日常光，不美化（《抱歉我们错过了你》）；洗车间里泡沫把车内一点点压暗，只剩手电一点暖光；日落是全片唯一饱满的金色（《过往人生》）。</p>
-        <p>整体自然、低饱和，肤色准确，不加强风格化的调色。七座车里统一成灰、黑和旧米色，让太阳能小花成为车里少有的亮色。</p>
-      </div>
-      <div class="prose l-en" lang="en">
-        <p>Color follows the day. Pre-dawn is a cold blue-gray, with streetlights and neon leaving warm specks on the windows (The World of Love). Noon is flat, grayish everyday light, with no flattering (Sorry We Missed You). In the car wash the foam slowly darkens the van until one warm flashlight is left. Sunset is the only fully saturated gold in the film (Past Lives).</p>
-        <p>Natural and low in saturation overall, with accurate skin tones and no heavy stylized grade. Inside the van we keep to grays, blacks and worn beige, so the solar flower is one of the few bright things in it.</p>
-      </div>
-      <div class="examples" data-ex="1.1.1 1.29.1 1.60.3 1.3.2 1.17.1"></div>
+      <div><ul class="dn l-zh"><li>写实，不过度饱和，甚至可以是萧瑟的。</li><li>尊重法拉盛原本的颜色。</li><li>接受颗粒感的画面，可以考虑胶片模拟。</li><li>小孩出场以后，颜色才慢慢多起来。</li></ul><ul class="dn l-en" lang="en"><li>Realism. Not oversaturated, even bleak.</li><li>Respect the original colors of Flushing.</li><li>Open to grainy images and film emulation.</li><li>Color appears more once the Kid enters.</li></ul></div>
+      <div class="examples" data-ex="1.6.1 1.30.4 1.63.5 1.64.4 1.43.1"></div>
     </div>
   </section>
 
   <section class="block" id="ref-light" data-nav>
-    <div class="head"><h3><span class="l-zh">光线</span><span class="l-en">Lighting</span></h3><span class="eyebrow"><span class="l-zh">草稿 · 待与摄影指导确认</span><span class="l-en">Draft · to confirm with the DP</span></span></div>
+    <div class="head"><h3><span class="l-zh">光线</span><span class="l-en">Lighting</span></h3><span class="eyebrow"><span class="l-zh">导演笔记</span><span class="l-en">Director&#x27;s notes</span></span></div>
+    
     <div class="essay">
-      <div class="prose l-zh">
-        <p>以自然光和现场光为主。凌晨车内很暗，人脸只靠窗外的路灯、仪表盘和两部手机的屏幕照亮（S1–S2；《地球之夜》《世界的主人》）。</p>
-        <p>中午接受顶光和硬光，王强的疲惫要看得见。律所是日光灯加窗光，平、冷、有点发绿。</p>
-        <p>两个光线时刻需要专门设计。S17 洗车间：泡沫一层层盖住车窗，车内越来越暗，最后只剩手电筒照在小花的太阳能板上。S23 日落：逆光强到王强睁不开眼，小孩伸出手替他挡住。</p>
-      </div>
-      <div class="prose l-en" lang="en">
-        <p>Mostly natural and practical light. Before dawn the van is dark, and faces are lit only by streetlights outside, the dashboard and the screens of two phones (S1–S2; Night on Earth, The World of Love).</p>
-        <p>At noon we accept hard top light; Wang's exhaustion should show. The law office mixes fluorescent tubes with window light: flat, cool, a little green.</p>
-        <p>Two moments need their own lighting design. In S17, foam covers the windows layer by layer and the van goes dark until only the flashlight is left, pointed at the flower's solar panel. In S23, the sunset backlight is so strong Wang can't keep his eyes open, and the Kid puts up a hand to shade them.</p>
-      </div>
-      <div class="examples" data-ex="1.26.2 1.2.1 1.3.2 1.40.2 1.17.1"></div>
+      <div><ul class="dn l-zh"><li>不用柔光源做主光。</li><li>太阳是主光源，需要时再补适当的柔光。</li><li>寻找从缝隙里透进来的阳光。</li><li>太阳是片中的第三个角色，代表温暖和希望。</li><li>写实是布光的核心原则。</li><li>车灯是另一个主光。</li></ul><ul class="dn l-en" lang="en"><li>No soft sources as key.</li><li>The sun is the key light, with proper soft fill only as needed.</li><li>Look for sunlight coming through cracks.</li><li>The sun is the third character, standing for warmth and hope.</li><li>Realism is the central principle.</li><li>Car lights are another key.</li></ul></div>
+      <div class="examples" data-ex="1.17.1 1.40.2 1.44.1 1.50.1 1.3.1"></div>
     </div>
   </section>
 
   <section class="block" id="ref-lens" data-nav>
-    <div class="head"><h3><span class="l-zh">摄影机与镜头</span><span class="l-en">Camera and lenses</span></h3><span class="eyebrow"><span class="l-zh">草稿 · 待与摄影指导确认</span><span class="l-en">Draft · to confirm with the DP</span></span></div>
+    <div class="head"><h3><span class="l-zh">摄影机</span><span class="l-en">Camera</span></h3><span class="eyebrow"><span class="l-zh">导演笔记</span><span class="l-en">Director&#x27;s notes</span></span></div>
+    
     <div class="essay">
-      <div class="prose l-zh">
-        <p>七座车内空间小，需要能装在车上、也能单手持的小机身，在凌晨和夜里要有足够的宽容度和低照度表现。具体机型和摄影指导一起定。</p>
-        <p>焦段以 25–50mm 为主，保持人和空间的真实比例；车外远景和街头用 85mm 以上的长焦压缩城市（参考《驾驶我的车》《过往人生》的车外镜头）。倾向用边缘柔和、对比偏低的老镜头或柔光处理，去掉数码的锐利感；后期加轻微颗粒，接近《无人知晓》的胶片质感，但不刻意做旧。</p>
-        <p>需要测试：车内各个机位；车窗贴膜和起雾时的成像；手电筒作为唯一光源时的曝光。</p>
-      </div>
-      <div class="prose l-en" lang="en">
-        <p>The minivan is tight, so we need a small body that can be rigged to the car and also handheld, with enough latitude and low-light performance for pre-dawn and night. The exact camera is to be chosen with the DP.</p>
-        <p>Mostly 25–50mm, to keep people and space in honest proportion; 85mm and longer for exterior wides and street scenes, to compress the city (see the car exteriors in Drive My Car and Past Lives). We lean toward older glass or diffusion with soft edges and lower contrast to take the digital edge off, plus light grain in post, close to the film texture of Nobody Knows without faking age.</p>
-        <p>To test: every in-car position; how the windows read with tint and condensation; exposure when the flashlight is the only source.</p>
-      </div>
-      <div class="examples" data-ex="1.50.5 1.16.1 1.18.1 1.44.2"></div>
+      <div><ul class="dn l-zh"><li><b>机动性优先。</b></li><li>A 机：ARRI Alexa Mini</li><li>B 机：DJI Ronin 4D（待定）</li><li>车拍支架：由摄影指导准备，控制成本</li><li>镜头：待定</li></ul><ul class="dn l-en" lang="en"><li><b>Mobility first.</b></li><li>A-cam: ARRI Alexa Mini</li><li>B-cam: DJI Ronin 4D (TBD)</li><li>Car rig: provided by the DP, kept inexpensive</li><li>Lenses: TBD</li></ul></div>
     </div>
   </section>
 
+  <section class="block" id="ref-plan" data-nav>
+    <div class="head"><h3><span class="l-zh">分镜计划</span><span class="l-en">Storyboard plan</span></h3><span class="eyebrow"><span class="l-zh">导演笔记</span><span class="l-en">Director&#x27;s notes</span></span></div>
+    <ol class="flow"><li><i>01</i><b><span class="l-zh">3D 资产</span><span class="l-en">3D assets</span></b><span class="l-zh">道具与角色模型，高斯泼溅扫描的实景</span><span class="l-en">Prop and character models; Gaussian-splat scans of the locations</span></li><li><i>02</i><b><span class="l-zh">UE5</span><span class="l-en">UE5</span></b><span class="l-zh">在 Unreal Engine 5 里把场景搭起来</span><span class="l-en">Assemble each scene in Unreal Engine 5</span></li><li><i>03</i><b><span class="l-zh">虚拟摄影机</span><span class="l-en">Virtual camera</span></b><span class="l-zh">预演：按剧本走机位、试镜头</span><span class="l-en">Previs: block and test every shot against the script</span></li><li><i>04</i><b><span class="l-zh">AI 渲染</span><span class="l-en">AI render</span></b><span class="l-zh">用 Seedance 2.5 把预演渲染成画面</span><span class="l-en">Render the previs with Seedance 2.5</span></li><li><i>05</i><b><span class="l-zh">完整影片</span><span class="l-en">Full film</span></b><span class="l-zh">理论上，可以先出一版完整的片子</span><span class="l-en">In theory, a complete version of the film</span></li></ol>
+    <p class="flow-why"><span class="l-zh">目的：前期在虚拟空间里把片子拍一遍，让拍摄现场留出更多即兴的空间。</span><span class="l-en" lang="en">The point: shoot the film once in a virtual space during prep, so the real shoot can allow more spontaneity.</span></p>
+  </section>
+
   <section class="block" id="ref-feeling" data-nav>
-    <div class="head"><h3><span class="l-zh">情绪与质感</span><span class="l-en">Mood and texture</span></h3><span class="eyebrow"><span class="l-zh">草稿</span><span class="l-en">Draft</span></span></div>
-    <p class="feel"><span class="l-zh">冬天的一个工作日，从天还没亮到太阳落山。体面是父亲做给儿子看的，疲惫是摄影机替我们看见的。</span><span class="l-en" lang="en">One winter workday, from before dawn to sundown. The dignity is what the father shows his son; the exhaustion is what the camera shows us.</span></p>
-    <div class="prose l-zh narrow">
-      <p>不煽情，接近纪实。介于是枝裕和的日常温度和肯·洛奇的劳动现实之间：笑点来自处境本身（叫不醒的客人、俄罗斯方块一样的行李、报错的名字），从不为了好笑去设计。</p>
-      <p>七座车是王强的家，也是困住他的地方。孩子的游戏（玩具飞机、丁老头、手电筒、小花）是这一天里少有的光。它们不解决任何问题，只是让这一天过得下去。</p>
-    </div>
-    <div class="prose l-en narrow" lang="en">
-      <p>Unsentimental, close to documentary. Somewhere between Kore-eda's everyday warmth and Ken Loach's working life: the humor comes from the situations themselves (the passenger who won't wake up, luggage stacked like Tetris, the name that comes out wrong) and is never staged for a laugh.</p>
-      <p>The minivan is Wang's home, and also what traps him. The Kid's games (the toy plane, the doodled face, the flashlight, the little flower) are the few lights in this day. They don't fix anything. They just make the day possible to get through.</p>
+    <div class="head"><h3><span class="l-zh">情绪与质感</span><span class="l-en">Mood and texture</span></h3><span class="eyebrow"><span class="l-zh">导演笔记</span><span class="l-en">Director&#x27;s notes</span></span></div>
+    <p class="feel"><span class="l-zh">柔和的苦甜。</span><span class="l-en" lang="en">A soft bittersweetness.</span></p>
+    <div class="essay">
+      <div><ul class="dn l-zh"><li>前半段属于主角的困倦。</li><li>气氛萧瑟：阳光很明显，但冬天依然寒冷。</li><li>太阳最后变成一种让人难以直视的东西。</li></ul><ul class="dn l-en" lang="en"><li>The first half belongs to the protagonist's drowsiness.</li><li>A bleak atmosphere: the sunlight is pronounced, but it is still winter and still cold.</li><li>By the end, the sun becomes something too hard to look at.</li></ul></div>
     </div>
     <div class="examples mood-ex" data-ex="1.17.1 1.40.1 1.22.4 1.64.3 1.47.1 1.13.2"></div>
   </section>
