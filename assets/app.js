@@ -2402,6 +2402,11 @@ function renderJfk() {
         <div class="jfk-fact"><dt>${f.label}</dt><dd>${f.value}</dd></div>`).join("")}
       </dl>
       <section class="jfk-files">
+        <a class="jfk-file jfk-lookbook" href="/jfk-jfk/lookbook/" target="_blank" rel="noopener">
+          <span class="jfk-file-label">Lookbook</span>
+          <span class="jfk-file-meta">Characters, references, props, locations · 中 / EN</span>
+          <span class="jfk-file-get">Open ↗</span>
+        </a>
         ${JFK.scripts.map(sc => `
         <a class="jfk-file" href="${sc.file}" download data-label="${sc.label}">
           <span class="jfk-file-label">${sc.label}</span>
@@ -2423,8 +2428,9 @@ function renderJfk() {
     if (node && node !== ROOT) navigate(node);
   });
   els.jfkView.querySelector(".jfk-ig").addEventListener("click", () => track("link-out", { to: "instagram", from: "jfk" }));
-  els.jfkView.querySelectorAll(".jfk-file").forEach(a =>
+  els.jfkView.querySelectorAll(".jfk-file[download]").forEach(a =>
     a.addEventListener("click", () => track("jfk-script", { script: a.dataset.label })));
+  els.jfkView.querySelector(".jfk-lookbook").addEventListener("click", () => track("jfk-lookbook"));
 }
 
 /* ================= EQUIPMENT =================

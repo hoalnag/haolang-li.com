@@ -617,6 +617,7 @@ svg { display: block; }
   color: var(--text);
 }
 .jfk-files { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.jfk-files .jfk-lookbook { grid-column: 1 / -1; }
 .jfk-file {
   display: flex; flex-direction: column; gap: 7px;
   padding: 20px 20px 22px; border: 1px solid var(--hairline);
