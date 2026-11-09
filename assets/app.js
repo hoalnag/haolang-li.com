@@ -2403,7 +2403,7 @@ function renderJfk() {
       </dl>
       <section class="jfk-files">
         <a class="jfk-file jfk-lookbook" href="/jfk-jfk/lookbook/" target="_blank" rel="noopener">
-          <span class="jfk-file-label">Lookbook</span>
+          <span class="jfk-file-label">Pitch Deck</span>
           <span class="jfk-file-meta">Characters, references, props, locations · 中 / EN</span>
           <span class="jfk-file-get">Open ↗</span>
         </a>
