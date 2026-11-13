@@ -822,6 +822,27 @@ blockquote { border-left: 2px solid var(--sun); padding-left: 18px; }
 .bg-hc tfoot td{font-weight:500;border-top:1px solid var(--ink)}
 @container lb (max-width: 520px) { .bg-hc thead th { letter-spacing: .04em; white-space: nowrap; } .bg-hc th, .bg-hc td { padding-right: 6px; } }
 .bg-crew{font-size:13px;color:var(--ink-2);line-height:1.8;margin:0 0 10px}
+/* ---------- music reference ---------- */
+.mu { display: flex; align-items: center; gap: 20px; max-width: 640px; padding: 20px 22px; border: 1px solid var(--rule); border-left: 3px solid var(--sun); }
+.mu-play { flex: none; width: 56px; height: 56px; border-radius: 50%; border: 0; background: var(--sun); color: var(--paper); cursor: pointer; display: grid; place-items: center; }
+.mu-play:hover { filter: brightness(1.08); }
+.mu-play:focus-visible { outline: 2px solid var(--ink); outline-offset: 3px; }
+.mu-play svg { width: 24px; height: 24px; fill: currentColor; }
+.mu-play .i-pause, .mu.on .mu-play .i-play { display: none; }
+.mu.on .mu-play .i-pause { display: inline; }
+.mu-body { flex: 1; min-width: 0; }
+.mu-title { margin: 0; display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 12px; }
+.mu-title b { font-family: var(--serif); font-weight: 500; font-size: 18px; color: var(--ink); }
+.mu-title > span { font-family: var(--mono); font-size: 11.5px; letter-spacing: .08em; color: var(--ink-3); }
+.mu-bar { display: flex; align-items: center; gap: 14px; margin-top: 12px; }
+.mu-seek { flex: 1; min-width: 0; height: 18px; margin: 0; background: none; -webkit-appearance: none; appearance: none; cursor: pointer; --p: 0%; }
+.mu-seek::-webkit-slider-runnable-track { height: 3px; background: linear-gradient(var(--sun), var(--sun)) 0 / var(--p) 100% no-repeat, var(--rule); }
+.mu-seek::-moz-range-track { height: 3px; background: var(--rule); }
+.mu-seek::-moz-range-progress { height: 3px; background: var(--sun); }
+.mu-seek::-webkit-slider-thumb { -webkit-appearance: none; width: 12px; height: 12px; margin-top: -4.5px; border-radius: 50%; background: var(--sun); border: 0; }
+.mu-seek::-moz-range-thumb { width: 12px; height: 12px; border-radius: 50%; background: var(--sun); border: 0; }
+.mu-t { flex: none; font-family: var(--mono); font-size: 12px; color: var(--ink-2); font-variant-numeric: tabular-nums; }
+@media print { .mu { display: none; } }
 /* ---------- fundraising ---------- */
 .fd-lane .fd-hope { margin: 14px 0 0; padding-top: 12px; border-top: 1px dashed var(--rule); font-family: var(--serif); font-style: italic; font-size: 14.5px; line-height: 1.7; color: var(--ink); }
 .fd-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); }
@@ -931,6 +952,8 @@ main { container: lb / inline-size; }
   .dl-legend span { font-size: 9px; }
 }
 @container lb (max-width: 520px) {
+  .mu { gap: 14px; padding: 16px; }
+  .mu-play { width: 46px; height: 46px; }
   .bd-nm { grid-template-columns: 1fr; }
   .ft { --lab: 92px; min-width: 700px; }
   .ft-row > h4 { flex-direction: column; gap: 4px; font-size: 13px; }
@@ -989,6 +1012,7 @@ main { container: lb / inline-size; }
           <li><a href="#ref-light"><span class="l-zh">光线</span><span class="l-en">Lighting</span></a></li>
           <li><a href="#ref-lens"><span class="l-zh">摄影机</span><span class="l-en">Camera</span></a></li>
           <li><a href="#ref-feeling"><span class="l-zh">情绪与质感</span><span class="l-en">Mood and texture</span></a></li>
+          <li><a href="#ref-music"><span class="l-zh">参考音乐</span><span class="l-en">Music reference</span></a></li>
         </ol></li>
       <li><a class="sec" href="#props"><i>04</i><span class="l-zh">道具</span><span class="l-en">Props</span></a>
         <ol class="sub">
@@ -1404,6 +1428,18 @@ main { container: lb / inline-size; }
       <div><ul class="dn l-zh"><li>前半段属于主角的困倦。</li><li>气氛萧瑟：阳光很明显，但冬天依然寒冷。</li><li>太阳最后变成一种让人难以直视的东西。</li></ul><ul class="dn l-en" lang="en"><li>The first half belongs to the protagonist's drowsiness.</li><li>A bleak atmosphere: the sunlight is pronounced, but it is still winter and still cold.</li><li>By the end, the sun becomes something too hard to look at.</li></ul></div>
     </div>
     <div class="examples mood-ex" data-ex="1.17.1 1.40.1 1.22.4 1.64.3 1.47.1 1.13.2"></div>
+  </section>
+
+  <section class="block" id="ref-music" data-nav>
+    <div class="head"><h3><span class="l-zh">参考音乐</span><span class="l-en">Music reference</span></h3><span class="eyebrow"><span class="l-zh">片尾音乐</span><span class="l-en">End credits</span></span></div>
+    <div class="mu" id="mu">
+      <button type="button" class="mu-play" aria-label="Play" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true"><path class="i-play" d="M8 5.5v13l11-6.5z"/><g class="i-pause"><rect x="6.5" y="5" width="4" height="14"/><rect x="13.5" y="5" width="4" height="14"/></g></svg></button>
+      <div class="mu-body">
+        <p class="mu-title"><b><span class="l-zh">《豆芽》片尾音乐</span><span class="l-en">End credits of <i>Sprout</i></span></b><span><span class="l-zh">尹佳恩，2013</span><span class="l-en">Yoon Ga-eun, 2013</span></span></p>
+        <div class="mu-bar"><input type="range" class="mu-seek" min="0" max="1000" value="0" step="1" aria-label="Seek"><span class="mu-t"><span class="mu-cur">0:00</span> / <span class="mu-dur">0:57</span></span></div>
+      </div>
+      <audio class="mu-audio" src="audio/ref-music.m4a" preload="metadata"></audio>
+    </div>
   </section>
 
   <!-- 04 -->
@@ -2238,6 +2274,29 @@ document.querySelectorAll("[data-slot]").forEach(el => {
   new ResizeObserver(fit).observe(main);
   fit();
 })();
+
+/* ---------- music reference player ---------- */
+document.querySelectorAll(".mu").forEach(m => {
+  const a = m.querySelector("audio"), b = m.querySelector(".mu-play"), sk = m.querySelector(".mu-seek");
+  const cur = m.querySelector(".mu-cur"), dur = m.querySelector(".mu-dur");
+  const fmt = t => { t = Math.max(0, Math.floor(t || 0)); return Math.floor(t / 60) + ":" + String(t % 60).padStart(2, "0"); };
+  let drag = false;
+  const paint = () => {
+    const d = a.duration || 0, p = d ? a.currentTime / d : 0;
+    if (!drag) sk.value = Math.round(p * 1000);
+    sk.style.setProperty("--p", (sk.value / 10) + "%");
+    cur.textContent = fmt(a.currentTime);
+  };
+  a.addEventListener("loadedmetadata", () => { dur.textContent = fmt(a.duration); paint(); });
+  a.addEventListener("timeupdate", paint);
+  const state = on => { m.classList.toggle("on", on); b.setAttribute("aria-pressed", on); b.setAttribute("aria-label", on ? "Pause" : "Play"); };
+  a.addEventListener("play", () => state(true));
+  a.addEventListener("pause", () => state(false));
+  a.addEventListener("ended", () => { state(false); a.currentTime = 0; paint(); });
+  b.addEventListener("click", () => { a.paused ? a.play() : a.pause(); });
+  sk.addEventListener("input", () => { drag = true; sk.style.setProperty("--p", (sk.value / 10) + "%"); if (a.duration) cur.textContent = fmt(sk.value / 1000 * a.duration); });
+  sk.addEventListener("change", () => { if (a.duration) a.currentTime = sk.value / 1000 * a.duration; drag = false; paint(); });
+});
 
 /* ---------- fold ---------- */
 document.querySelectorAll(".fold").forEach(f => {
