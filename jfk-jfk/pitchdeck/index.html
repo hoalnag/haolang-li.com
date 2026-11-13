@@ -610,6 +610,40 @@ blockquote { border-left: 2px solid var(--sun); padding-left: 18px; }
 .mm-x { position: absolute; top: 10px; right: 12px; width: 32px; height: 32px; border: none; background: none; color: var(--ink-3); font-size: 24px; cursor: pointer; }
 .mm-x:hover { color: var(--ink); }
 
+/* ---------- budget: structure before numbers ---------- */
+.bd-top { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.5fr); border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); }
+.bd-total { padding: 22px 24px 22px 0; border-right: 1px solid var(--rule); }
+.bd-total small, .bd-mult span { display: block; font-size: 12px; color: var(--ink-3); }
+.bd-total b { display: block; margin-top: 8px; font-family: "DIN Alternate", "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif; font-weight: 700; font-size: clamp(40px, 5vw, 60px); line-height: 1; color: var(--sun); white-space: nowrap; }
+.bd-mult { display: flex; align-items: center; justify-content: space-around; gap: 8px; padding: 18px 0 18px 24px; text-align: center; }
+.bd-mult b { display: block; font-family: "DIN Alternate", "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif; font-weight: 700; font-size: 36px; line-height: 1; margin-bottom: 8px; }
+.bd-mult .x { font-family: var(--mono); font-size: 20px; color: var(--ink-3); }
+.bd-lede { margin: 24px 0 0; max-width: 42em; font-size: 16px; line-height: 1.75; color: var(--ink-2); text-wrap: pretty; }
+.bd-legend { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 26px 0 0; font-size: 12px; color: var(--ink-3); }
+.bd-legend > span { display: inline-flex; align-items: center; gap: 8px; }
+.bd-g { margin: 30px 0 0; padding-bottom: 8px; border-bottom: 1px solid var(--ink); font-family: var(--mono); font-weight: 700; font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink); }
+.bd-rows { list-style: none; margin: 0; padding: 0; }
+.bd-rows li { display: grid; grid-template-columns: minmax(0, 1fr) 230px 150px; gap: 20px; align-items: center; padding: 14px 0; border-bottom: 1px dashed var(--rule); }
+.bd-nm b { display: block; font-weight: 500; font-size: 15px; color: var(--ink); }
+.bd-nm small { display: block; margin-top: 3px; font-size: 12.5px; line-height: 1.55; color: var(--ink-3); }
+.bd-days { display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; }
+.bd-days i { display: block; height: 26px; background: var(--sun-soft); border: 1px solid var(--sun); font-style: normal; font-family: var(--mono); font-size: 10px; line-height: 24px; text-align: center; color: var(--sun); }
+.bd-days.once { grid-template-columns: 1fr; }
+.bd-days.once i { width: calc((100% - 16px) / 5); min-width: 52px; box-sizing: border-box; border-style: dashed; background: none; color: var(--ink-2); white-space: nowrap; padding: 0 6px; width: max-content; }
+.bd-days.mini { grid-template-columns: 1fr; width: 14px; }
+.bd-days.mini i { height: 14px; }
+.bd-r { display: flex; flex-direction: column; align-items: flex-start; gap: 6px; }
+.bd-w { display: inline-flex; gap: 4px; }
+.bd-w i { width: 18px; height: 8px; border: 1px solid var(--ink-3); }
+.bd-w i.on { background: var(--sun); border-color: var(--sun); }
+.bd-tag { font-style: normal; font-family: var(--mono); font-size: 10.5px; letter-spacing: .04em; color: var(--ink); border: 1px solid var(--ink-3); padding: 0 6px; }
+.bd-tag.q { color: var(--ink-3); border-style: dashed; }
+.bd-r .bd-tag + .bd-tag { margin-top: -2px; }
+.bd-open { margin-top: 30px; padding: 18px 20px; border: 1px dashed var(--ink-3); }
+.bd-open h4 { margin: 0 0 8px; font-family: var(--mono); font-weight: 700; font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-3); }
+.bd-open ul { margin: 0; padding-left: 18px; }
+.bd-open li { font-size: 14px; line-height: 1.8; color: var(--ink-2); }
+
 /* ---------- fundraising ---------- */
 .fd-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); }
 .fd-stats div { padding: 20px 16px 18px 0; min-width: 0; }
@@ -688,6 +722,13 @@ main { container: lb / inline-size; }
   .plist { grid-template-columns: 1fr; }
 }
 @container lb (max-width: 760px) {
+  .bd-top { grid-template-columns: 1fr; }
+  .bd-total { border-right: none; border-bottom: 1px solid var(--rule); padding-right: 0; }
+  .bd-mult { padding-left: 0; justify-content: space-between; }
+  .bd-mult b { font-size: 28px; }
+  .bd-rows li { grid-template-columns: minmax(0, 1fr) auto; gap: 10px 16px; }
+  .bd-rows .bd-days { grid-column: 1 / -1; grid-row: 2; }
+  .bd-rows .bd-r { grid-column: 2; grid-row: 1; align-items: flex-end; }
   .mm-scroll { margin: 0 -16px; padding: 8px 16px; }
   .hero .slot { --r: 4 / 3; }
   .pass { grid-template-columns: 1fr; }
@@ -763,7 +804,11 @@ main { container: lb / inline-size; }
       <li><a class="sec" href="#locations"><i>05</i><span class="l-zh">场景</span><span class="l-en">Locations</span></a></li>
       <li><a class="sec" href="#safety"><i>06</i><span class="l-zh">拍摄安全</span><span class="l-en">Production safety</span></a></li>
       <li><a class="sec" href="#crew"><i>07</i><span class="l-zh">团队</span><span class="l-en">Key crew</span></a></li>
-      <li><a class="sec" href="#funding"><i>08</i><span class="l-zh">筹资</span><span class="l-en">Fundraising</span></a>
+      <li><a class="sec" href="#budget"><i>08</i><span class="l-zh">预算</span><span class="l-en">Budget</span></a>
+        <ol class="sub">
+          <li><a href="#budget-breakdown"><span class="l-zh">预算结构</span><span class="l-en">Budget breakdown</span></a></li>
+        </ol></li>
+      <li><a class="sec" href="#funding"><i>09</i><span class="l-zh">筹资</span><span class="l-en">Fundraising</span></a>
         <ol class="sub">
           <li><a href="#fund-goal"><span class="l-zh">目标</span><span class="l-en">The goal</span></a></li>
           <li><a href="#fund-sources"><span class="l-zh">资金来源</span><span class="l-en">Where the money comes from</span></a></li>
@@ -1318,7 +1363,39 @@ main { container: lb / inline-size; }
   </section>
 
   <!-- 08 -->
-  <div class="part" id="funding" data-nav><i>08</i><h2><span class="l-zh">筹资</span><span class="l-en">Fundraising</span></h2><span class="other"><span class="l-zh">Fundraising</span><span class="l-en">筹资</span></span></div>
+  <div class="part" id="budget" data-nav><i>08</i><h2><span class="l-zh">预算</span><span class="l-en">Budget</span></h2><span class="other"><span class="l-zh">Budget</span><span class="l-en">预算</span></span></div>
+
+  <section class="block" id="budget-breakdown" data-nav>
+    <div class="head"><h3><span class="l-zh">预算结构</span><span class="l-en">Budget breakdown</span></h3><span class="eyebrow"><span class="l-zh">初步估算 · 2026.11</span><span class="l-en">Preliminary · Nov 2026</span></span></div>
+    <div class="bd-top">
+      <div class="bd-total"><small><span class="l-zh">初步整体估算</span><span class="l-en">Preliminary total</span></small><b>≈ $15,000</b></div>
+      <div class="bd-mult">
+        <div><b>5</b><span><span class="l-zh">个拍摄日，至少</span><span class="l-en">shoot days, at least</span></span></div>
+        <div class="x">×</div>
+        <div><b>?</b><span><span class="l-zh">剧组人数，待定</span><span class="l-en">crew size, still open</span></span></div>
+        <div class="x">+</div>
+        <div><b>3</b><span><span class="l-zh">个可能收费的场地</span><span class="l-en">locations that may charge</span></span></div>
+      </div>
+    </div>
+    <p class="bd-lede"><span class="l-zh">现在还给不出准确的数字。大部分开销是“天数 × 人数”：拍摄天数和剧组人数一确定，预算就能算出来。下面先画出钱会花在哪里、怎么累加。</span><span class="l-en">We can’t give exact figures yet. Most costs are days × people: once the shoot days and crew size are set, the budget follows. For now, this shows where the money goes and how it adds up.</span></p>
+    <div class="bd-legend"><span><span class="bd-days mini"><i></i></span><span class="l-zh">一格 = 一个拍摄日</span><span class="l-en">One cell = one shoot day</span></span><span><span class="bd-w" aria-label="3 of 4"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="l-zh">相对开销，粗估</span><span class="l-en">Relative cost, rough</span></span></div>
+    <h4 class="bd-g"><span class="l-zh">每个拍摄日都要花</span><span class="l-en">Every shoot day</span></h4>
+    <ul class="bd-rows"><li><div class="bd-nm"><b><span class="l-zh">剧中用车（七座车）</span><span class="l-en">Picture car (the minivan)</span></b><small><span class="l-zh">租五天，是最大的一笔</span><span class="l-en">Rented for five days, the biggest single cost</span></small></div><span class="bd-days"><i>D1</i><i>D2</i><i>D3</i><i>D4</i><i>D5</i></span><div class="bd-r"><span class="bd-w" aria-label="4 of 4"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></div></li><li><div class="bd-nm"><b><span class="l-zh">B 机</span><span class="l-en">B camera</span></b><small><span class="l-zh">租五天</span><span class="l-en">Rented for five days</span></small></div><span class="bd-days"><i>D1</i><i>D2</i><i>D3</i><i>D4</i><i>D5</i></span><div class="bd-r"><span class="bd-w" aria-label="3 of 4"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></div></li><li><div class="bd-nm"><b><span class="l-zh">餐饮</span><span class="l-en">Meals</span></b><small><span class="l-zh">每天按剧组人数</span><span class="l-en">Every day, for the whole crew</span></small></div><span class="bd-days"><i>D1</i><i>D2</i><i>D3</i><i>D4</i><i>D5</i></span><div class="bd-r"><span class="bd-w" aria-label="3 of 4"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><em class="bd-tag"><span class="l-zh">× 人数</span><span class="l-en">× headcount</span></em></div></li><li><div class="bd-nm"><b><span class="l-zh">交通</span><span class="l-en">Transport</span></b><small><span class="l-zh">每天往返各个场景</span><span class="l-en">Getting cast and crew to set every day</span></small></div><span class="bd-days"><i>D1</i><i>D2</i><i>D3</i><i>D4</i><i>D5</i></span><div class="bd-r"><span class="bd-w" aria-label="2 of 4"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><em class="bd-tag"><span class="l-zh">× 人数</span><span class="l-en">× headcount</span></em></div></li></ul>
+    <h4 class="bd-g"><span class="l-zh">按场地</span><span class="l-en">By location</span></h4>
+    <ul class="bd-rows"><li><div class="bd-nm"><b><span class="l-zh">机场：用 Long Island MacArthur Airport 代拍 JFK</span><span class="l-en">Airport: Long Island MacArthur Airport standing in for JFK</span></b><small><span class="l-zh">故事里仍是 JFK。MacArthur 在长岛 Ronkonkoma（Islip 镇），是 NYU 预审过的场地，预计比在 JFK 实拍便宜；JFK 需要港务局许可和保险</span><span class="l-en">In the story it’s still JFK. MacArthur, in Ronkonkoma, Long Island (Town of Islip), is NYU pre-vetted and likely cheaper than shooting at JFK, which needs a Port Authority permit and insurance</span></small></div><span class="bd-days once"><i><span class="l-zh">一次性</span><span class="l-en">One-off</span></i></span><div class="bd-r"><span class="bd-w" aria-label="2 of 4"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span></div></li><li><div class="bd-nm"><b><span class="l-zh">律师事务所</span><span class="l-en">Law office</span></b><small><span class="l-zh">很可能要付场地费</span><span class="l-en">Likely a location fee</span></small></div><span class="bd-days once"><i><span class="l-zh">一次性</span><span class="l-en">One-off</span></i></span><div class="bd-r"><span class="bd-w" aria-label="2 of 4"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><em class="bd-tag q"><span class="l-zh">可能产生</span><span class="l-en">Maybe</span></em></div></li><li><div class="bd-nm"><b><span class="l-zh">加油站</span><span class="l-en">Gas station</span></b><small><span class="l-zh">有可能要付场地费</span><span class="l-en">Possibly a location fee</span></small></div><span class="bd-days once"><i><span class="l-zh">一次性</span><span class="l-en">One-off</span></i></span><div class="bd-r"><span class="bd-w" aria-label="1 of 4"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><em class="bd-tag q"><span class="l-zh">可能产生</span><span class="l-en">Maybe</span></em></div></li></ul>
+    <div class="bd-open">
+      <h4><span class="l-zh">还要确定的</span><span class="l-en">Still to pin down</span></h4>
+      <ul>
+        <li><span class="l-zh">剧组人数：决定餐饮和交通</span><span class="l-en">Crew size, which sets meals and transport</span></li>
+        <li><span class="l-zh">最终拍摄天数：五天是最少</span><span class="l-en">Final number of shoot days; five is the minimum</span></li>
+        <li><span class="l-zh">各场地的报价，以及 MacArthur 机场的具体条件</span><span class="l-en">Quotes from each location, and MacArthur’s terms</span></li>
+        <li><span class="l-zh">车辆和 B 机的租赁报价</span><span class="l-en">Rental quotes for the car and the B camera</span></li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- 09 -->
+  <div class="part" id="funding" data-nav><i>09</i><h2><span class="l-zh">筹资</span><span class="l-en">Fundraising</span></h2><span class="other"><span class="l-zh">Fundraising</span><span class="l-en">筹资</span></span></div>
   <section class="block" id="fund-goal" data-nav>
     <div class="head"><h3><span class="l-zh">目标</span><span class="l-en">The goal</span></h3><span class="eyebrow"><span class="l-zh">截至 2026.11.12</span><span class="l-en">As of Nov 12, 2026</span></span></div>
     <div class="fd-stats"><div><b>$20,000</b><span><span class="l-zh">预算目标</span><span class="l-en">Budget target</span></span></div><div><b><span class="l-zh">2027.03</span><span class="l-en">Mar 2027</span></b><span><span class="l-zh">开拍</span><span class="l-en">Shoot</span></span></div><div><b>$25,500</b><span><span class="l-zh">在申请的 4 项基金，最高可得</span><span class="l-en">Up to, from 4 grants in progress</span></span></div><div><b>8</b><span><span class="l-zh">家社区机构已在联系</span><span class="l-en">Community partners contacted</span></span></div></div>
