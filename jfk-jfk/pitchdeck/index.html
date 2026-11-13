@@ -423,6 +423,18 @@ body.script-open .lang-fixed { right: calc(var(--sp-w) + 20px); }
 .crew .role { margin: 14px 0 2px; font-size: 11px; letter-spacing: .24em; color: var(--ink-3); text-transform: uppercase; }
 .crew h4 { margin: 0; font-family: var(--serif); font-weight: 500; font-size: 20px; }
 .crew p { margin: 6px 0 0; font-size: 13px; color: var(--ink-2); line-height: 1.7; }
+.vid { position: relative; aspect-ratio: 10000 / 5667; background: var(--slot); border-top: 1px solid var(--ink); }
+.vid iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+@media print { .vid { display: none; } }
+.fold-body { position: relative; }
+.fold:not(.open) .fold-body { max-height: calc(13px * 1.7 * 5 + 6px); overflow: hidden; -webkit-mask-image: linear-gradient(#000 55%, transparent); mask-image: linear-gradient(#000 55%, transparent); }
+.fold-btn { display: inline-flex; align-items: center; gap: 6px; margin-top: 8px; padding: 4px 0; border: 0; border-bottom: 1px solid var(--sun); background: none; cursor: pointer; font: inherit; font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink); }
+.fold-btn:hover { color: var(--sun); }
+.fold-btn i { font-style: normal; transition: transform .25s; }
+.fold.open .fold-btn i { transform: rotate(180deg); }
+.fold .less, .fold.open .more { display: none; }
+.fold.open .less { display: inline; }
+@media print { .fold .fold-body { max-height: none !important; -webkit-mask-image: none !important; mask-image: none !important; } .fold-btn { display: none; } }
 .fund { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 48px; border-top: 1px solid var(--ink); margin: 0; }
 @media (max-width: 640px) { .fund { grid-template-columns: 1fr; } }
 .fund div { padding: 18px 0; border-bottom: 1px solid var(--rule); }
@@ -1439,10 +1451,15 @@ main { container: lb / inline-size; }
   <section class="block">
     <div class="crew">
       <div><div class="slot" data-slot="crew-dir"></div><p class="role"><span class="l-zh">导演</span><span class="l-en">Director</span></p><h4><span class="l-zh">李浩朗</span><span class="l-en">Haolang Li</span></h4><p><span class="l-zh">导演、摄影，在纽约大学 Tisch 艺术学院读电影。纪录短片《SHAME ON YOU》（2024）拍的是曼哈顿华埠的士绅化之争，获布鲁克林国际短片节最佳纪录片；《FOOD LOVER》入选柏林 Lift-Off 电影节。《肯尼迪，肯尼迪》是他关于法拉盛的第一部剧情短片。</span><span class="l-en">Director and cinematographer, studying film at NYU Tisch. His documentary short <i>SHAME ON YOU</i> (2024), about the fight over gentrification in Manhattan’s Chinatown, won Best Documentary at the Brooklyn International Short Festival; <i>FOOD LOVER</i> screened at Berlin Lift-Off. <i>JFK, JFK</i> is his first narrative short set in Flushing.</span></p></div>
-      <div><div class="slot" data-slot="crew-prod"></div><p class="role"><span class="l-zh">制片</span><span class="l-en">Producer</span></p><h4>Yiwen Qian</h4><p class="ph"><span class="l-zh">简介待补</span><span class="l-en">Bio to come</span></p></div>
+      <div><div class="slot" data-slot="crew-prod"></div><p class="role"><span class="l-zh">制片</span><span class="l-en">Producer</span></p><h4>Yiwen Qian</h4><div class="fold" id="fold-prod"><div class="fold-body"><p><span class="l-zh">常驻纽约的电影制片人，做短片、音乐录影带和长片。毕业于纽约大学电影电视专业，现任职于 Rollin Studios，参与过多部国际长片：《The Architecture of Love》（Netflix 印尼发行）、《女儿的女儿》（2024 年多伦多电影节全球首映）、《亲爱的陌生人》（2025 年釜山国际电影节全球首映）。她制片的短片入选过多个国际电影节和奥斯卡资格影展，其中一部获第 70 届奥伯豪森国际短片节青年评审奖。</span><span class="l-en">Yiwen Qian is a New York–based film producer working across short films, music videos and feature-length productions. A graduate of New York University’s Film &amp; Television program, she works at Rollin Studios and has worked on international features such as <i>The Architecture of Love</i> (distributed by Netflix Indonesia), <i>Daughter’s Daughter</i> (world premiere at TIFF 2024) and <i>Dear Stranger</i> (world premiere at the Busan International Film Festival 2025). Her short-form work has screened at numerous international and Oscar-qualifying festivals, including a project awarded the Prize of the Youth Jury at the 70th International Short Film Festival Oberhausen.</span></p><p><span class="l-zh">她在美国和海外都做过跨文化项目，做事细致，重视协作，擅长在有限的资源里撑起有野心的创作构想。她偏爱以人物为核心、探讨身份、记忆与情感亲密的故事。</span><span class="l-en">With experience producing cross-cultural projects in both the U.S. and abroad, Yiwen brings a collaborative, detail-oriented approach to supporting ambitious creative visions within limited resources. She is drawn to character-driven stories that explore identity, memory and emotional intimacy.</span></p></div><button type="button" class="fold-btn" aria-expanded="false" aria-controls="fold-prod"><span class="more"><span class="l-zh">展开全文</span><span class="l-en">Read more</span></span><span class="less"><span class="l-zh">收起</span><span class="l-en">Show less</span></span><i aria-hidden="true">↓</i></button></div></div>
       <div><div class="slot" data-slot="crew-dp"></div><p class="role"><span class="l-zh">摄影指导</span><span class="l-en">Director of photography</span></p><h4>Jinjie Wang</h4><p><span class="l-zh">常驻纽约的自由电影摄影师，拍剧情片、纪录片和广告。偏爱自然主义、写实的影像和克制的构图，留意那些能透出人物心事的细节。平时也用胶片和数码拍照片，业余做设计。</span><span class="l-en">New York-based cinematographer working across narrative, documentary and commercial film. His style is naturalistic and grounded in realism, with careful composition and an eye for the quiet details that show what a person won’t say. He also shoots stills on film and digital, and designs on the side.</span></p></div>
       <div><div class="slot" data-slot="crew-pd"></div><p class="role"><span class="l-zh">美术指导</span><span class="l-en">Production designer</span></p><h4 class="ph"><span class="l-zh">待定</span><span class="l-en">TBD</span></h4></div>
     </div>
+  </section>
+
+  <section class="block" id="producer-statement">
+    <div class="head"><h3><span class="l-zh">制片人陈述</span><span class="l-en">Producer’s statement</span></h3><span class="eyebrow"><span class="l-zh">影像 · Yiwen Qian</span><span class="l-en">Video · Yiwen Qian</span></span></div>
+    <div class="vid"><iframe src="https://player.vimeo.com/video/1246600128?autopause=0&amp;dnt=1&amp;title=0&amp;byline=0&amp;portrait=0" loading="lazy" allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen title="Producer’s statement, Yiwen Qian"></iframe></div>
   </section>
 
   <!-- 08 -->
@@ -2037,6 +2054,7 @@ const IMAGES = {
  "p-cashier": "images/cast/p-cashier.jpg",
  "p-mech": "images/cast/p-mech.jpg",
  "crew-dir": "images/cast/crew-dir.jpg",
+ "crew-prod": "images/cast/crew-prod.jpg",
  "crew-dp": "images/cast/crew-dp.jpg",
  "syn-1": "images/scout/s5.jpg",
  "syn-2": "images/scout/s8.jpg",
@@ -2050,6 +2068,16 @@ document.querySelectorAll("[data-slot]").forEach(el => {
   img.onerror = () => { img.remove(); el.classList.remove("has-img"); };
   el.classList.add("has-img");
   el.prepend(img);
+});
+
+/* ---------- fold ---------- */
+document.querySelectorAll(".fold").forEach(f => {
+  const b = f.querySelector(".fold-btn");
+  b.addEventListener("click", () => {
+    const open = f.classList.toggle("open");
+    b.setAttribute("aria-expanded", open);
+    if (!open) f.closest(".crew > div").scrollIntoView({ block: "nearest", behavior: "smooth" });
+  });
 });
 
 /* ---------- start ---------- */
