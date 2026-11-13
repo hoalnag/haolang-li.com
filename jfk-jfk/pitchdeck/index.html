@@ -550,7 +550,7 @@ blockquote { border-left: 2px solid var(--sun); padding-left: 18px; }
 /* ---------- why this film: a loop, drawn as a mind map with straight lines ---------- */
 .mm-lede { margin: -8px 0 28px; max-width: 36em; font-size: 16px; color: var(--ink-2); line-height: 1.7; }
 .mm-scroll { position: relative; overflow-x: auto; overflow-y: hidden; -webkit-overflow-scrolling: touch; padding: 8px 0; }
-.mm { position: relative; aspect-ratio: 1000 / 660; min-width: 880px; }
+.mm { position: relative; aspect-ratio: 1000 / 660; min-width: 880px; width: min(100%, calc((100vh - 220px) * 1000 / 660)); margin-inline: auto; }
 .mm-lines { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
 .mm-lines line { stroke-linecap: round; }
 .mm-lines .loop { stroke: var(--sun); stroke-width: 2; }
@@ -579,13 +579,30 @@ blockquote { border-left: 2px solid var(--sun); padding-left: 18px; }
 .mm-chip { position: absolute; transform: translate(-50%, -50%); z-index: 1; max-width: 230px; padding: 5px 8px; background: var(--paper); font-family: var(--mono); font-size: 10.5px; line-height: 1.5; color: var(--sun); text-align: center; }
 .mm-hint { visibility: hidden; margin: 8px 0 0; font-family: var(--mono); font-size: 11px; color: var(--ink-3); text-align: center; }
 /* draw in once it is on screen */
-.mm.armed .mm-lines line { stroke-dasharray: 1; stroke-dashoffset: 1; transition: stroke-dashoffset .6s ease; transition-delay: calc(var(--k) * .12s); }
-.mm.armed .mm-lines line.loop { marker-end: none; }
-.mm.armed.on .mm-lines line { stroke-dashoffset: 0; }
-.mm.armed.on .mm-lines line.loop { marker-end: url(#mmArrow); }
-.mm.armed .mm-n, .mm.armed .mm-chip { opacity: 0; transition: opacity .5s; transition-delay: calc(var(--k, 0) * .12s); }
-.mm.armed.on .mm-n, .mm.armed.on .mm-chip { opacity: 1; }
-@media (prefers-reduced-motion: reduce) { .mm.armed .mm-lines line, .mm.armed .mm-n, .mm.armed .mm-chip { transition: none; } }
+.mm.step .mm-n, .mm.step .mm-chip { opacity: 0; visibility: hidden; translate: 0 10px; transition: opacity .25s, translate .25s, visibility 0s linear .25s, box-shadow .3s; }
+.mm.step .mm-n.shown, .mm.step .mm-chip.shown { opacity: .42; visibility: visible; translate: 0 0; transition: opacity .45s ease .3s, translate .45s ease .3s, visibility 0s, box-shadow .3s; }
+.mm.step .mm-n.cur, .mm.step .mm-chip.cur, .mm.step.done .shown { opacity: 1; }
+.mm.step .mm-n.hub.cur:not(.home) { box-shadow: 0 0 0 5px var(--sun-soft), 0 0 34px 4px var(--sun-soft); }
+.mm.step .mm-n.leaf.cur { border-color: var(--sun); color: var(--ink); box-shadow: 0 0 0 4px var(--sun-soft); }
+.mm.step .mm-n.leaf.red.cur { border-color: var(--red); color: var(--red); }
+.mm.step .mm-lines line { stroke-dasharray: 1; stroke-dashoffset: 1; opacity: .42; transition: stroke-dashoffset .45s ease, opacity .3s; }
+.mm.step .mm-lines line.shown { stroke-dashoffset: 0; }
+.mm.step .mm-lines line.cur, .mm.step.done .mm-lines line { opacity: 1; }
+.mm-lines line.loop.tip { marker-end: url(#mmArrow); }
+.mm-ctl { position: sticky; bottom: 14px; z-index: 5; display: flex; align-items: center; justify-content: center; gap: 14px; width: max-content; max-width: 100%; box-sizing: border-box; margin: 18px auto 0; padding: 10px 14px; background: color-mix(in srgb, var(--paper) 88%, transparent); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid var(--rule); box-shadow: 0 10px 30px rgba(0,0,0,.18); }
+.mm-btn { min-width: 112px; padding: 10px 16px; border: 1px solid var(--ink-3); background: none; color: var(--ink); font: inherit; font-size: 14px; cursor: pointer; transition: background .2s, border-color .2s, color .2s; }
+.mm-btn.mm-next { border-color: var(--sun); background: var(--sun); color: #111; font-weight: 500; }
+.mm-btn:hover:not(:disabled) { border-color: var(--sun); }
+.mm-btn.mm-next:hover:not(:disabled) { filter: brightness(1.08); }
+.mm-btn:disabled { opacity: .3; cursor: default; }
+.mm-prog { display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.mm-ticks { display: flex; gap: 4px; }
+.mm-ticks button { width: 14px; height: 6px; padding: 0; border: 1px solid var(--ink-3); background: none; cursor: pointer; }
+.mm-ticks button.on { background: var(--sun); border-color: var(--sun); }
+.mm-count { font-family: var(--mono); font-size: 11px; font-weight: 700; letter-spacing: .12em; color: var(--ink-3); font-variant-numeric: tabular-nums; }
+.mm-all { padding: 6px 2px; border: none; border-bottom: 1px dashed var(--ink-3); background: none; color: var(--ink-3); font: inherit; font-size: 12px; cursor: pointer; }
+.mm-all:hover { color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { .mm.step .mm-n, .mm.step .mm-chip, .mm.step .mm-lines line { transition: none !important; } }
 /* the gaze answer */
 .mm-dlg { width: min(560px, calc(100vw - 32px)); box-sizing: border-box; padding: 32px 32px 28px; border: 1px solid var(--sun); background: var(--paper); color: var(--ink); }
 .mm-dlg::backdrop { background: rgba(0,0,0,.6); }
@@ -659,6 +676,52 @@ blockquote { border-left: 2px solid var(--sun); padding-left: 18px; }
 .ft-i.wait { border: 1px dashed var(--ink-3); }
 .ft-foot { margin: 6px 6px 0; font-size: 11.5px; color: var(--ink-3); }
 .ft-row > h4, .ft-head > span { position: sticky; left: 0; z-index: 1; background: var(--paper); }
+
+/* ---------- shooting schedule: days across, light down ---------- */
+.ss-lede { margin: 0; max-width: 42em; font-size: 16px; line-height: 1.75; color: var(--ink-2); text-wrap: pretty; }
+.ss-legend { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 22px 0 14px; font-size: 12px; color: var(--ink-3); }
+.ss-legend > span { display: inline-flex; align-items: center; gap: 8px; }
+.ss-legend .k { width: 4px; height: 14px; background: var(--ink-3); }
+.ss-legend .k.clean { background: var(--sun); }
+.ss-legend .k.none { background: none; border-left: 1px dashed var(--ink-3); width: 0; }
+.ss { display: grid; grid-template-columns: 92px repeat(4, minmax(0, 1fr)) minmax(0, .8fr); border-top: 1px solid var(--ink); }
+.ss > div { min-width: 0; border-bottom: 1px solid var(--rule); }
+.ss-dh { padding: 14px 12px 12px; border-left: 1px solid var(--rule); }
+.ss-dh b { font-family: "DIN Alternate", "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif; font-weight: 700; font-size: 20px; letter-spacing: .02em; color: var(--ink); }
+.ss-dh small { margin-left: 8px; font-family: var(--mono); font-size: 11px; color: var(--ink-3); }
+.ss-dh p { margin: 6px 0 0; font-size: 12px; line-height: 1.5; color: var(--ink-2); }
+.ss-flags { display: flex; gap: 4px; margin-top: 8px; }
+.ss-flags em { font-style: normal; font-family: var(--mono); font-size: 10.5px; padding: 0 6px; line-height: 17px; border: 1px solid var(--sun); color: var(--sun); }
+.ss-flags em.dr { border-color: var(--red); color: var(--red); }
+.ss-dh.broll { background: repeating-linear-gradient(135deg, transparent 0 7px, var(--rule) 7px 8px); }
+.ss-sl { padding: 12px 10px 12px 0; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--ink-3); }
+.ss-c { padding: 8px 8px 10px; border-left: 1px solid var(--rule); }
+.ss-c.broll { border-bottom: none; background: repeating-linear-gradient(135deg, transparent 0 7px, color-mix(in srgb, var(--rule) 55%, transparent) 7px 8px); }
+.ss-sl-in { display: none; }
+.ss-c ol { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 5px; }
+.ss-sc { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 2px 8px; align-items: baseline; padding: 6px 8px 7px; background: var(--paper); border: 1px solid var(--rule); border-left: 3px solid transparent; font-size: 12.5px; line-height: 1.4; color: var(--ink); }
+.ss-sc.dirty { border-left-color: var(--ink-3); }
+.ss-sc.clean, .ss-sc.wash { border-left-color: var(--sun); }
+.ss-sc.wash { background: linear-gradient(90deg, color-mix(in srgb, var(--ink-3) 18%, transparent), var(--sun-soft)); }
+.ss-sc i { font-style: normal; font-family: var(--mono); font-size: 11px; font-weight: 700; color: var(--ink-3); }
+.ss-sc em { grid-column: 2; justify-self: start; font-style: normal; font-family: var(--mono); font-size: 10px; letter-spacing: .04em; color: var(--ink-3); border: 1px solid var(--rule); padding: 0 5px; line-height: 15px; }
+.ss-notes { margin: 24px 0 0; padding: 0; list-style: none; max-width: 46em; border-top: 1px solid var(--rule); }
+.ss-notes li { position: relative; padding: 10px 0 10px 22px; border-bottom: 1px solid var(--rule); font-size: 14px; line-height: 1.7; color: var(--ink-2); }
+.ss-notes li::before { content: ""; position: absolute; left: 4px; top: 1.3em; width: 8px; height: 1px; background: var(--ink-3); }
+.ss-notes li:last-child { color: var(--ink); }
+.ss-notes li:last-child::before { background: var(--sun); height: 2px; }
+
+/* ---------- finishing touches ---------- */
+.part { position: relative; }
+.part::after { content: ""; position: absolute; left: 0; bottom: -1px; width: 72px; height: 2px; background: var(--sun); }
+.block p, .block li, .block dd { text-wrap: pretty; }
+.bd-nm { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr); gap: 4px 28px; align-items: baseline; }
+.bd-nm small { margin-top: 0; font-size: 13.5px; }
+.bd-rows li { padding: 16px 0; }
+.js-rv .block { opacity: 0; translate: 0 18px; transition: opacity .7s ease, translate .7s cubic-bezier(.2,.7,.2,1); }
+.js-rv .block.in { opacity: 1; translate: 0 0; }
+@media (prefers-reduced-motion: reduce) { .js-rv .block { opacity: 1; translate: none; transition: none; } }
+@media print { .js-rv .block { opacity: 1; translate: none; } .mm-ctl { display: none; } }
 
 /* ---------- fundraising ---------- */
 .fd-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); }
@@ -735,6 +798,15 @@ main { container: lb / inline-size; }
   .plist { grid-template-columns: 1fr; }
 }
 @container lb (max-width: 760px) {
+  .ss { grid-template-columns: 1fr; }
+  .ss > div { grid-area: auto !important; order: var(--o, 0); border-left: none; }
+  .ss-corner, .ss-sl, .ss-c.empty { display: none; }
+  .ss-dh { padding: 22px 0 10px; border-bottom: 1px solid var(--ink) !important; }
+  .ss-c { display: grid; grid-template-columns: 84px minmax(0, 1fr); gap: 10px; padding: 10px 0; }
+  .ss-c.broll { grid-template-columns: 1fr; padding: 10px 0 0; background: none; }
+  .ss-sl-in { display: block; padding-top: 7px; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--ink-3); }
+  .mm-ctl { flex-wrap: wrap; gap: 10px; }
+  .mm-prog { order: -1; flex-basis: 100%; }
   .bd-top { grid-template-columns: 1fr; }
   .bd-total { border-right: none; border-bottom: 1px solid var(--rule); padding-right: 0; }
   .bd-mult { padding-left: 0; justify-content: space-between; }
@@ -749,6 +821,7 @@ main { container: lb / inline-size; }
   .dl-legend span { font-size: 9px; }
 }
 @container lb (max-width: 520px) {
+  .bd-nm { grid-template-columns: 1fr; }
   .ft { --lab: 92px; min-width: 700px; }
   .ft-row > h4 { flex-direction: column; gap: 4px; font-size: 13px; }
   .fd-grants, .fd-list, .fd-later { margin-left: 0; }
@@ -815,11 +888,15 @@ main { container: lb / inline-size; }
       <li><a class="sec" href="#locations"><i>05</i><span class="l-zh">场景</span><span class="l-en">Locations</span></a></li>
       <li><a class="sec" href="#safety"><i>06</i><span class="l-zh">拍摄安全</span><span class="l-en">Production safety</span></a></li>
       <li><a class="sec" href="#crew"><i>07</i><span class="l-zh">团队</span><span class="l-en">Key crew</span></a></li>
-      <li><a class="sec" href="#budget"><i>08</i><span class="l-zh">预算</span><span class="l-en">Budget</span></a>
+      <li><a class="sec" href="#schedule"><i>08</i><span class="l-zh">拍摄计划</span><span class="l-en">Schedule</span></a>
+        <ol class="sub">
+          <li><a href="#schedule-board"><span class="l-zh">拍摄日程</span><span class="l-en">Shooting schedule</span></a></li>
+        </ol></li>
+      <li><a class="sec" href="#budget"><i>09</i><span class="l-zh">预算</span><span class="l-en">Budget</span></a>
         <ol class="sub">
           <li><a href="#budget-breakdown"><span class="l-zh">预算结构</span><span class="l-en">Budget breakdown</span></a></li>
         </ol></li>
-      <li><a class="sec" href="#funding"><i>09</i><span class="l-zh">筹资</span><span class="l-en">Fundraising</span></a>
+      <li><a class="sec" href="#funding"><i>10</i><span class="l-zh">筹资</span><span class="l-en">Fundraising</span></a>
         <ol class="sub">
           <li><a href="#fund-goal"><span class="l-zh">目标</span><span class="l-en">The goal</span></a></li>
           <li><a href="#fund-sources"><span class="l-zh">资金来源</span><span class="l-en">Where the money comes from</span></a></li>
@@ -892,8 +969,9 @@ main { container: lb / inline-size; }
 
   <section class="block" id="why" data-nav>
     <div class="head"><h3><span class="l-zh">为什么拍这部片</span><span class="l-en">Why this film</span></h3><span class="eyebrow"><span class="l-zh">导演陈述</span><span class="l-en">Director’s statement</span></span></div>
-    <p class="mm-lede"><span class="l-zh">这不是一条直线，而是一个回环：问题从我的亲身经历出发，最后又回到它。</span><span class="l-en">It isn’t a straight line but a loop: it starts from what I lived, and it comes back there.</span></p>
+    <p class="mm-lede"><span class="l-zh">这不是一条直线，而是一个回环：问题从我的亲身经历出发，最后又回到它。点“下一个”或按键盘 → 一步步展开。</span><span class="l-en">It isn’t a straight line but a loop: it starts from what I lived, and it comes back there. Press Next or → to walk through it.</span></p>
     <div class="mm-scroll"><div class="mm" id="mm"><svg class="mm-lines" aria-hidden="true"><defs><marker id="mmArrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="8" markerHeight="8" markerUnits="userSpaceOnUse" orient="auto"><path d="M0 0.8 L9 5 L0 9.2 z" style="fill:var(--sun)"/></marker></defs></svg><div class="mm-n hub home" data-id="L" style="--x:19;--y:40"><i>01</i><b><span class="l-zh">亲身经历</span><span class="l-en">Lived experience</span></b></div><div class="mm-n leaf " data-id="l1" style="--x:10;--y:13"><span class="l-zh">为了省钱，我常坐黑车</span><span class="l-en">To save money, I rode these cabs</span></div><div class="mm-n leaf " data-id="l2" style="--x:31;--y:9"><span class="l-zh">一路上和司机聊天</span><span class="l-en">I talked with the drivers</span></div><div class="mm-n leaf " data-id="l3" style="--x:9;--y:27"><span class="l-zh">注意到车里的对讲机</span><span class="l-en">I noticed the walkie-talkie</span></div><div class="mm-n leaf red" data-id="l4" style="--x:32;--y:25"><span class="l-zh">坐的车被警察拦下</span><span class="l-en">The car I was in got pulled over</span></div><div class="mm-n hub " data-id="D" style="--x:58;--y:14"><i>02</i><b><span class="l-zh">纪录片构想</span><span class="l-en">A documentary idea</span></b><p><span class="l-zh">还没有拍，只是一个想法</span><span class="l-en">Never shot, just an idea</span></p></div><div class="mm-n leaf card" data-id="Q" style="--x:58;--y:47"><ul><li><span class="l-zh">他们为什么来这里？</span><span class="l-en">Why would they come here?</span></li><li><span class="l-zh">他们过得怎么样？</span><span class="l-en">How do they live?</span></li><li><span class="l-zh">我们真的不一样吗？</span><span class="l-en">Are we really that different?</span></li></ul></div><div class="mm-n hub " data-id="N" style="--x:87;--y:40"><i>03</i><b><span class="l-zh">剧情片</span><span class="l-en">A narrative</span></b><p><span class="l-zh">越了解这群人，越觉得能写成故事。剧本现在是第七稿。</span><span class="l-en">The more I knew them, the more it became a story. The script is on its seventh draft.</span></p></div><div class="mm-n hub goal" data-id="S" style="--x:80;--y:77"><i>04</i><b><span class="l-zh">被看见</span><span class="l-en">To be seen</span></b><p><span class="l-zh">希望这群人能被看见。</span><span class="l-en">I want these people to be seen.</span></p></div><div class="mm-n hub " data-id="H" style="--x:49;--y:89"><i>05</i><b><span class="l-zh">会伤害司机吗？</span><span class="l-en">Could it hurt the drivers?</span></b><p><span class="l-zh">不会。这本来就不是秘密。</span><span class="l-en">No. This was never a secret.</span></p></div><button type="button" class="mm-n hub gaze" data-id="G" style="--x:17;--y:76" aria-haspopup="dialog" aria-controls="gazeDlg"><i>06</i><b><span class="l-zh">这是凝视吗？</span><span class="l-en">Is this a gaze?</span></b><p><span class="l-zh">点开看我的回答 →</span><span class="l-en">Open my answer →</span></p></button><div class="mm-chip" data-edge="G-L"><span class="l-zh">回到亲身经历：采访了 17 位司机、2 位 TLC 警察和多位商家老板</span><span class="l-en">Back to lived experience: 17 drivers, 2 TLC officers and business owners interviewed</span></div></div></div>
+    <div class="mm-ctl" id="mmCtl"><button type="button" class="mm-btn mm-prev" aria-label="Previous">← <span class="l-zh">上一个</span><span class="l-en">Previous</span></button><div class="mm-prog"><span class="mm-ticks" role="group" aria-label="Steps"></span><b class="mm-count">01 / 12</b></div><button type="button" class="mm-btn mm-next" aria-label="Next"><span class="l-zh">下一个</span><span class="l-en">Next</span> →</button><button type="button" class="mm-all"><span class="l-zh">全部显示</span><span class="l-en">Show all</span></button></div>
     <p class="mm-hint"><span class="l-zh">← 左右滑动查看 →</span><span class="l-en">← Swipe to see the whole map →</span></p>
     <dialog class="mm-dlg" id="gazeDlg" aria-labelledby="gazeTitle">
       <form method="dialog"><button class="mm-x" aria-label="Close">×</button></form>
@@ -1368,7 +1446,17 @@ main { container: lb / inline-size; }
   </section>
 
   <!-- 08 -->
-  <div class="part" id="budget" data-nav><i>08</i><h2><span class="l-zh">预算</span><span class="l-en">Budget</span></h2><span class="other"><span class="l-zh">Budget</span><span class="l-en">预算</span></span></div>
+  <div class="part" id="schedule" data-nav><i>08</i><h2><span class="l-zh">拍摄计划</span><span class="l-en">Schedule</span></h2><span class="other"><span class="l-zh">Shooting schedule</span><span class="l-en">拍摄计划</span></span></div>
+  <section class="block" id="schedule-board" data-nav>
+    <div class="head"><h3><span class="l-zh">拍摄日程</span><span class="l-en">Shooting schedule</span></h3><span class="eyebrow"><span class="l-zh">粗排 · 第七稿场次</span><span class="l-en">Rough draft · seventh-draft scenes</span></span></div>
+    <p class="ss-lede"><span class="l-zh">一个很粗的初排：25 场戏分到 5 天里，按光线时段排列。之后会随场地和演员档期调整。</span><span class="l-en">A very rough first pass: 25 scenes over five days, laid out by light. It will move with location and cast availability.</span></p>
+    <div class="ss-legend"><span><i class="k dirty"></i><span class="l-zh">脏车（洗车前）</span><span class="l-en">Dirty van (before the wash)</span></span><span><i class="k clean"></i><span class="l-zh">干净车（洗车后）</span><span class="l-en">Clean van (after the wash)</span></span><span><i class="k none"></i><span class="l-zh">不用车</span><span class="l-en">No van</span></span></div>
+    <div class="ss"><div class="ss-corner" style="grid-area:1/1"></div><div class="ss-dh" style="grid-area:1/2;--o:0"><b>Day 1</b><small><span class="l-zh">3 场</span><span class="l-en">3 scenes</span></small><p><span class="l-zh">KTV 停车场 → 行车</span><span class="l-en">KTV lot → on the road</span></p><div class="ss-flags"><em class="dr"><span class="l-zh">醉汉</span><span class="l-en">Drunk</span></em></div></div><div class="ss-dh" style="grid-area:1/3;--o:10"><b>Day 2</b><small><span class="l-zh">5 场</span><span class="l-en">5 scenes</span></small><p><span class="l-zh">停车场 → 游乐场 → 修车厂 → 洗车</span><span class="l-en">Lot → playground → auto shop → car wash</span></p><div class="ss-flags"><em class="kid"><span class="l-zh">小孩</span><span class="l-en">Kid</span></em></div></div><div class="ss-dh" style="grid-area:1/4;--o:20"><b>Day 3</b><small><span class="l-zh">4 场</span><span class="l-en">4 scenes</span></small><p><span class="l-zh">加油站 → 机场 → 回程</span><span class="l-en">Gas station → airport → drive back</span></p><div class="ss-flags"><em class="kid"><span class="l-zh">小孩</span><span class="l-en">Kid</span></em></div></div><div class="ss-dh" style="grid-area:1/5;--o:30"><b>Day 4</b><small><span class="l-zh">7 场</span><span class="l-en">7 scenes</span></small><p><span class="l-zh">路边 → 律所 → 日落</span><span class="l-en">Roadside → law office → sunset</span></p><div class="ss-flags"><em class="kid"><span class="l-zh">小孩</span><span class="l-en">Kid</span></em><em class="dr"><span class="l-zh">醉汉</span><span class="l-en">Drunk</span></em></div></div><div class="ss-dh broll" style="grid-area:1/6;--o:40"><b>Day 5</b><small><span class="l-zh">空镜</span><span class="l-en">B-roll</span></small><p><span class="l-zh">车外行车、高速、蒙太奇</span><span class="l-en">Car exteriors, highway, montage</span></p></div><div class="ss-sl" style="grid-area:2/1"><span class="l-zh">黎明 至 9:30</span><span class="l-en">Dawn to 9:30</span></div><div class="ss-c" style="grid-area:2/2;--o:1"><span class="ss-sl-in"><span class="l-zh">黎明 至 9:30</span><span class="l-en">Dawn to 9:30</span></span><ol><li class="ss-sc dirty"><i>04</i><span><span class="l-zh">KTV 停车场</span><span class="l-en">KTV parking lot</span></span></li><li class="ss-sc dirty"><i>05</i><span><span class="l-zh">车内 · KTV 接醉汉</span><span class="l-en">Car int. · KTV drunk pickup</span></span></li></ol></div><div class="ss-c" style="grid-area:2/3;--o:11"><span class="ss-sl-in"><span class="l-zh">黎明 至 9:30</span><span class="l-en">Dawn to 9:30</span></span><ol><li class="ss-sc dirty"><i>01</i><span><span class="l-zh">停车场出车</span><span class="l-en">Parking exit</span></span></li><li class="ss-sc dirty"><i>02</i><span><span class="l-zh">车内 · 暖气坏了</span><span class="l-en">Car int. · broken heater</span></span></li></ol></div><div class="ss-c empty" style="grid-area:2/4;--o:21"><span class="ss-sl-in"><span class="l-zh">黎明 至 9:30</span><span class="l-en">Dawn to 9:30</span></span></div><div class="ss-c empty" style="grid-area:2/5;--o:31"><span class="ss-sl-in"><span class="l-zh">黎明 至 9:30</span><span class="l-en">Dawn to 9:30</span></span></div><div class="ss-sl" style="grid-area:3/1"><span class="l-zh">上午</span><span class="l-en">Morning</span></div><div class="ss-c" style="grid-area:3/2;--o:2"><span class="ss-sl-in"><span class="l-zh">上午</span><span class="l-en">Morning</span></span><ol><li class="ss-sc dirty"><i>07</i><span><span class="l-zh">车内 · 老婆来电，掉头</span><span class="l-en">Car int. · wife calls, U-turn</span></span><em><span class="l-zh">行车</span><span class="l-en">Moving</span></em></li></ol></div><div class="ss-c" style="grid-area:3/3;--o:12"><span class="ss-sl-in"><span class="l-zh">上午</span><span class="l-en">Morning</span></span><ol><li class="ss-sc"><i>08</i><span><span class="l-zh">游乐场滑梯</span><span class="l-en">Playground slide</span></span></li></ol></div><div class="ss-c empty" style="grid-area:3/4;--o:22"><span class="ss-sl-in"><span class="l-zh">上午</span><span class="l-en">Morning</span></span></div><div class="ss-c" style="grid-area:3/5;--o:32"><span class="ss-sl-in"><span class="l-zh">上午</span><span class="l-en">Morning</span></span><ol><li class="ss-sc dirty"><i>09</i><span><span class="l-zh">路边 · 车窗涂鸦</span><span class="l-en">Roadside · window doodle</span></span></li><li class="ss-sc dirty"><i>11</i><span><span class="l-zh">居民街 · 打醒醉汉</span><span class="l-en">Residential street · slap awake</span></span></li></ol></div><div class="ss-sl" style="grid-area:4/1"><span class="l-zh">中午</span><span class="l-en">Midday</span></div><div class="ss-c empty" style="grid-area:4/2;--o:3"><span class="ss-sl-in"><span class="l-zh">中午</span><span class="l-en">Midday</span></span></div><div class="ss-c" style="grid-area:4/3;--o:13"><span class="ss-sl-in"><span class="l-zh">中午</span><span class="l-en">Midday</span></span><ol><li class="ss-sc dirty"><i>12</i><span><span class="l-zh">修车厂</span><span class="l-en">Auto shop</span></span></li><li class="ss-sc wash"><i>13</i><span><span class="l-zh">自动洗车</span><span class="l-en">Automatic car wash</span></span></li></ol></div><div class="ss-c" style="grid-area:4/4;--o:23"><span class="ss-sl-in"><span class="l-zh">中午</span><span class="l-en">Midday</span></span><ol><li class="ss-sc clean"><i>15</i><span><span class="l-zh">车内 / 加油站</span><span class="l-en">Car int. / gas station</span></span><em><span class="l-zh">行车</span><span class="l-en">Moving</span></em></li><li class="ss-sc"><i>16</i><span><span class="l-zh">便利店 · 墨镜</span><span class="l-en">Convenience store · sunglasses</span></span></li></ol></div><div class="ss-c" style="grid-area:4/5;--o:33"><span class="ss-sl-in"><span class="l-zh">中午</span><span class="l-en">Midday</span></span><ol><li class="ss-sc"><i>20</i><span><span class="l-zh">走向律所</span><span class="l-en">Walk to the law office</span></span></li><li class="ss-sc"><i>21</i><span><span class="l-zh">律所门口</span><span class="l-en">Law office door</span></span></li><li class="ss-sc"><i>22</i><span><span class="l-zh">律所</span><span class="l-en">Law office</span></span></li><li class="ss-sc"><i>23</i><span><span class="l-zh">律所门口 · 隔着玻璃看</span><span class="l-en">Law office door · through the glass</span></span></li></ol></div><div class="ss-sl" style="grid-area:5/1"><span class="l-zh">下午</span><span class="l-en">Afternoon</span></div><div class="ss-c empty" style="grid-area:5/2;--o:4"><span class="ss-sl-in"><span class="l-zh">下午</span><span class="l-en">Afternoon</span></span></div><div class="ss-c empty" style="grid-area:5/3;--o:14"><span class="ss-sl-in"><span class="l-zh">下午</span><span class="l-en">Afternoon</span></span></div><div class="ss-c" style="grid-area:5/4;--o:24"><span class="ss-sl-in"><span class="l-zh">下午</span><span class="l-en">Afternoon</span></span><ol><li class="ss-sc clean"><i>17</i><span><span class="l-zh">机场接机 · TLC 拦车</span><span class="l-en">Airport pickup · TLC stop</span></span></li><li class="ss-sc clean"><i>19</i><span><span class="l-zh">车内 · 沉默回程</span><span class="l-en">Car int. · silent drive back</span></span><em><span class="l-zh">行车</span><span class="l-en">Moving</span></em></li></ol></div><div class="ss-c empty" style="grid-area:5/5;--o:34"><span class="ss-sl-in"><span class="l-zh">下午</span><span class="l-en">Afternoon</span></span></div><div class="ss-sl" style="grid-area:6/1"><span class="l-zh">日落</span><span class="l-en">Sunset</span></div><div class="ss-c empty" style="grid-area:6/2;--o:5"><span class="ss-sl-in"><span class="l-zh">日落</span><span class="l-en">Sunset</span></span></div><div class="ss-c empty" style="grid-area:6/3;--o:15"><span class="ss-sl-in"><span class="l-zh">日落</span><span class="l-en">Sunset</span></span></div><div class="ss-c empty" style="grid-area:6/4;--o:25"><span class="ss-sl-in"><span class="l-zh">日落</span><span class="l-en">Sunset</span></span></div><div class="ss-c" style="grid-area:6/5;--o:35"><span class="ss-sl-in"><span class="l-zh">日落</span><span class="l-en">Sunset</span></span><ol><li class="ss-sc"><i>24</i><span><span class="l-zh">日落结尾 · 骑在肩上</span><span class="l-en">Sunset ending · on his shoulders</span></span></li></ol></div><div class="ss-c broll" style="grid-area:2/6/7/7;--o:41"><ol><li class="ss-sc dirty"><i>03</i><span><span class="l-zh">法拉盛街道（车外）</span><span class="l-en">Flushing street (car ext.)</span></span><em><span class="l-zh">行车</span><span class="l-en">Moving</span></em></li><li class="ss-sc dirty"><i>06</i><span><span class="l-zh">皇后区街道（车外）</span><span class="l-en">Queens street (car ext.)</span></span><em><span class="l-zh">行车</span><span class="l-en">Moving</span></em></li><li class="ss-sc dirty"><i>10</i><span><span class="l-zh">高速（车外）</span><span class="l-en">Highway (car ext.)</span></span><em><span class="l-zh">行车</span><span class="l-en">Moving</span></em></li><li class="ss-sc clean"><i>14</i><span><span class="l-zh">高速（车外）</span><span class="l-en">Highway (car ext.)</span></span><em><span class="l-zh">行车</span><span class="l-en">Moving</span></em></li><li class="ss-sc clean"><i>18</i><span><span class="l-zh">高速返程（车外）</span><span class="l-en">Highway back (car ext.)</span></span><em><span class="l-zh">行车</span><span class="l-en">Moving</span></em></li><li class="ss-sc"><i>25</i><span><span class="l-zh">蒙太奇</span><span class="l-en">Montage</span></span></li></ol></div></div>
+    <ul class="ss-notes"><li><span class="l-zh">4 个拍摄日加 1 天空镜，对应预算里的 5 天。</span><span class="l-en">Four shoot days plus a B-roll day, matching the five days in the budget.</span></li><li><span class="l-zh">KTV 停车场只能在早上 9:30 前拍，所以排在第一天一早。</span><span class="l-en">The KTV lot is only free before 9:30am, so it opens Day 1.</span></li><li><span class="l-zh">醉汉只来 2 天（Day 1、Day 4）；小孩 3 天（Day 2 到 Day 4）。</span><span class="l-en">The drunk man is needed two days (1 and 4); the Kid three (2 to 4).</span></li><li><span class="l-zh">洗车把车从脏变干净：洗车之后的戏都在 Day 2 洗车之后拍。</span><span class="l-en">The car wash turns the van from dirty to clean, so every clean-van scene comes after it.</span></li><li><span class="l-zh">待解决：修车厂老板希望下午 4 点关门后再拍；Day 4 小孩有 7 场戏，要按儿童演员工时规定安排休息。</span><span class="l-en">Open: the auto shop owner prefers after closing (~4pm), and the Kid has seven scenes on Day 4, which needs planning around child-performer hours.</span></li></ul>
+  </section>
+
+  <!-- 09 -->
+  <div class="part" id="budget" data-nav><i>09</i><h2><span class="l-zh">预算</span><span class="l-en">Budget</span></h2><span class="other"><span class="l-zh">Budget</span><span class="l-en">预算</span></span></div>
 
   <section class="block" id="budget-breakdown" data-nav>
     <div class="head"><h3><span class="l-zh">预算结构</span><span class="l-en">Budget breakdown</span></h3><span class="eyebrow"><span class="l-zh">初步估算 · 2026.11</span><span class="l-en">Preliminary · Nov 2026</span></span></div>
@@ -1398,8 +1486,8 @@ main { container: lb / inline-size; }
     </div>
   </section>
 
-  <!-- 09 -->
-  <div class="part" id="funding" data-nav><i>09</i><h2><span class="l-zh">筹资</span><span class="l-en">Fundraising</span></h2><span class="other"><span class="l-zh">Fundraising</span><span class="l-en">筹资</span></span></div>
+  <!-- 10 -->
+  <div class="part" id="funding" data-nav><i>10</i><h2><span class="l-zh">筹资</span><span class="l-en">Fundraising</span></h2><span class="other"><span class="l-zh">Fundraising</span><span class="l-en">筹资</span></span></div>
   <section class="block" id="fund-goal" data-nav>
     <div class="head"><h3><span class="l-zh">目标</span><span class="l-en">The goal</span></h3><span class="eyebrow"><span class="l-zh">截至 2026.11.12</span><span class="l-en">As of Nov 12, 2026</span></span></div>
     <div class="fd-stats"><div><b>$20,000</b><span><span class="l-zh">预算目标</span><span class="l-en">Budget target</span></span></div><div><b><span class="l-zh">2027.03</span><span class="l-en">Mar 2027</span></b><span><span class="l-zh">开拍</span><span class="l-en">Shoot</span></span></div><div><b>$25,500</b><span><span class="l-zh">在申请的 4 项基金，最高可得</span><span class="l-en">Up to, from 4 grants in progress</span></span></div><div><b>8</b><span><span class="l-zh">家社区机构已在联系</span><span class="l-en">Community partners contacted</span></span></div></div>
@@ -1803,6 +1891,20 @@ addEventListener("scroll", spy, { passive: true });
   tick();
 })();
 
+/* ---------- blocks rise in as they reach the screen ---------- */
+(() => {
+  if (!("IntersectionObserver" in window) || matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const blocks = [...document.querySelectorAll(".block")];
+  const below = blocks.filter(b => b.getBoundingClientRect().top > innerHeight * .9);
+  if (!below.length) return;
+  document.documentElement.classList.add("js-rv");
+  blocks.forEach(b => { if (!below.includes(b)) b.classList.add("in"); });
+  const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add("in"); io.unobserve(e.target); } }), { rootMargin: "0px 0px -8% 0px" });
+  below.forEach(b => io.observe(b));
+  // jumping from the menu must never land on an invisible block
+  addEventListener("hashchange", () => blocks.forEach(b => b.classList.add("in")));
+})();
+
 /* ---------- why this film: straight lines between the map's nodes ---------- */
 (() => {
   const mm = document.getElementById("mm");
@@ -1833,31 +1935,70 @@ addEventListener("scroll", spy, { passive: true });
       const l = document.createElementNS(NS, "line");
       l.setAttribute("x1", p[0]); l.setAttribute("y1", p[1]); l.setAttribute("x2", q[0]); l.setAttribute("y2", q[1]);
       l.setAttribute("pathLength", "1"); l.setAttribute("class", cls);
-      l.style.setProperty("--k", k);
-      if (arrow) l.setAttribute("marker-end", "url(#mmArrow)");
+      l.dataset.s = STEP[b === "L" ? "chip" : b];
       svg.appendChild(l);
       return [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];
     };
     LOOP.forEach(([a, b], i) => {
       const mid = add(a, b, "loop", i * 2 + 1, true);
       const chip = mm.querySelector(`.mm-chip[data-edge="${a}-${b}"]`);
-      if (chip) { chip.style.left = mid[0] + "px"; chip.style.top = mid[1] + "px"; chip.style.setProperty("--k", i * 2 + 2); }
+      if (chip) { chip.style.left = mid[0] + "px"; chip.style.top = mid[1] + "px"; }
     });
     LEAF.forEach(([a, b, c], i) => add(a, b, "leaf" + (c ? " " + c : ""), 1 + i, false));
+    apply(true);
   }
-  // stagger the nodes along the loop
-  ["L","l1","l2","l3","l4","D","Q","N","S","H","G"].forEach((id, i) => el(id).style.setProperty("--k", i));
-  const sc = mm.parentElement, hint = sc.nextElementSibling;
+  // the pitch order: one node (and the line into it) per click
+  const STEP = { L: 0, l1: 1, l2: 2, l3: 3, l4: 4, D: 5, Q: 6, N: 7, S: 8, H: 9, G: 10, chip: 11 }, MAX = 11;
+  Object.entries(STEP).forEach(([id, k]) => { const n = id === "chip" ? mm.querySelector(".mm-chip") : el(id); if (n) n.dataset.s = k; });
+  const ctl = document.getElementById("mmCtl"), prev = ctl.querySelector(".mm-prev"), next = ctl.querySelector(".mm-next"),
+        all = ctl.querySelector(".mm-all"), count = ctl.querySelector(".mm-count"), ticks = ctl.querySelector(".mm-ticks");
+  let cur = 0;
+  for (let k = 0; k <= MAX; k++) {
+    const b = document.createElement("button"); b.type = "button"; b.setAttribute("aria-label", "Step " + (k + 1));
+    b.addEventListener("click", () => go(k)); ticks.appendChild(b);
+  }
+  function apply(instant) {
+    mm.querySelectorAll("[data-s]").forEach(n => {
+      const k = +n.dataset.s, on = k <= cur;
+      n.classList.toggle("shown", on); n.classList.toggle("cur", k === cur);
+      if (n.tagName === "line" && n.classList.contains("loop")) {
+        if (!on) n.classList.remove("tip");
+        else if (instant) n.classList.add("tip");
+        else if (!n.classList.contains("tip")) setTimeout(() => { if (+n.dataset.s <= cur) n.classList.add("tip"); }, 420);
+      }
+    });
+    mm.classList.toggle("done", cur === MAX);
+    prev.disabled = cur === 0; next.disabled = cur === MAX;
+    count.textContent = String(cur + 1).padStart(2, "0") + " / " + String(MAX + 1).padStart(2, "0");
+    [...ticks.children].forEach((b, k) => b.classList.toggle("on", k <= cur));
+    all.innerHTML = cur === MAX ? BI("重来", "Restart") : BI("全部显示", "Show all");
+  }
+  function go(k) {
+    cur = Math.max(0, Math.min(MAX, k)); apply(false);
+    // on a narrow screen, bring the new node into view
+    const sc = mm.parentElement;
+    if (sc.scrollWidth > sc.clientWidth + 2) {
+      const n = [...mm.querySelectorAll(".mm-n, .mm-chip")].find(x => +x.dataset.s === cur);
+      if (n) { const b = box(n); sc.scrollTo({ left: b.x + b.w / 2 - sc.clientWidth / 2, behavior: "smooth" }); }
+    }
+  }
+  prev.addEventListener("click", () => go(cur - 1));
+  next.addEventListener("click", () => go(cur + 1));
+  all.addEventListener("click", () => go(cur === MAX ? 0 : MAX));
+  addEventListener("keydown", e => {
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft") return;
+    if (e.altKey || e.metaKey || e.ctrlKey || document.querySelector("dialog[open]") || /INPUT|SELECT|TEXTAREA/.test(document.activeElement?.tagName || "")) return;
+    const r = mm.getBoundingClientRect();
+    if (Math.min(r.bottom, innerHeight) - Math.max(r.top, 0) < Math.min(r.height, innerHeight) * .4) return;
+    e.preventDefault(); go(cur + (e.key === "ArrowRight" ? 1 : -1));
+  });
+  mm.classList.add("step");
+  const sc = mm.parentElement, hint = document.querySelector("#why .mm-hint");
   const fit = () => { hint.style.visibility = sc.scrollWidth > sc.clientWidth + 2 ? "visible" : "hidden"; };
   draw(); fit();
   new ResizeObserver(() => { draw(); fit(); }).observe(sc);
   new ResizeObserver(draw).observe(mm);
   mm.querySelectorAll(".mm-n").forEach(n => new ResizeObserver(() => requestAnimationFrame(draw)).observe(n));
-  if ("IntersectionObserver" in window && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    mm.classList.add("armed");
-    const io = new IntersectionObserver(es => { if (es.some(e => e.isIntersecting)) { mm.classList.add("on"); io.disconnect(); } }, { threshold: .25 });
-    io.observe(mm);
-  }
   const dlg = document.getElementById("gazeDlg");
   el("G").addEventListener("click", () => dlg.showModal());
   dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close(); });
