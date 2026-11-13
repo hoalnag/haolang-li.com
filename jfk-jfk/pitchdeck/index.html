@@ -388,13 +388,6 @@ body.script-open .lang-fixed { right: calc(var(--sp-w) + 20px); }
 .dn li::before { content: ""; position: absolute; left: 4px; top: 1.45em; width: 10px; height: 1px; background: var(--ink-3); }
 .dn b { color: var(--ink); font-weight: 600; }
 :root[lang="en"] .dn li { font-size: 17px; line-height: 1.6; }
-.flow { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); border-top: 1px solid var(--ink); }
-.flow li { position: relative; padding: 16px 22px 18px 0; display: flex; flex-direction: column; gap: 6px; font-size: 13px; line-height: 1.6; color: var(--ink-3); }
-.flow li:not(:last-child)::after { content: "→"; position: absolute; right: 6px; top: 14px; color: var(--ink-3); font-size: 14px; }
-.flow i { font-style: normal; font-size: 11px; letter-spacing: .1em; }
-.flow b { font-family: var(--serif); font-weight: 500; font-size: 19px; color: var(--ink); }
-.flow-why { margin: 22px 0 0; font-family: var(--serif); font-size: 18px; color: var(--ink); max-width: 36em; }
-@media (max-width: 760px) { .flow { grid-template-columns: 1fr; } .flow li { padding-right: 0; border-bottom: 1px solid var(--rule); } .flow li::after { display: none; } }
 
 /* locations */
 .filters { display: flex; gap: 6px; flex-wrap: wrap; }
@@ -478,10 +471,6 @@ main { position: relative; z-index: 1; }
   clip-path: inset(0 calc(100% - var(--p, 0) * 100%) 0 0); }
 body.script-open .daybar { right: var(--sp-w); }
 @media (max-width: 900px) { .daybar { left: 0; } }
-.clock { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; color: var(--ink); }
-.clock .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--clock-c, var(--d-dawn)); box-shadow: 0 0 10px var(--clock-c, transparent); flex: none; transition: background .4s; }
-.clock b { font-family: var(--mono); font-weight: 700; font-size: 15px; letter-spacing: .06em; font-variant-numeric: tabular-nums; }
-.clock span { font-size: 11px; color: var(--ink-3); letter-spacing: .08em; }
 
 /* typewriter details from the script */
 .eyebrow { font-family: var(--mono); letter-spacing: .16em; }
@@ -619,8 +608,6 @@ blockquote { border-left: 2px solid var(--sun); padding-left: 18px; }
 .bd-mult b { display: block; font-family: "DIN Alternate", "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif; font-weight: 700; font-size: 36px; line-height: 1; margin-bottom: 8px; }
 .bd-mult .x { font-family: var(--mono); font-size: 20px; color: var(--ink-3); }
 .bd-lede { margin: 24px 0 0; max-width: 42em; font-size: 16px; line-height: 1.75; color: var(--ink-2); text-wrap: pretty; }
-.bd-legend { display: flex; flex-wrap: wrap; gap: 8px 28px; margin: 26px 0 0; font-size: 12px; color: var(--ink-3); }
-.bd-legend > span { display: inline-flex; align-items: center; gap: 8px; }
 .bd-g { margin: 30px 0 0; padding-bottom: 8px; border-bottom: 1px solid var(--ink); font-family: var(--mono); font-weight: 700; font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink); }
 .bd-rows { list-style: none; margin: 0; padding: 0; }
 .bd-rows li { display: grid; grid-template-columns: minmax(0, 1fr) 230px 150px; gap: 20px; align-items: center; padding: 14px 0; border-bottom: 1px dashed var(--rule); }
@@ -643,6 +630,35 @@ blockquote { border-left: 2px solid var(--sun); padding-left: 18px; }
 .bd-open h4 { margin: 0 0 8px; font-family: var(--mono); font-weight: 700; font-size: 12px; letter-spacing: .18em; text-transform: uppercase; color: var(--ink-3); }
 .bd-open ul { margin: 0; padding-left: 18px; }
 .bd-open li { font-size: 14px; line-height: 1.8; color: var(--ink-2); }
+
+/* ---------- fundraising timeline: one row per channel ---------- */
+.ft-legend { display: flex; flex-wrap: wrap; gap: 8px 24px; margin: 0 0 16px; font-size: 12px; color: var(--ink-3); }
+.ft-legend > span { display: inline-flex; align-items: center; gap: 8px; }
+.ft-legend .k { display: inline-block; width: 18px; height: 10px; }
+.ft-legend .k.pt { width: 9px; height: 9px; background: var(--sun); transform: rotate(45deg); }
+.ft-legend .k.run { background: var(--sun-soft); border: 1px solid var(--sun); }
+.ft-legend .k.wait { border: 1px dashed var(--ink-3); }
+.ft-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; padding-bottom: 6px; }
+.ft { position: relative; min-width: 820px; border-top: 1px solid var(--ink); --lab: 150px; }
+.ft::before { content: ""; position: absolute; top: 0; bottom: 0; left: calc(var(--lab) + (100% - var(--lab)) * 4 / 6); width: calc((100% - var(--lab)) / 6); background: var(--sun-soft); opacity: .5; pointer-events: none; }
+.ft-row { position: relative; display: grid; grid-template-columns: var(--lab) minmax(0, 1fr); border-bottom: 1px solid var(--rule); }
+.ft-row > h4 { margin: 0; padding: 12px 12px 12px 0; display: flex; align-items: flex-start; gap: 8px; font-weight: 500; font-size: 14px; color: var(--ink); }
+.ft-row > h4 i { font-style: normal; font-family: var(--mono); font-size: 11px; font-weight: 700; border: 1px solid var(--ink-3); padding: 0 5px; line-height: 17px; flex: none; }
+.ft-head ol, .ft-items { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); }
+.ft-head li { padding: 10px 8px 8px; font-family: var(--mono); font-size: 11px; letter-spacing: .06em; color: var(--ink-3); border-left: 1px dashed var(--rule); }
+.ft-head li.shoot { color: var(--sun); font-weight: 700; }
+.ft-cell { padding: 8px 0 10px; background: repeating-linear-gradient(90deg, transparent 0 calc(100% / 6 - 1px), var(--rule) calc(100% / 6 - 1px) calc(100% / 6)); background-size: 100% 100%; }
+.ft-items { grid-auto-flow: row dense; gap: 6px 0; }
+.ft-i { grid-column: var(--s) / var(--e); margin: 0 6px; padding: 5px 8px 6px; min-width: 0; font-size: 12px; line-height: 1.4; }
+.ft-i b { display: block; font-weight: 500; color: var(--ink); }
+.ft-i span { display: block; font-size: 11px; color: var(--ink-3); }
+.ft-i.pt { position: relative; padding-left: 18px; }
+.ft-i.pt::before { content: ""; position: absolute; left: 3px; top: 10px; width: 7px; height: 7px; background: var(--sun); transform: rotate(45deg); }
+.ft-i.run { background: var(--sun-soft); border: 1px solid var(--sun); }
+.ft-i.run.soft { border-color: color-mix(in srgb, var(--sun) 45%, transparent); }
+.ft-i.wait { border: 1px dashed var(--ink-3); }
+.ft-foot { margin: 6px 6px 0; font-size: 11.5px; color: var(--ink-3); }
+.ft-row > h4, .ft-head > span { position: sticky; left: 0; z-index: 1; background: var(--paper); }
 
 /* ---------- fundraising ---------- */
 .fd-stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); border-top: 1px solid var(--ink); border-bottom: 1px solid var(--rule); }
@@ -715,9 +731,6 @@ main { container: lb / inline-size; }
   .film { grid-template-columns: 96px minmax(0, 1fr); gap: 16px; }
   .safety div { grid-template-columns: 1fr; gap: 4px; }
   .facts { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-  .flow { grid-template-columns: 1fr; }
-  .flow li { border-bottom: 1px solid var(--rule); }
-  .flow li::after { display: none; }
   .props { grid-template-columns: 1fr; }
   .plist { grid-template-columns: 1fr; }
 }
@@ -739,6 +752,8 @@ main { container: lb / inline-size; }
   .dl-legend span { font-size: 9px; }
 }
 @container lb (max-width: 520px) {
+  .ft { --lab: 92px; min-width: 700px; }
+  .ft-row > h4 { flex-direction: column; gap: 4px; font-size: 13px; }
   .fd-grants, .fd-list, .fd-later { margin-left: 0; }
   .fd-lane .role { margin-left: 0; }
   .fd-grants li { grid-template-columns: minmax(0, 1fr) auto; gap: 4px 12px; }
@@ -793,7 +808,6 @@ main { container: lb / inline-size; }
           <li><a href="#ref-color"><span class="l-zh">色彩</span><span class="l-en">Color</span></a></li>
           <li><a href="#ref-light"><span class="l-zh">光线</span><span class="l-en">Lighting</span></a></li>
           <li><a href="#ref-lens"><span class="l-zh">摄影机</span><span class="l-en">Camera</span></a></li>
-          <li><a href="#ref-plan"><span class="l-zh">分镜计划</span><span class="l-en">Storyboard plan</span></a></li>
           <li><a href="#ref-feeling"><span class="l-zh">情绪与质感</span><span class="l-en">Mood and texture</span></a></li>
         </ol></li>
       <li><a class="sec" href="#props"><i>04</i><span class="l-zh">道具</span><span class="l-en">Props</span></a>
@@ -817,7 +831,7 @@ main { container: lb / inline-size; }
     </ol>
   </nav>
   <button type="button" class="script-btn" id="scriptBtn" aria-pressed="false" aria-controls="scriptPanel"><span>Newest Script For Reference</span><i>→</i></button>
-  <div class="rail-foot"><div class="clock" aria-hidden="true"><i class="dot"></i><b id="dayTime">06:00</b><span id="dayWord"></span></div><span class="l-zh">剧本第七稿 · 2026.11.06</span><span class="l-en">Seventh draft · Nov 6, 2026</span></div>
+  <div class="rail-foot"><span class="l-zh">剧本第七稿 · 2026.11.06</span><span class="l-en">Seventh draft · Nov 6, 2026</span></div>
 </aside>
 
 <main>
@@ -1189,14 +1203,8 @@ main { container: lb / inline-size; }
     <div class="head"><h3><span class="l-zh">摄影机</span><span class="l-en">Camera</span></h3><span class="eyebrow"><span class="l-zh">导演笔记</span><span class="l-en">Director&#x27;s notes</span></span></div>
     
     <div class="essay">
-      <div><ul class="dn l-zh"><li><b>机动性优先。</b></li><li>A 机：ARRI Alexa Mini</li><li>B 机：DJI Ronin 4D（待定）</li><li>车拍支架：由摄影指导准备，控制成本</li><li>镜头：待定</li></ul><ul class="dn l-en" lang="en"><li><b>Mobility first.</b></li><li>A-cam: ARRI Alexa Mini</li><li>B-cam: DJI Ronin 4D (TBD)</li><li>Car rig: provided by the DP, kept inexpensive</li><li>Lenses: TBD</li></ul></div>
+      <div><ul class="dn l-zh"><li><b>机动性优先。</b></li><li>A 机：ARRI Alexa Mini</li><li>B 机：ARRI Alexa Mini</li><li>车拍支架：由摄影指导准备，控制成本</li><li>镜头：待定</li></ul><ul class="dn l-en" lang="en"><li><b>Mobility first.</b></li><li>A-cam: ARRI Alexa Mini</li><li>B-cam: ARRI Alexa Mini</li><li>Car rig: provided by the DP, kept inexpensive</li><li>Lenses: TBD</li></ul></div>
     </div>
-  </section>
-
-  <section class="block" id="ref-plan" data-nav>
-    <div class="head"><h3><span class="l-zh">分镜计划</span><span class="l-en">Storyboard plan</span></h3><span class="eyebrow"><span class="l-zh">导演笔记</span><span class="l-en">Director&#x27;s notes</span></span></div>
-    <ol class="flow"><li><i>01</i><b><span class="l-zh">3D 资产</span><span class="l-en">3D assets</span></b><span class="l-zh">道具与角色模型，高斯泼溅扫描的实景</span><span class="l-en">Prop and character models; Gaussian-splat scans of the locations</span></li><li><i>02</i><b><span class="l-zh">UE5</span><span class="l-en">UE5</span></b><span class="l-zh">在 Unreal Engine 5 里把场景搭起来</span><span class="l-en">Assemble each scene in Unreal Engine 5</span></li><li><i>03</i><b><span class="l-zh">虚拟摄影机</span><span class="l-en">Virtual camera</span></b><span class="l-zh">预演：按剧本走机位、试镜头</span><span class="l-en">Previs: block and test every shot against the script</span></li><li><i>04</i><b><span class="l-zh">AI 渲染</span><span class="l-en">AI render</span></b><span class="l-zh">用 Seedance 2.5 把预演渲染成画面</span><span class="l-en">Render the previs with Seedance 2.5</span></li><li><i>05</i><b><span class="l-zh">完整影片</span><span class="l-en">Full film</span></b><span class="l-zh">理论上，可以先出一版完整的片子</span><span class="l-en">In theory, a complete version of the film</span></li></ol>
-    <p class="flow-why"><span class="l-zh">目的：前期在虚拟空间里把片子拍一遍，让拍摄现场留出更多即兴的空间。</span><span class="l-en" lang="en">The point: shoot the film once in a virtual space during prep, so the real shoot can allow more spontaneity.</span></p>
   </section>
 
   <section class="block" id="ref-feeling" data-nav>
@@ -1329,24 +1337,24 @@ main { container: lb / inline-size; }
   <section class="block" id="safety-list" data-nav>
     <div class="head"><h3><span class="l-zh">安全清单</span><span class="l-en">Safety checklist</span></h3><span class="eyebrow"><span class="l-zh">草稿 · 开拍前逐条核实</span><span class="l-en">Draft · verify each item before the shoot</span></span></div>
     <dl class="safety l-zh">
-      <div><dt>行车</dt><dd>演员表演时不自己开车。需要表演的车内戏用拖车（process trailer）拍，或在封闭、低速的路段拍。车上所有机器和灯用专业车载支架固定，车内外用对讲保持联络。</dd></div>
-      <div><dt>儿童演员</dt><dd>小孩 9 岁。纽约州要求儿童演员持 Child Performer Permit，雇主在开工前至少两个工作日提交 Notice of Use，家长需提供信托账户信息。每工作四小时至少休息 10 分钟，现场全程有成年看护人。每日工时上限按州劳工部的规定执行。<a href="https://dol.ny.gov/summary-child-performer-regulations" target="_blank" rel="noopener">纽约州劳工部</a></dd></div>
-      <div><dt>孩子的具体镜头</dt><dd>S11 打醒醉汉的那一巴掌要设计好动作，不真打，和演员提前排练；S12 趴在车头前看引擎底下，引擎必须熄火、冷却；S13 洗车机运行时孩子在车里，要和洗车厂确认流程和紧急停机；S15–S16 加油站内外的车流；S17 机场接机车道车流大；S24 骑在脖子上，提前彩排，控制拍摄条数。</dd></div>
-      <div><dt>机场</dt><dd>JFK 由纽约新泽西港务局管理，在机场拍摄要单独向港务局申请，流程长，需要保险。接机车道车流大，也可以考虑找一处相似的路边来拍。<a href="https://www.panynj.gov/content/dam/port-authority/press-room/media-access/JFK_Media%20Guidelines_April%202021.pdf" target="_blank" rel="noopener">港务局 JFK 媒体指引</a></dd></div>
-      <div><dt>警察制服</dt><dd>在市政道路上拍穿警察制服的演员，需要申请 NYPD 影视组（Movie &amp; TV Unit）到场。TLC 制服同样提前和电影办公室确认。<a href="https://www.nyc.gov/site/mome/permits/pre-production.page" target="_blank" rel="noopener">MOME</a></dd></div>
-      <div><dt>拍摄许可</dt><dd>纽约市街道拍摄需要市长媒体与娱乐办公室（MOME）的许可，学生项目走学生许可流程。<a href="https://www.nyc.gov/site/mome/permits/students.page" target="_blank" rel="noopener">MOME 学生许可</a></dd></div>
-      <div><dt>道具与特效</dt><dd>车内吸烟用草本道具烟，孩子在车里时不点烟。被老鼠咬过的隔热棉用道具制作。S11 醉汉呕吐用可食用的道具呕吐物，备好清理用品和替换服装。</dd></div>
-      <div><dt>凌晨开工</dt><dd>保证剧组两次开工之间的休息时间；收工后疲劳驾驶的风险要有人管。</dd></div>
+      <div><dt>行车</dt><dd>演员表演时不开车，车内戏用拖车或在封闭的低速路段拍。机器和灯用专业车载支架固定。</dd></div>
+      <div><dt>儿童演员</dt><dd>孩子 9 岁。需持纽约州儿童演员许可，开工前两个工作日提交 Notice of Use。每四小时至少休息 10 分钟，全程有成年看护人。<a href="https://dol.ny.gov/summary-child-performer-regulations" target="_blank" rel="noopener">纽约州劳工部</a></dd></div>
+      <div><dt>孩子的具体镜头</dt><dd>S11 的巴掌设计好动作，不真打；S12 看引擎底下，必须熄火冷却；S13 和洗车厂确认紧急停机；S15–S17 注意加油站和接机车道的车流；S24 骑脖子提前彩排。</dd></div>
+      <div><dt>机场</dt><dd>JFK 拍摄要向港务局申请，流程长，需要保险。目前计划用 Long Island MacArthur Airport 代拍。<a href="https://www.panynj.gov/content/dam/port-authority/press-room/media-access/JFK_Media%20Guidelines_April%202021.pdf" target="_blank" rel="noopener">港务局 JFK 媒体指引</a></dd></div>
+      <div><dt>警察制服</dt><dd>街上拍警察制服需 NYPD 影视组到场；TLC 制服提前和电影办公室确认。<a href="https://www.nyc.gov/site/mome/permits/pre-production.page" target="_blank" rel="noopener">MOME</a></dd></div>
+      <div><dt>拍摄许可</dt><dd>纽约市街道拍摄走 MOME 学生许可流程。<a href="https://www.nyc.gov/site/mome/permits/students.page" target="_blank" rel="noopener">MOME 学生许可</a></dd></div>
+      <div><dt>道具与特效</dt><dd>用草本道具烟，孩子在车里时不点；隔热棉和呕吐物都用道具制作。</dd></div>
+      <div><dt>凌晨开工</dt><dd>保证两次开工之间的休息，收工后的疲劳驾驶要有人负责。</dd></div>
     </dl>
     <dl class="safety l-en" lang="en">
-      <div><dt>Driving</dt><dd>Actors don't drive while performing. In-car scenes with performance are shot on a process trailer or on a closed, low-speed road. All cameras and lights on the car go on proper vehicle mounts, with radio contact between the car and the crew.</dd></div>
-      <div><dt>Child actor</dt><dd>The Kid is nine. New York State requires a Child Performer Permit; the employer files a Notice of Use at least two business days before work starts, and the parents provide trust account details. At least 10 minutes of rest for every four hours worked, and a responsible adult on set at all times. Daily hour limits follow the state Department of Labor rules. <a href="https://dol.ny.gov/summary-child-performer-regulations" target="_blank" rel="noopener">NYS Department of Labor</a></dd></div>
-      <div><dt>The Kid's shots</dt><dd>The slap that wakes the drunk man (S11) is choreographed, never a real hit, and rehearsed with the actor; lying in front of the engine to look underneath (S12), engine off and cool; inside the van while the car wash runs (S13), so confirm the procedure and emergency stop with the car wash; traffic around the gas station (S15–S16) and the busy arrivals lane (S17); riding on Wang's shoulders (S24), rehearsed, with a limited number of takes.</dd></div>
-      <div><dt>Airport</dt><dd>JFK is run by the Port Authority of New York and New Jersey, and filming there needs a separate Port Authority permit, with a long lead time and insurance. The arrivals curb is busy; a similar curb elsewhere is worth considering. <a href="https://www.panynj.gov/content/dam/port-authority/press-room/media-access/JFK_Media%20Guidelines_April%202021.pdf" target="_blank" rel="noopener">Port Authority JFK media guidelines</a></dd></div>
-      <div><dt>Police uniforms</dt><dd>Actors in police uniforms on city streets require the NYPD Movie &amp; TV Unit on location. Clear the TLC uniforms with the Film Office in advance too. <a href="https://www.nyc.gov/site/mome/permits/pre-production.page" target="_blank" rel="noopener">MOME</a></dd></div>
-      <div><dt>Permits</dt><dd>Street filming in New York City needs a permit from the Mayor's Office of Media and Entertainment; student projects use the student permit process. <a href="https://www.nyc.gov/site/mome/permits/students.page" target="_blank" rel="noopener">MOME student permits</a></dd></div>
-      <div><dt>Props and effects</dt><dd>Herbal prop cigarettes in the van, and none lit while the Kid is inside. The rat-chewed insulation is a fabricated prop. The vomit in S11 is an edible prop mix, with cleanup supplies and a change of wardrobe ready.</dd></div>
-      <div><dt>Early calls</dt><dd>Protect the turnaround between shoot days, and make someone responsible for drowsy driving after wrap.</dd></div>
+      <div><dt>Driving</dt><dd>Actors never drive while performing: in-car scenes go on a process trailer or a closed, low-speed road. Cameras and lights on proper vehicle mounts.</dd></div>
+      <div><dt>Child actor</dt><dd>The Kid is nine. He needs a New York Child Performer Permit, with a Notice of Use filed two business days ahead. Ten minutes’ rest every four hours, and an adult on set throughout. <a href="https://dol.ny.gov/summary-child-performer-regulations" target="_blank" rel="noopener">NYS Department of Labor</a></dd></div>
+      <div><dt>The Kid's shots</dt><dd>The slap (S11) is choreographed, never real; engine off and cool for S12; confirm the car wash’s emergency stop (S13); watch traffic at the gas station and arrivals lane (S15–S17); rehearse the shoulder ride (S24).</dd></div>
+      <div><dt>Airport</dt><dd>Filming at JFK needs a Port Authority permit and insurance, with a long lead time. The plan is to shoot Long Island MacArthur Airport for it. <a href="https://www.panynj.gov/content/dam/port-authority/press-room/media-access/JFK_Media%20Guidelines_April%202021.pdf" target="_blank" rel="noopener">Port Authority JFK media guidelines</a></dd></div>
+      <div><dt>Police uniforms</dt><dd>Police uniforms on city streets need the NYPD Movie &amp; TV Unit on location; clear TLC uniforms with the Film Office. <a href="https://www.nyc.gov/site/mome/permits/pre-production.page" target="_blank" rel="noopener">MOME</a></dd></div>
+      <div><dt>Permits</dt><dd>Street filming goes through MOME’s student permit process. <a href="https://www.nyc.gov/site/mome/permits/students.page" target="_blank" rel="noopener">MOME student permits</a></dd></div>
+      <div><dt>Props and effects</dt><dd>Herbal prop cigarettes, never lit with the Kid inside; the chewed insulation and the vomit are props.</dd></div>
+      <div><dt>Early calls</dt><dd>Protect the turnaround between days, and make someone responsible for drowsy driving after wrap.</dd></div>
     </dl>
   </section>
 
@@ -1378,9 +1386,8 @@ main { container: lb / inline-size; }
       </div>
     </div>
     <p class="bd-lede"><span class="l-zh">现在还给不出准确的数字。大部分开销是“天数 × 人数”：拍摄天数和剧组人数一确定，预算就能算出来。下面先画出钱会花在哪里、怎么累加。</span><span class="l-en">We can’t give exact figures yet. Most costs are days × people: once the shoot days and crew size are set, the budget follows. For now, this shows where the money goes and how it adds up.</span></p>
-    <div class="bd-legend"><span><span class="bd-days mini"><i></i></span><span class="l-zh">一格 = 一个拍摄日</span><span class="l-en">One cell = one shoot day</span></span><span><span class="bd-w" aria-label="3 of 4"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><span class="l-zh">相对开销，粗估</span><span class="l-en">Relative cost, rough</span></span></div>
     <h4 class="bd-g"><span class="l-zh">每个拍摄日都要花</span><span class="l-en">Every shoot day</span></h4>
-    <ul class="bd-rows"><li><div class="bd-nm"><b><span class="l-zh">剧中用车（七座车）</span><span class="l-en">Picture car (the minivan)</span></b><small><span class="l-zh">租五天，是最大的一笔</span><span class="l-en">Rented for five days, the biggest single cost</span></small></div><span class="bd-days"><i>D1</i><i>D2</i><i>D3</i><i>D4</i><i>D5</i></span><div class="bd-r"><span class="bd-w" aria-label="4 of 4"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></div></li><li><div class="bd-nm"><b><span class="l-zh">B 机</span><span class="l-en">B camera</span></b><small><span class="l-zh">租五天</span><span class="l-en">Rented for five days</span></small></div><span class="bd-days"><i>D1</i><i>D2</i><i>D3</i><i>D4</i><i>D5</i></span><div class="bd-r"><span class="bd-w" aria-label="3 of 4"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></div></li><li><div class="bd-nm"><b><span class="l-zh">餐饮</span><span class="l-en">Meals</span></b><small><span class="l-zh">每天按剧组人数</span><span class="l-en">Every day, for the whole crew</span></small></div><span class="bd-days"><i>D1</i><i>D2</i><i>D3</i><i>D4</i><i>D5</i></span><div class="bd-r"><span class="bd-w" aria-label="3 of 4"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><em class="bd-tag"><span class="l-zh">× 人数</span><span class="l-en">× headcount</span></em></div></li><li><div class="bd-nm"><b><span class="l-zh">交通</span><span class="l-en">Transport</span></b><small><span class="l-zh">每天往返各个场景</span><span class="l-en">Getting cast and crew to set every day</span></small></div><span class="bd-days"><i>D1</i><i>D2</i><i>D3</i><i>D4</i><i>D5</i></span><div class="bd-r"><span class="bd-w" aria-label="2 of 4"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><em class="bd-tag"><span class="l-zh">× 人数</span><span class="l-en">× headcount</span></em></div></li></ul>
+    <ul class="bd-rows"><li><div class="bd-nm"><b><span class="l-zh">剧中用车（七座车）</span><span class="l-en">Picture car (the minivan)</span></b><small><span class="l-zh">租五天，是最大的一笔</span><span class="l-en">Rented for five days, the biggest single cost</span></small></div><span class="bd-days"><i>D1</i><i>D2</i><i>D3</i><i>D4</i><i>D5</i></span><div class="bd-r"><span class="bd-w" aria-label="4 of 4"><i class="on"></i><i class="on"></i><i class="on"></i><i class="on"></i></span></div></li><li><div class="bd-nm"><b><span class="l-zh">B 机：ARRI Alexa Mini</span><span class="l-en">B camera: ARRI Alexa Mini</span></b><small><span class="l-zh">租五天</span><span class="l-en">Rented for five days</span></small></div><span class="bd-days"><i>D1</i><i>D2</i><i>D3</i><i>D4</i><i>D5</i></span><div class="bd-r"><span class="bd-w" aria-label="3 of 4"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span></div></li><li><div class="bd-nm"><b><span class="l-zh">餐饮</span><span class="l-en">Meals</span></b><small><span class="l-zh">每天按剧组人数</span><span class="l-en">Every day, for the whole crew</span></small></div><span class="bd-days"><i>D1</i><i>D2</i><i>D3</i><i>D4</i><i>D5</i></span><div class="bd-r"><span class="bd-w" aria-label="3 of 4"><i class="on"></i><i class="on"></i><i class="on"></i><i class=""></i></span><em class="bd-tag"><span class="l-zh">× 人数</span><span class="l-en">× headcount</span></em></div></li><li><div class="bd-nm"><b><span class="l-zh">交通</span><span class="l-en">Transport</span></b><small><span class="l-zh">每天往返各个场景</span><span class="l-en">Getting cast and crew to set every day</span></small></div><span class="bd-days"><i>D1</i><i>D2</i><i>D3</i><i>D4</i><i>D5</i></span><div class="bd-r"><span class="bd-w" aria-label="2 of 4"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><em class="bd-tag"><span class="l-zh">× 人数</span><span class="l-en">× headcount</span></em></div></li></ul>
     <h4 class="bd-g"><span class="l-zh">按场地</span><span class="l-en">By location</span></h4>
     <ul class="bd-rows"><li><div class="bd-nm"><b><span class="l-zh">机场：用 Long Island MacArthur Airport 代拍 JFK</span><span class="l-en">Airport: Long Island MacArthur Airport standing in for JFK</span></b><small><span class="l-zh">故事里仍是 JFK。MacArthur 在长岛 Ronkonkoma（Islip 镇），是 NYU 预审过的场地，预计比在 JFK 实拍便宜；JFK 需要港务局许可和保险</span><span class="l-en">In the story it’s still JFK. MacArthur, in Ronkonkoma, Long Island (Town of Islip), is NYU pre-vetted and likely cheaper than shooting at JFK, which needs a Port Authority permit and insurance</span></small></div><span class="bd-days once"><i><span class="l-zh">一次性</span><span class="l-en">One-off</span></i></span><div class="bd-r"><span class="bd-w" aria-label="2 of 4"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span></div></li><li><div class="bd-nm"><b><span class="l-zh">律师事务所</span><span class="l-en">Law office</span></b><small><span class="l-zh">很可能要付场地费</span><span class="l-en">Likely a location fee</span></small></div><span class="bd-days once"><i><span class="l-zh">一次性</span><span class="l-en">One-off</span></i></span><div class="bd-r"><span class="bd-w" aria-label="2 of 4"><i class="on"></i><i class="on"></i><i class=""></i><i class=""></i></span><em class="bd-tag q"><span class="l-zh">可能产生</span><span class="l-en">Maybe</span></em></div></li><li><div class="bd-nm"><b><span class="l-zh">加油站</span><span class="l-en">Gas station</span></b><small><span class="l-zh">有可能要付场地费</span><span class="l-en">Possibly a location fee</span></small></div><span class="bd-days once"><i><span class="l-zh">一次性</span><span class="l-en">One-off</span></i></span><div class="bd-r"><span class="bd-w" aria-label="1 of 4"><i class="on"></i><i class=""></i><i class=""></i><i class=""></i></span><em class="bd-tag q"><span class="l-zh">可能产生</span><span class="l-en">Maybe</span></em></div></li></ul>
     <div class="bd-open">
@@ -1412,8 +1419,9 @@ main { container: lb / inline-size; }
   </section>
 
   <section class="block" id="fund-timeline" data-nav>
-    <div class="head"><h3><span class="l-zh">时间线</span><span class="l-en">Timeline</span></h3><span class="eyebrow"><span class="l-zh">2026.11 至 2027 秋</span><span class="l-en">Nov 2026 to fall 2027</span></span></div>
-    <ol class="fd-time"><li><time><span class="l-zh">2026.11</span><span class="l-en">Nov 2026</span></time><h4><span class="l-zh">整理物料</span><span class="l-en">Core assets</span></h4><p><span class="l-zh">统一的中英文资料：logline、梗概、pitch deck、海报、60 至 90 秒 pitch 视频</span><span class="l-en">One bilingual package: logline, synopsis, pitch deck, poster, a 60–90s pitch video</span></p></li><li><time><span class="l-zh">2026.11 – 12</span><span class="l-en">Nov – Dec 2026</span></time><h4><span class="l-zh">社区伙伴</span><span class="l-en">Community partners</span></h4><p><span class="l-zh">在基金截止前拿到 2 至 3 封支持信和一个放映场地</span><span class="l-en">2–3 support letters and a screening venue before grant deadlines</span></p></li><li><time><span class="l-zh">2026.11 – 2027.01</span><span class="l-en">Nov 2026 – Jan 2027</span></time><h4><span class="l-zh">基金与财务赞助</span><span class="l-en">Grants and sponsor</span></h4><p><span class="l-zh">提交三项基金申请，确定财务赞助方，准备一月的申请</span><span class="l-en">Submit three grants, settle the fiscal sponsor, prepare January applications</span></p></li><li><time><span class="l-zh">2026.12 – 2027.02</span><span class="l-en">Dec 2026 – Feb 2027</span></time><h4><span class="l-zh">积累观众</span><span class="l-en">Build an audience</span></h4><p><span class="l-zh">小红书、Instagram、微信群每周更新 2 至 3 次，保护真实司机的隐私</span><span class="l-en">Post 2–3 times a week on Xiaohongshu, Instagram and WeChat, protecting real drivers’ privacy</span></p></li><li><time><span class="l-zh">2027.01 – 02</span><span class="l-en">Jan – Feb 2027</span></time><h4><span class="l-zh">众筹</span><span class="l-en">Crowdfunding</span></h4><p><span class="l-zh">30 天 Seed&amp;Spark，在法拉盛办启动活动</span><span class="l-en">A 30-day Seed&amp;Spark campaign with a kickoff in Flushing</span></p></li><li class="shoot"><time><span class="l-zh">2027.03</span><span class="l-en">Mar 2027</span></time><h4><span class="l-zh">拍摄</span><span class="l-en">Shoot</span></h4><p><span class="l-zh">花絮更新给支持者；未经家长同意不发布儿童演员的影像</span><span class="l-en">Behind-the-scenes updates; no images of the child actor without parental consent</span></p></li><li><time><span class="l-zh">2027.04 – 秋</span><span class="l-en">Apr – Fall 2027</span></time><h4><span class="l-zh">后期与首映</span><span class="l-en">Post and premiere</span></h4><p><span class="l-zh">影展投递，在法拉盛办免费双语社区放映和映后交流</span><span class="l-en">Festival run and a free bilingual community screening with Q&amp;A in Flushing</span></p></li></ol>
+    <div class="head"><h3><span class="l-zh">时间线</span><span class="l-en">Timeline</span></h3><span class="eyebrow"><span class="l-zh">按类别 · 2026.11 至 2027 秋</span><span class="l-en">By channel · Nov 2026 to fall 2027</span></span></div>
+    <div class="ft-legend"><span><i class="k pt"></i><span class="l-zh">截止或节点</span><span class="l-en">Deadline or milestone</span></span><span><i class="k run"></i><span class="l-zh">持续进行</span><span class="l-en">Ongoing</span></span><span><i class="k wait"></i><span class="l-zh">等待或待定</span><span class="l-en">Waiting or TBC</span></span></div>
+    <div class="ft-scroll"><div class="ft"><div class="ft-row ft-head"><span></span><ol><li><span class="l-zh">11月</span><span class="l-en">Nov</span></li><li><span class="l-zh">12月</span><span class="l-en">Dec</span></li><li><span class="l-zh">2027.1月</span><span class="l-en">Jan 2027</span></li><li><span class="l-zh">2月</span><span class="l-en">Feb</span></li><li class="shoot"><span class="l-zh">3月 · 拍摄</span><span class="l-en">Mar · Shoot</span></li><li><span class="l-zh">4月 至 秋</span><span class="l-en">Apr – Fall</span></li></ol></div><div class="ft-row"><h4><i>A</i><span class="l-zh">基金</span><span class="l-en">Grants</span></h4><div class="ft-cell"><ol class="ft-items"><li class="ft-i pt" style="--s:1;--e:2"><b>NYFA Queens Arts Fund</b><span><span class="l-zh">截止 11.17 · $7,500</span><span class="l-en">Due Nov 17 · $7,500</span></span></li><li class="ft-i pt" style="--s:1;--e:2"><b>Carole Dorothy Joyce</b><span><span class="l-zh">截止 11.30 · $3,000</span><span class="l-en">Due Nov 30 · $3,000</span></span></li><li class="ft-i pt" style="--s:2;--e:3"><b>Artists in Queens</b><span><span class="l-zh">截止 12.01 · $5,000</span><span class="l-en">Due Dec 1 · $5,000</span></span></li><li class="ft-i wait" style="--s:2;--e:6"><b><span class="l-zh">Artists in Queens 等结果</span><span class="l-en">Artists in Queens decision</span></b><span><span class="l-zh">2027 年 3 月公布</span><span class="l-en">Announced Mar 2027</span></span></li><li class="ft-i pt" style="--s:3;--e:4"><b>Roy W. Dean</b><span><span class="l-zh">1.1 开放 · $3,000</span><span class="l-en">Opens Jan 1 · $3,000</span></span></li><li class="ft-i wait" style="--s:3;--e:5"><b>Shawn Regruto</b><span><span class="l-zh">下一轮，日期待查 · $10,000</span><span class="l-en">Next cycle, dates TBC · $10,000</span></span></li></ol></div></div><div class="ft-row"><h4><i>B</i><span class="l-zh">NYU 校内</span><span class="l-en">NYU awards</span></h4><div class="ft-cell"><ol class="ft-items"><li class="ft-i pt" style="--s:1;--e:2"><b>Tisch Pro Funds</b><span><span class="l-zh">截止 11.22</span><span class="l-en">Due Nov 22</span></span></li><li class="ft-i pt" style="--s:2;--e:3"><b>UGFTV Financial Allotment</b><span><span class="l-zh">秋季学期末公布</span><span class="l-en">Announced end of fall term</span></span></li><li class="ft-i pt" style="--s:3;--e:4"><b>Jeff Baena Production Award</b><span><span class="l-zh">截止 1.08 · 分享 $15,000</span><span class="l-en">Due Jan 8 · share of $15,000</span></span></li><li class="ft-i pt" style="--s:6;--e:7"><b><span class="l-zh">UGFTV 后期制作奖</span><span class="l-en">UGFTV Post-Production Awards</span></b><span><span class="l-zh">拍完后，春季轮</span><span class="l-en">Spring round, after the shoot</span></span></li></ol><p class="ft-foot"><span class="l-zh">日期待定：Advanced 课程 $2,000 制作奖（需包含气候议题元素）。</span><span class="l-en">Date TBD: the Advanced $2,000 Production Award (needs a climate element).</span></p></div></div><div class="ft-row"><h4><i>C</i><span class="l-zh">财务赞助方</span><span class="l-en">Fiscal sponsor</span></h4><div class="ft-cell"><ol class="ft-items"><li class="ft-i pt" style="--s:1;--e:2"><b>Fractured Atlas</b><span><span class="l-zh">11.11 已申请 · 约 11.21 出结果</span><span class="l-en">Applied Nov 11 · decision ~Nov 21</span></span></li><li class="ft-i run soft" style="--s:2;--e:7"><b><span class="l-zh">通过赞助方接收可抵税捐款</span><span class="l-en">Tax-deductible giving through the sponsor</span></b><span><span class="l-zh">基金与众筹都经由它</span><span class="l-en">Grants and crowdfunding run through it</span></span></li></ol><p class="ft-foot"><span class="l-zh">备选：Asian CineVision。</span><span class="l-en">Backup: Asian CineVision.</span></p></div></div><div class="ft-row"><h4><i>D</i><span class="l-zh">社区伙伴与赞助</span><span class="l-en">Community</span></h4><div class="ft-cell"><ol class="ft-items"><li class="ft-i pt" style="--s:1;--e:2"><b><span class="l-zh">CPC 支持信</span><span class="l-en">CPC support letter</span></b><span><span class="l-zh">11.17 前，供 Queens Arts Fund</span><span class="l-en">By Nov 17, for the Queens Arts Fund</span></span></li><li class="ft-i run" style="--s:2;--e:3"><b><span class="l-zh">跟进五家机构</span><span class="l-en">Follow up five partners</span></b><span><span class="l-zh">Flushing Town Hall、MOCA、Queens Museum、AAFE、A4</span><span class="l-en">Flushing Town Hall, MOCA, Queens Museum, AAFE, A4</span></span></li><li class="ft-i run soft" style="--s:3;--e:6"><b><span class="l-zh">本地赞助与实物支持</span><span class="l-en">Local sponsors, in-kind</span></b><span><span class="l-zh">福建同乡会；法拉盛商家提供场地、餐饮</span><span class="l-en">Fujian associations; Flushing businesses for locations and meals</span></span></li></ol></div></div><div class="ft-row"><h4><i>E</i><span class="l-zh">众筹</span><span class="l-en">Crowdfunding</span></h4><div class="ft-cell"><ol class="ft-items"><li class="ft-i run soft" style="--s:2;--e:5"><b><span class="l-zh">积累观众</span><span class="l-en">Build an audience</span></b><span><span class="l-zh">小红书、Instagram、微信，每周 2 至 3 次</span><span class="l-en">Xiaohongshu, Instagram, WeChat, 2–3 posts a week</span></span></li><li class="ft-i run" style="--s:3;--e:5"><b>Seed&amp;Spark</b><span><span class="l-zh">30 天，目标 = $15,000 减去基金</span><span class="l-en">30 days; goal = $15,000 minus grants</span></span></li></ol></div></div><div class="ft-row"><h4><i>F</i><span class="l-zh">放映</span><span class="l-en">Screenings</span></h4><div class="ft-cell"><ol class="ft-items"><li class="ft-i pt" style="--s:6;--e:7"><b>Queens World Film Festival</b><span><span class="l-zh">2027 年 10 至 11 月，皇后区首映</span><span class="l-en">Oct–Nov 2027, Queens premiere</span></span></li><li class="ft-i pt" style="--s:6;--e:7"><b><span class="l-zh">法拉盛社区放映</span><span class="l-en">Flushing community screening</span></b><span><span class="l-zh">免费、双语、映后交流</span><span class="l-en">Free, bilingual, with Q&amp;A</span></span></li><li class="ft-i pt" style="--s:6;--e:7"><b>AAIFF</b><span><span class="l-zh">纽约亚美影展</span><span class="l-en">NYC Asian American festival</span></span></li></ol></div></div></div></div>
   </section>
 
   <footer class="end"><span>肯尼迪，肯尼迪 · JFK, JFK</span><span><span class="l-zh">剧本第七稿 · 2026.11.06</span><span class="l-en">Seventh draft · Nov 6, 2026</span></span></footer>
@@ -1785,8 +1793,8 @@ addEventListener("scroll", spy, { passive: true });
     raf = 0;
     const max = root.scrollHeight - innerHeight, p = max > 0 ? Math.min(1, Math.max(0, scrollY / max)) : 0;
     const m = Math.round(START + p * (END - START)), d = word(m);
-    t.textContent = String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
-    w.innerHTML = BI(DAY[d][0], DAY[d][1]);
+    if (t) t.textContent = String(Math.floor(m / 60)).padStart(2, "0") + ":" + String(m % 60).padStart(2, "0");
+    if (w) w.innerHTML = BI(DAY[d][0], DAY[d][1]);
     root.style.setProperty("--p", p.toFixed(4));
     root.style.setProperty("--clock-c", `var(--d-${d})`);
     root.style.setProperty("--sx", (90 - p * 80).toFixed(1) + "%");
